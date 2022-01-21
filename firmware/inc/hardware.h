@@ -2,19 +2,19 @@
 #ifndef __HARDWARE_H
 #define __HARDWARE_H
 
+#include "stm32f4xx_hal.h"
+
 #ifdef __cplusplus
  extern "C" {
 #endif
 
-#include "stm32f4xx_hal.h"
-
-#define I2C_TIMEOUT_MAX   0x3000 /*<! The value of the maximal timeout for I2C waiting loops */
+#define I2C_TIMEOUT_MAX   0x3000
 
 #define I2C1_SPEED        800000
 
 #define I2C1_SCL_PORT	  GPIOB
 #define I2C1_SDA_PORT	  GPIOB
-#define I2C1_SCL_PIN	  GPIO_PIN_6
+#define I2C1_SCL_PIN	  GPIO_PIN_8
 #define I2C1_SDA_PIN	  GPIO_PIN_7
 
 #define USR_BTN_PORT	  GPIOA
@@ -44,6 +44,7 @@ uint8_t   I2Cx_ReadData(I2C_HandleTypeDef* i2c, uint8_t Addr, uint8_t Reg);
 uint16_t  I2Cx_ReadData16(I2C_HandleTypeDef* i2c, uint8_t Addr, uint16_t Reg);
 uint8_t   I2Cx_ReadBuffer(I2C_HandleTypeDef* i2c, uint8_t Addr, uint8_t Reg, uint8_t *pBuffer, uint16_t Length);
 uint8_t   I2Cx_ReadBuffer16(I2C_HandleTypeDef* i2c, uint8_t Addr, uint16_t Reg, uint16_t *pBuffer, uint16_t Length);
+uint8_t	  I2Cx_ScanBus(I2C_HandleTypeDef* i2c, uint8_t* foundAddresses);
 
 #ifdef __cplusplus
 }

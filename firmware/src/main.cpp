@@ -4,6 +4,7 @@
 #include "main.h"
 #include "hardware.h"
 #include "thermal.h"
+#include <string.h>
 
 osThreadId LEDThread1Handle, LEDThread2Handle, IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle;
 
@@ -22,25 +23,38 @@ static void IrSensor_Thread(void const *argument);
 static void ReadKeys_Thread(void const *argument);
 static void DrawTask_Thread(void const *argument);
 
+void scanI2C()
+{
+	uint8_t foundDevices[16] = {};
+	const uint8_t found = I2Cx_ScanBus(&i2c1, foundDevices);
+	for(uint8_t i = 0; i < found; i++)
+	{
+		GPIO_WritePin(USR_LED_PORT, USR_LED4_PIN, 1);
+		HAL_Delay(1000);
+		GPIO_WritePin(USR_LED_PORT, USR_LED4_PIN, 0);
+		HAL_Delay(1000);
+	}
+}
 
 int main(void)
 {
-  /* STM32F4xx HAL library initialization:
-       - Configure the Flash prefetch, instruction and Data caches
-       - Configure the Systick to generate an interrupt each 1 msec
-       - Set NVIC Group Priority to 4
-       - Global MSP (MCU Support Package) initialization
-     */
 	HAL_Init();
 
 	Clock_Init();
 	GPIO_Init();
 	I2C_Init();
 
+	// scanI2C();
+
+	// GPIO_WritePin(GPIOD, GPIO_PIN_4, 1);// PD4 -> UP
+	// GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);// PA9 -> UP
+
+	isSensorReady = irSensor.init(&i2c1, ALTERNATE_COLOR_SCHEME);
+
 	osThreadDef(LED1, LED_Thread1, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
 	osThreadDef(LED2, LED_Thread2, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
 	osThreadDef(READ_KEYS, ReadKeys_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-	osThreadDef(IR_SENSOR, IrSensor_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE + 2048);
+	osThreadDef(IR_SENSOR, IrSensor_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE + 1024);
 	osThreadDef(DRAW_TASK, DrawTask_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
   
 	LEDThread1Handle = osThreadCreate(osThread(LED1), NULL);
@@ -64,10 +78,8 @@ static void LED_Thread1(void const *argument)
   
 	for (;;)
 	{
-		GPIO_WritePin(USR_LED_PORT, USR_LED1_PIN, 1);
-		osDelay(1000);
-		GPIO_WritePin(USR_LED_PORT, USR_LED1_PIN, 0);
-		osDelay(1000);
+		GPIO_WritePin(USR_LED_PORT, USR_LED1_PIN, isSensorReadDone);
+		osDelay(500);
 	}
 }
 

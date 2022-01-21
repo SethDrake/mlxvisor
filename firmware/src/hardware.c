@@ -1,4 +1,5 @@
-﻿#include <hardware.h>
+﻿
+#include <hardware.h>
 
 I2C_HandleTypeDef i2c1;
 
@@ -8,7 +9,6 @@ void Clock_Init()
 {
 	RCC_ClkInitTypeDef RCC_ClkInitStruct;
 	RCC_OscInitTypeDef RCC_OscInitStruct;
-	RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct;
   
 	/* Enable Power Control clock */
 	__HAL_RCC_PWR_CLK_ENABLE();
@@ -23,10 +23,10 @@ void Clock_Init()
 	RCC_OscInitStruct.HSEState = RCC_HSE_ON;
 	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
 	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-	RCC_OscInitStruct.PLL.PLLM = 4;
-	RCC_OscInitStruct.PLL.PLLN = 240;
-	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-	RCC_OscInitStruct.PLL.PLLQ = 10;
+	RCC_OscInitStruct.PLL.PLLM = 4; //8;
+	RCC_OscInitStruct.PLL.PLLN = 240; //336;
+	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; //RCC_PLLP_DIV2;
+	RCC_OscInitStruct.PLL.PLLQ = 10; //7;
 	HAL_RCC_OscConfig(&RCC_OscInitStruct);
  
 	/* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 
@@ -38,7 +38,12 @@ void Clock_Init()
 	RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;  
 	HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5);
 
-	HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct);
+	/* STM32F405x/407x/415x/417x Revision Z devices: prefetch is supported  */
+	if (HAL_GetREVID() == 0x1001)
+	{
+		/* Enable the Flash prefetch */
+		__HAL_FLASH_PREFETCH_BUFFER_ENABLE();
+	}
 }
 
 void GPIO_Init()
@@ -68,6 +73,12 @@ void GPIO_Init()
 	HAL_GPIO_Init(USR_LED_PORT, &GPIO_InitStruct);
 	GPIO_InitStruct.Pin = USR_LED4_PIN; //LED4
 	HAL_GPIO_Init(USR_LED_PORT, &GPIO_InitStruct);
+
+	// GPIO_InitStruct.Pin = GPIO_PIN_4; //PD4
+	// HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+	//
+	// GPIO_InitStruct.Pin = GPIO_PIN_9; //PA9
+	// HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 	/* Configure I2C Pins */
 	GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
@@ -105,7 +116,7 @@ void I2C_Init()
 
 void GPIO_WritePin(GPIO_TypeDef* port, uint16_t pin, uint8_t state)
 {
-	HAL_GPIO_WritePin(port, pin, (GPIO_PinState)state); 
+	HAL_GPIO_WritePin(port, pin, state); 
 }
 
 void GPIO_TogglePin(GPIO_TypeDef* port, uint16_t pin)
@@ -259,6 +270,24 @@ uint8_t I2Cx_ReadBuffer16(I2C_HandleTypeDef* i2c, uint8_t Addr, uint16_t Reg, ui
 
 		return 1;
 	}
+}
+
+uint8_t I2Cx_ScanBus(I2C_HandleTypeDef* i2c, uint8_t* foundAddresses)
+{
+	uint8_t size = 0;
+
+	for (uint8_t i = 1; i < 128; i++)
+	{
+		const uint8_t devAddress = (i << 1);
+		const HAL_StatusTypeDef ret = HAL_I2C_IsDeviceReady(&i2c1, devAddress, 3, 5);
+		if (ret == HAL_OK)
+		{
+			foundAddresses[size] = i;
+			size++;
+		}
+	}
+
+	return size;
 }
 
 static void I2Cx_Error()
