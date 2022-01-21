@@ -878,6 +878,15 @@
     <ClInclude Include="inc\hardware.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\i2c.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\spi.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="inc\ili9341.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\thermal.cpp">
@@ -890,6 +899,15 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="src\stm32f4xx_it.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\i2c.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\spi.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ili9341.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,9 +1,7 @@
-﻿
-#include <hardware.h>
+﻿#include <hardware.h>
 
 I2C_HandleTypeDef i2c1;
-
-static void	I2Cx_Error(void);
+SPI_HandleTypeDef spi1;
 
 void Clock_Init()
 {
@@ -55,12 +53,46 @@ void GPIO_Init()
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOD_CLK_ENABLE();
 
+	/* Configure I2C Pins */
+	GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
+	GPIO_InitStruct.Pull      = GPIO_NOPULL;
+	GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+	GPIO_InitStruct.Pin       = I2C1_SCL_PIN; //SCL
+	HAL_GPIO_Init(I2C1_SCL_PORT, &GPIO_InitStruct); 
+	GPIO_InitStruct.Pin		  = I2C1_SDA_PIN; //SDA
+	HAL_GPIO_Init(I2C1_SDA_PORT, &GPIO_InitStruct);
+
+	/* Configure SPI Pins */
+	GPIO_InitStruct.Mode   = GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull   = GPIO_PULLDOWN;
+	GPIO_InitStruct.Speed  = GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+	GPIO_InitStruct.Pin    = SPI1_MOSI_PIN; //MOSI
+	HAL_GPIO_Init(SPI1_MOSI_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin    = SPI1_MISO_PIN; //MISO
+	HAL_GPIO_Init(SPI1_MISO_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin    = SPI1_SCK_PIN; //SCK
+	HAL_GPIO_Init(SPI1_SCK_PORT, &GPIO_InitStruct);
+
 	/* Configure the Common GPIOs */
+	/* Input */
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 	GPIO_InitStruct.Pin = USR_BTN_PIN; //BTN
 	HAL_GPIO_Init(USR_BTN_PORT, &GPIO_InitStruct);
+
+	/* Output */
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+	GPIO_InitStruct.Pin = LCD_CS_PIN; //LCD CS
+	HAL_GPIO_Init(LCD_CS_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin = LCD_DC_PIN; //LCD DC
+	HAL_GPIO_Init(LCD_DC_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin = LCD_RESET_PIN; //LCD RESET
+	HAL_GPIO_Init(LCD_RESET_PORT, &GPIO_InitStruct);
 	
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -79,16 +111,6 @@ void GPIO_Init()
 	//
 	// GPIO_InitStruct.Pin = GPIO_PIN_9; //PA9
 	// HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-	/* Configure I2C Pins */
-	GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
-	GPIO_InitStruct.Pull      = GPIO_NOPULL;
-	GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
-	GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-	GPIO_InitStruct.Pin       = I2C1_SCL_PIN; //SCL
-	HAL_GPIO_Init(I2C1_SCL_PORT, &GPIO_InitStruct); 
-	GPIO_InitStruct.Pin		  = I2C1_SDA_PIN; //SDA
-	HAL_GPIO_Init(I2C1_SDA_PORT, &GPIO_InitStruct);
 }
 
 void I2C_Init()
@@ -114,6 +136,31 @@ void I2C_Init()
 	}
 }
 
+void SPI_Init()
+{
+	if (HAL_SPI_GetState(&spi1) == HAL_SPI_STATE_RESET)
+	{
+		/* SPI configuration -----------------------------------------------------*/
+		spi1.Instance = SPI1;
+		spi1.Init.BaudRatePrescaler = SPI1_PRESCALER;
+		spi1.Init.Direction      = SPI_DIRECTION_2LINES;
+		spi1.Init.CLKPhase       = SPI_PHASE_1EDGE;
+		spi1.Init.CLKPolarity    = SPI_POLARITY_LOW;
+		spi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLED;
+		spi1.Init.CRCPolynomial  = 7;
+		spi1.Init.DataSize       = SPI_DATASIZE_8BIT;
+		spi1.Init.FirstBit       = SPI_FIRSTBIT_MSB;
+		spi1.Init.NSS            = SPI_NSS_SOFT;
+		spi1.Init.TIMode         = SPI_TIMODE_DISABLED;
+		spi1.Init.Mode           = SPI_MODE_MASTER;
+
+		/* Enable SPI1 clock */
+		__HAL_RCC_SPI1_CLK_ENABLE();
+
+		HAL_SPI_Init(&spi1);
+	} 
+}
+
 void GPIO_WritePin(GPIO_TypeDef* port, uint16_t pin, uint8_t state)
 {
 	HAL_GPIO_WritePin(port, pin, state); 
@@ -129,172 +176,20 @@ uint8_t GPIO_ReadPin(GPIO_TypeDef* port, uint16_t pin)
 	return HAL_GPIO_ReadPin(port, pin);
 }
 
-void I2Cx_WriteData(I2C_HandleTypeDef* i2c, uint8_t Addr, uint8_t Reg, uint8_t Value)
-{
-	HAL_StatusTypeDef status = HAL_OK;
-  
-	status = HAL_I2C_Mem_Write(i2c, Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, &Value, 1, I2C_TIMEOUT_MAX); 
-  
-	/* Check the communication status */
-	if (status != HAL_OK)
-	{
-		/* Re-Initialize the BUS */
-		I2Cx_Error();
-	}        
-}
-
-void I2Cx_WriteData16(I2C_HandleTypeDef* i2c, uint8_t Addr, uint16_t Reg, uint16_t Value)
-{
-	HAL_StatusTypeDef status = HAL_OK;
-	uint16_t val = __builtin_bswap16(Value);
-  
-	status = HAL_I2C_Mem_Write(i2c, Addr, Reg, I2C_MEMADD_SIZE_16BIT, (uint8_t*)&val, 2, I2C_TIMEOUT_MAX); 
-  
-	/* Check the communication status */
-	if (status != HAL_OK)
-	{
-		/* Re-Initialize the BUS */
-		I2Cx_Error();
-	}        
-}
-
-void I2Cx_WriteBuffer(I2C_HandleTypeDef* i2c, uint8_t Addr, uint8_t Reg, uint8_t *pBuffer, uint16_t Length)
-{
-	HAL_StatusTypeDef status = HAL_OK;
-  
-	status = HAL_I2C_Mem_Write(i2c, Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, pBuffer, Length, I2C_TIMEOUT_MAX); 
-
-	/* Check the communication status */
-	if (status != HAL_OK)
-	{
-		/* Re-Initialize the BUS */
-		I2Cx_Error();
-	}        
-}
-
-void I2Cx_WriteBuffer16(I2C_HandleTypeDef* i2c, uint8_t Addr, uint16_t Reg, uint16_t *pBuffer, uint16_t Length)
-{
-	HAL_StatusTypeDef status = HAL_OK;
-
-	// swap bytes
-	for (uint16_t i = 0; i < Length / 2; i++)
-	{
-		pBuffer[i] = __builtin_bswap16(pBuffer[i]);
-	}	
-    
-	status = HAL_I2C_Mem_Write(i2c, Addr, Reg, I2C_MEMADD_SIZE_16BIT, (uint8_t*)pBuffer, Length, I2C_TIMEOUT_MAX); 
-
-	/* Check the communication status */
-	if (status != HAL_OK)
-	{
-		/* Re-Initialize the BUS */
-		I2Cx_Error();
-	}        
-}
-
-uint8_t I2Cx_ReadData(I2C_HandleTypeDef* i2c, uint8_t Addr, uint8_t Reg)
-{
-	HAL_StatusTypeDef status = HAL_OK;
-	uint8_t value = 0;
-  
-	status = HAL_I2C_Mem_Read(i2c, Addr, Reg, I2C_MEMADD_SIZE_8BIT, &value, 1, I2C_TIMEOUT_MAX);
- 
-	/* Check the communication status */
-	if (status != HAL_OK)
-	{
-		/* Re-Initialize the BUS */
-		I2Cx_Error();
-  
-	}
-	return value;
-}
-
-uint16_t I2Cx_ReadData16(I2C_HandleTypeDef* i2c, uint8_t Addr, uint16_t Reg)
-{
-	HAL_StatusTypeDef status = HAL_OK;
-	uint16_t value = 0;
-  
-	status = HAL_I2C_Mem_Read(i2c, Addr, Reg, I2C_MEMADD_SIZE_16BIT, (uint8_t*)&value, 2, I2C_TIMEOUT_MAX);
- 
-	/* Check the communication status */
-	if (status != HAL_OK)
-	{
-		/* Re-Initialize the BUS */
-		I2Cx_Error();
-  
-	}
-	return __builtin_bswap16(value);
-}
-
-uint8_t I2Cx_ReadBuffer(I2C_HandleTypeDef* i2c, uint8_t Addr, uint8_t Reg, uint8_t *pBuffer, uint16_t Length)
-{
-	HAL_StatusTypeDef status = HAL_OK;
-
-	status = HAL_I2C_Mem_Read(i2c, Addr, (uint16_t)Reg, I2C_MEMADD_SIZE_8BIT, pBuffer, Length, I2C_TIMEOUT_MAX);
-  
-	/* Check the communication status */
-	if (status == HAL_OK)
-	{
-		return 0;
-	}
-	else
-	{
-		/* Re-Initialize the BUS */
-		I2Cx_Error();
-
-		return 1;
-	}
-}
-
-uint8_t I2Cx_ReadBuffer16(I2C_HandleTypeDef* i2c, uint8_t Addr, uint16_t Reg, uint16_t *pBuffer, uint16_t Length)
-{
-	HAL_StatusTypeDef status = HAL_OK;
-
-	status = HAL_I2C_Mem_Read(i2c, Addr, Reg, I2C_MEMADD_SIZE_16BIT, (uint8_t*)pBuffer, Length, I2C_TIMEOUT_MAX);
-  
-	/* Check the communication status */
-	if (status == HAL_OK)
-	{
-		// swap bytes
-		for (uint16_t i = 0; i < Length / 2; i++)
-		{
-			pBuffer[i] = __builtin_bswap16(pBuffer[i]);
-		}	
-
-		return 0;
-	}
-	else
-	{
-		/* Re-Initialize the BUS */
-		I2Cx_Error();
-
-		return 1;
-	}
-}
-
-uint8_t I2Cx_ScanBus(I2C_HandleTypeDef* i2c, uint8_t* foundAddresses)
-{
-	uint8_t size = 0;
-
-	for (uint8_t i = 1; i < 128; i++)
-	{
-		const uint8_t devAddress = (i << 1);
-		const HAL_StatusTypeDef ret = HAL_I2C_IsDeviceReady(&i2c1, devAddress, 3, 5);
-		if (ret == HAL_OK)
-		{
-			foundAddresses[size] = i;
-			size++;
-		}
-	}
-
-	return size;
-}
-
-static void I2Cx_Error()
+void I2Cx_Error(void)
 {
 	/* De-initialize the I2C communication BUS */
 	HAL_I2C_DeInit(&i2c1);
   
 	/* Re-Initialize the I2C communication BUS */
 	I2C_Init();
+}
+
+void SPIx_Error(void)
+{
+	/* De-initialize the SPI communication BUS */
+	HAL_SPI_DeInit(&spi1);
+  
+	/* Re-Initialize the SPI communication BUS */
+	SPI_Init();
 }

@@ -3,12 +3,15 @@
 #include <../CMSIS_RTOS/cmsis_os.h>
 #include "main.h"
 #include "hardware.h"
+#include "i2c.h"
 #include "thermal.h"
+#include "ili9341.h"
 #include <string.h>
 
 osThreadId LEDThread1Handle, LEDThread2Handle, IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle;
 
 IRSensor irSensor;
+ILI9341 display;
 
 volatile uint8_t vis_mode = 1;
 volatile bool isSensorReady = false;
@@ -43,11 +46,15 @@ int main(void)
 	Clock_Init();
 	GPIO_Init();
 	I2C_Init();
+	SPI_Init();
 
 	// scanI2C();
 
 	// GPIO_WritePin(GPIOD, GPIO_PIN_4, 1);// PD4 -> UP
 	// GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);// PA9 -> UP
+
+	display.init(&spi1);
+	uint32_t displayId = display.readID();
 
 	isSensorReady = irSensor.init(&i2c1, ALTERNATE_COLOR_SCHEME);
 

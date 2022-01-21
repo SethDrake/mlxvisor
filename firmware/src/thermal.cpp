@@ -1,6 +1,5 @@
 ﻿#include <thermal.h>
-#include <hardware.h>
-#include "FreeRTOS.h"
+#include <i2c.h>
 #include <math.h>
 
 IRSensor::IRSensor()
@@ -32,9 +31,9 @@ bool IRSensor::init(I2C_HandleTypeDef* i2c, const uint8_t* colorScheme)
     setRefreshRate(MLX90640_16_HZ);
     setMlxMode(MLX90640_CHESS);
 
-    mlx90640_refreshrate refreshRate = readRefreshRate();
-    mlx90640_resolution_t adcResolution = readADCResolution();
-    mlx90640_mode_t mode = readMlxMode();
+    // mlx90640_refreshrate refreshRate = readRefreshRate();
+    // mlx90640_resolution_t adcResolution = readADCResolution();
+    // mlx90640_mode_t mode = readMlxMode();
 
 	readMlxEE();
     convertMlxEEToParams();
