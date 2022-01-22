@@ -9,7 +9,7 @@
 #include "cpu_utils.h"
 
 uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE];
-// uint16_t gradientFb[10 * 24 * THERMAL_SCALE];
+uint16_t gradientFb[10 * 24 * THERMAL_SCALE];
 
 osThreadId LEDThread1Handle, LEDThread2Handle, IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle;
 
@@ -42,6 +42,7 @@ int main(void)
 	display.init(&spi1);
 	display.clear(BLACK);
 	memset(framebuffer, 0x10, sizeof(framebuffer));
+	memset(gradientFb, 0x10, sizeof(gradientFb));
 	
 	isSensorReady = irSensor.init(&i2c1, ALTERNATE_COLOR_SCHEME);
 
@@ -98,6 +99,8 @@ static void LED_Thread2(void const *argument)
 static void IrSensor_Thread(void const *argument)
 {
 	(void) argument;
+	uint8_t oneTimeOpDone = 0;
+
 	for (;;)
 	{
 		if (isSensorReady) {
@@ -116,6 +119,12 @@ static void IrSensor_Thread(void const *argument)
 			irSensor.readImage(0.95f); // second subpage
 			irSensor.findMinAndMaxTemp();
 			irSensor.visualizeImage(framebuffer, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, vis_mode);
+
+			if (!oneTimeOpDone) {
+				irSensor.drawGradient(gradientFb, 10, 24 * THERMAL_SCALE);
+				oneTimeOpDone = 1;
+			}
+
 			const TickType_t xTime2 = xTaskGetTickCount();
 			xSensorTime = xTime2 - xTime1;
 			isSensorReadDone = true;
@@ -126,14 +135,16 @@ static void IrSensor_Thread(void const *argument)
 
 static void DrawTask_Thread(void const *argument)
 {
+	(void) argument;
 	uint8_t i = 0;
 	uint8_t maxi = 4;
-	(void) argument;
+
 	for (;;)
 	{
 		const uint16_t cpuUsage = osGetCPUUsage();
 		const TickType_t xTime1 = xTaskGetTickCount();
-		display.bufferDraw(0, 71, 224, 168, framebuffer);
+		display.bufferDraw(0, 71, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, framebuffer);
+		display.bufferDraw(224, 71, 10, 24 * THERMAL_SCALE, gradientFb);
 		if (i >= maxi) {
 			display.printf(0, 0, WHITE, BLACK, "Frame:%04ums  Scan:%04ums  CPU:%02u%% VM:%01u", xDrawTime, xSensorTime, cpuUsage, vis_mode);
 			i = 0;

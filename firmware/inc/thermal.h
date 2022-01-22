@@ -39,7 +39,7 @@ public:
 	uint16_t getColdDotIndex();
 	uint16_t temperatureToRGB565(float temperature, float minTemp, float maxTemp);
 	void visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint8_t method);
-	void drawGradient(uint8_t startX, uint8_t startY, uint8_t stopX, uint8_t stopY);
+	void drawGradient(uint16_t* fb, uint16_t sizeX, uint16_t sizeY);
 protected:
 	uint16_t rgb2color(uint8_t R, uint8_t G, uint8_t B);
 	uint8_t calculateRGB(uint8_t rgb1, uint8_t rgb2, float t1, float step, float t);

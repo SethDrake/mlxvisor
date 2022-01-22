@@ -1020,22 +1020,20 @@ uint16_t IRSensor::getColdDotIndex()
 	return this->coldDotIndex;
 }
 
-void IRSensor::drawGradient(const uint8_t startX, const uint8_t startY, const uint8_t stopX, const uint8_t stopY)
+void IRSensor::drawGradient(uint16_t* fb, uint16_t sizeX, uint16_t sizeY)
 {
-	const uint8_t height = stopY - startY;
-	const uint8_t width = stopX - startX;
-	const float diff = (maxTemp + minTempCorr - minTemp + maxTempCorr) / height;
-	uint16_t line[240];
-	for (uint8_t j = 0; j < height; j++)
+	const float diff = (maxTemp + minTempCorr - minTemp + maxTempCorr) / sizeY;
+	uint16_t line[sizeY];
+	for (uint8_t j = 0; j < sizeY; j++)
 	{
 		const float temp = minTemp + (diff * j);
 		line[j] = temperatureToRGB565(temp, minTemp + minTempCorr, maxTemp + maxTempCorr);	
 	}
 
-	for (uint8_t i = 0; i < width; i++)
+	volatile uint16_t *pSdramAddress = fb;
+	for (uint8_t i = 0; i < sizeX; i++)
 	{
-		volatile uint16_t *pSdramAddress = 0;//(uint16_t *)(this->fb_addr + (240 * (startX + i) + startY) * 2);
-		for (uint8_t j = 0; j < height; j++)
+		for (uint8_t j = 0; j < sizeY; j++)
 		{
 			*(volatile uint16_t *)pSdramAddress = line[j];	
 			pSdramAddress++;
