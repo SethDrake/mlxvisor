@@ -13,6 +13,7 @@ extern "C" {
 void			    SPIx_WriteData(SPI_HandleTypeDef* spi, uint8_t value);
 HAL_StatusTypeDef	SPIx_WriteData16(SPI_HandleTypeDef* spi, uint16_t value);
 void			    SPIx_WriteBuffer(SPI_HandleTypeDef* spi, uint8_t *pBuffer, uint16_t size);
+void			    SPIx_WriteBufferDMA(SPI_HandleTypeDef* spi, uint16_t *pBuffer, uint32_t size);
 uint8_t			    SPIx_ReadData(SPI_HandleTypeDef* spi);
 uint16_t		    SPIx_ReadData16(SPI_HandleTypeDef* spi);
 HAL_StatusTypeDef   SPIx_ReadBuffer(SPI_HandleTypeDef* spi, uint8_t *pBuffer, uint16_t size);

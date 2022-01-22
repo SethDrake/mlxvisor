@@ -24,6 +24,10 @@
 #define SPI1_SCK_PORT		GPIOF
 #define SPI1_SCK_PIN		GPIO_PIN_7
 
+#define SPI1_TX_DMA_CHL     DMA_CHANNEL_7
+#define SPI1_TX_DMA_STRM    DMA2_Stream6
+#define SPI1_TX_DMA_IRQ     DMA2_Stream6_IRQn
+
 #define LCD_CS_PORT			GPIOC
 #define LCD_CS_PIN			GPIO_PIN_2
 #define LCD_DC_PORT			GPIOD
@@ -46,6 +50,7 @@ void	Clock_Init(void);
 void	GPIO_Init(void);
 void	I2C_Init(void);
 void	SPI_Init(void);
+void	DMA_Init(void);
 
 void      GPIO_WritePin(GPIO_TypeDef* port, uint16_t pin, uint8_t state);
 void      GPIO_TogglePin(GPIO_TypeDef* port, uint16_t pin);

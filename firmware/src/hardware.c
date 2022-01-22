@@ -155,6 +155,38 @@ void SPI_Init()
 	} 
 }
 
+void DMA_Init()
+{
+	static DMA_HandleTypeDef hdma;
+
+	hdma.Instance                 = SPI1_TX_DMA_STRM;
+	hdma.Init.Channel             = SPI1_TX_DMA_CHL;
+	hdma.Init.Direction           = DMA_MEMORY_TO_PERIPH;
+	hdma.Init.PeriphInc           = DMA_PINC_DISABLE;
+	hdma.Init.MemInc              = DMA_MINC_ENABLE;
+	hdma.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
+	hdma.Init.MemDataAlignment    = DMA_PDATAALIGN_HALFWORD;
+	hdma.Init.Mode                = DMA_NORMAL;
+	hdma.Init.Priority            = DMA_PRIORITY_LOW;
+	hdma.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;         
+	hdma.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+	hdma.Init.MemBurst            = DMA_MBURST_INC4;
+	hdma.Init.PeriphBurst         = DMA_PBURST_INC4;
+
+	__HAL_RCC_DMA2_CLK_ENABLE();
+  
+	HAL_DMA_Init(&hdma);   
+  
+	/* Associate the initialized DMA handle to the the SPI handle */
+	__HAL_LINKDMA(&spi1, hdmatx, hdma);
+
+	HAL_NVIC_SetPriority(SPI1_TX_DMA_IRQ, 0, 1);
+	HAL_NVIC_EnableIRQ(SPI1_TX_DMA_IRQ);
+
+	HAL_NVIC_SetPriority(SPI1_IRQn, 0, 2);
+	HAL_NVIC_EnableIRQ(SPI1_IRQn);
+}
+
 void GPIO_WritePin(GPIO_TypeDef* port, uint16_t pin, uint8_t state)
 {
 	HAL_GPIO_WritePin(port, pin, state); 

@@ -130,6 +130,26 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief  This function handles DMA Tx interrupt request.
+  * @param  None
+  * @retval None  
+  */
+void DMA2_Stream6_IRQHandler(void)
+{
+	HAL_DMA_IRQHandler(spi1.hdmatx);
+}
+
+/**
+  * @brief  This function handles SPI interrupt request.
+  * @param  None
+  * @retval None
+  */
+void SPI1_IRQHandler(void)
+{
+	HAL_SPI_IRQHandler(&spi1);
+}
+
+/**
   * @brief  This function handles PPP interrupt request.
   * @param  None
   * @retval None

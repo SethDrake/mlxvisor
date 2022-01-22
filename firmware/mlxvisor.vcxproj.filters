@@ -871,5 +871,8 @@
     <ClCompile Include="src\ili9341.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="src\hooks.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

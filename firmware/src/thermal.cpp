@@ -1043,14 +1043,14 @@ void IRSensor::drawGradient(const uint8_t startX, const uint8_t startY, const ui
 	}
 }
 
-void IRSensor::visualizeImage(const uint8_t scale, const uint8_t method)
+void IRSensor::visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint8_t method)
 {
 	uint8_t col = 0;
 	uint8_t row = 0;
 	uint16_t pixelIdx;
 	uint16_t color;
 
-	volatile uint16_t* pSdramAddress = 0;//(uint16_t *)this->fb_addr;
+	volatile uint16_t* pSdramAddress = fb;//(uint16_t *)this->fb_addr;
 
 	_isImageReady = false;
 
@@ -1061,22 +1061,24 @@ void IRSensor::visualizeImage(const uint8_t scale, const uint8_t method)
 			colors[i] = this->temperatureToRGB565(dots[i], minTemp + minTempCorr, maxTemp + maxTempCorr);		
 		}
 
+        const uint8_t scaleX = sizeX / 32;
+		const uint8_t scaleY = sizeY / 24;
+
 		col = 32;
 		while(col > 0)
 		{
-            for(uint8_t k = 0; k < scale; k++)
+			for (uint8_t k = 0; k < scaleX; k++)
             {
 	            row = 24;
 				while(row > 0)
 				{
 	                pixelIdx = ((row - 1) * 32) + (col - 1);
-	                for(uint8_t j = 0; j < scale; j++) {
+					for (uint8_t j = 0; j < scaleY; j++) {
 		                *(volatile uint16_t *)pSdramAddress = colors[pixelIdx];
 		                pSdramAddress++;
 	                }
 					row--;
 				}
-                pSdramAddress += (240 - (24 * scale));
             }
 			col--;
 		}
@@ -1091,10 +1093,13 @@ void IRSensor::visualizeImage(const uint8_t scale, const uint8_t method)
 			colors[i] = this->temperatureToRGB565(dots[i], minTemp + minTempCorr, maxTemp + maxTempCorr);		
 		}
 
-        col = 32 * scale;
+		const uint8_t scaleX = sizeX / 32;
+		const uint8_t scaleY = sizeY / 24;
+
+		col = 32 * scaleX;
 		while(col > 0)
 		{
-            t = col / (float)scale;
+			t = col / (float)scaleX;
 			int16_t x = (int16_t)t;
             if (x >= 31)
             {
@@ -1102,10 +1107,10 @@ void IRSensor::visualizeImage(const uint8_t scale, const uint8_t method)
             }
             t = t - x;
 
-			row = 24 * scale;
+			row = 24 * scaleY;
 			while(row > 0)
 			{
-				u = row / (float)scale;
+				u = row / (float)scaleY;
 				int16_t y = (int16_t)u;
 	            if (y >= 23)
 	            {
@@ -1132,44 +1137,8 @@ void IRSensor::visualizeImage(const uint8_t scale, const uint8_t method)
 
 				row--;
 			}
-            pSdramAddress += (240 - (24 * scale));
 			col--;
 		}
-		
-		/*for (uint16_t j = 0; j < resY; j++) {
-			tmp = (float)(j) / (float)(resY - 1) * (8 - 1);
-			int16_t h = (int16_t)tmp;
-			if (h >= 8 - 1) {
-				h = 8 - 2;
-			}
-			u = tmp - h;
-
-			pSdramAddress = (uint16_t *)(this->fb_addr + (j * resX) * 2);
-
-			for (uint16_t i = 0; i < resX; i++) {
-				tmp = (float)(i) / (float)(resX - 1) * (8 - 1);
-				int16_t w = (int16_t)tmp;
-				if (w >= 8 - 1) {
-					w = 8 - 2;
-				}
-				t = tmp - w;
-
-				d1 = (1 - t) * (1 - u);
-				d2 = t * (1 - u);
-				d3 = t * u;
-				d4 = (1 - t) * u;
-
-				p1 = dots[h*8+w];
-				p2 = dots[h * 8 + w + 1];
-				p3 = dots[(h + 1) * 8 + w + 1];
-				p4 = dots[(h + 1) * 8 + w];
-
-				float temp = p1*d1 + p2*d2 + p3*d3 + p4*d4;
-
-				*(volatile uint16_t *)pSdramAddress = this->temperatureToRGB565(temp, minTemp + minTempCorr, maxTemp + maxTempCorr);
-				pSdramAddress++;
-			}
-		}*/
 	}
 
 	_isImageReady = true;

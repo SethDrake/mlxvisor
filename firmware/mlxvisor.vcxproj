@@ -77,6 +77,7 @@
   </ImportGroup>
   <ItemGroup>
     <ClCompile Include="src\hardware.c" />
+    <ClCompile Include="src\hooks.c" />
     <ClCompile Include="src\i2c.c" />
     <ClCompile Include="src\ili9341.cpp" />
     <ClCompile Include="src\main.cpp" />

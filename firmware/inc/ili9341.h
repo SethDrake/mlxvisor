@@ -20,7 +20,7 @@ public:
 	void putChar(uint16_t x, uint16_t y, uint8_t chr, uint16_t charColor, uint16_t bkgColor);
 	void printf(uint16_t x, uint16_t y, const char *format, ...);
 	void printf(uint16_t x, uint16_t y, uint16_t charColor, uint16_t bkgColor, const char *format, ...);
-	void bufferDraw(uint16_t x, uint16_t y, uint16_t xsize, uint16_t ysize, const uint16_t* buf);
+	void bufferDraw(uint16_t x, uint16_t y, uint16_t xsize, uint16_t ysize, uint16_t* buf);
 	void drawBorder(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint16_t borderWidth, uint16_t color);
 	void setColor(uint16_t color, uint16_t bgColor);
 	void setFont(const unsigned char font[]);
@@ -33,6 +33,7 @@ protected:
 	volatile uint16_t bgColor;
 	const unsigned char *font;
 	volatile bool isLandscape;
+	volatile bool isBusy;
 
 private:
 	void sendCmd(uint8_t cmd);

@@ -27,6 +27,36 @@ void SPIx_WriteBuffer(SPI_HandleTypeDef* spi, uint8_t* pBuffer, uint16_t size)
 	}
 }
 
+void SPIx_WriteBufferDMA(SPI_HandleTypeDef* spi, uint16_t* pBuffer, uint32_t size)
+{
+	/*SPIx_SetDataSize(spi, SPI_DATASIZE_16BIT);
+	SPIx_Enable(spi);
+	for (uint32_t l = 0; l < size; l++) {
+		SPIx_WriteData16(spi, pBuffer[l]);
+	}
+	SPIx_SetDataSize(spi, SPI_DATASIZE_8BIT);*/
+
+	SPIx_SetDataSize(spi, SPI_DATASIZE_16BIT);
+	const HAL_StatusTypeDef status = HAL_SPI_Transmit_DMA(spi, (uint8_t*)pBuffer, size);
+	if (status != HAL_OK)
+	{
+		SPIx_SetDataSize(spi, SPI_DATASIZE_8BIT);
+		SPIx_Error();
+	}
+	else 
+	{
+		while (spi->State != HAL_SPI_STATE_READY){}; //wait for the end of sending data to SPI
+		SPIx_SetDataSize(spi, SPI_DATASIZE_8BIT);
+	}
+
+	const uint16_t max_size = 65535;
+	if (size > max_size)
+	{
+		const uint16_t remain = size - max_size;
+		SPIx_WriteBufferDMA(spi, (pBuffer + max_size), remain);
+	}
+}
+
 uint8_t SPIx_ReadData(SPI_HandleTypeDef* spi)
 {
 	uint8_t value = 0;

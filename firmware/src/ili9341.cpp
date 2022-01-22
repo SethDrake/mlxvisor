@@ -337,6 +337,7 @@ void ILI9341::printf(uint16_t x, uint16_t y, const char* format, ...)
 	char buf[40];
 	va_list args;
 	va_start(args, format);
+	// ReSharper disable once CppLocalVariableMightNotBeInitialized
 	vsprintf(buf, format, args);
 	putString(buf, x, y, color, bgColor);
 }
@@ -346,23 +347,25 @@ void ILI9341::printf(uint16_t x, uint16_t y, uint16_t charColor, uint16_t bkgCol
 	char buf[40];
 	va_list args;
 	va_start(args, format);
+	// ReSharper disable once CppLocalVariableMightNotBeInitialized
 	vsprintf(buf, format, args);
 	putString(buf, x, y, charColor, bkgColor);
 }
 
-void ILI9341::bufferDraw(uint16_t x, uint16_t y, uint16_t xsize, uint16_t ysize, const uint16_t* buf)
+void ILI9341::bufferDraw(uint16_t x, uint16_t y, uint16_t xsize, uint16_t ysize, uint16_t* buf)
 {
 	setCS(0); // CS=0
 	setWindow(x, y, x + xsize - 1, y + ysize - 1);
 	sendCmd(ILI9341_MEMORYWRITE_REG);
 	setDC(1);
 
-	SPIx_SetDataSize(spi, SPI_DATASIZE_16BIT);
-	SPIx_Enable(spi);
-	for (uint32_t l = 0; l < xsize * ysize; l++) {
+	//SPIx_SetDataSize(spi, SPI_DATASIZE_16BIT);
+	//SPIx_Enable(spi);
+	SPIx_WriteBufferDMA(spi, buf, xsize * ysize);
+	/*for (uint32_t l = 0; l < xsize * ysize; l++) {
 		SPIx_WriteData16(spi, buf[l]);
-	}
-	SPIx_SetDataSize(spi, SPI_DATASIZE_8BIT);
+	}*/
+	//SPIx_SetDataSize(spi, SPI_DATASIZE_8BIT);
 	setCS(1); // CS=1;
 }
 

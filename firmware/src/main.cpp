@@ -2,11 +2,14 @@
 #include <stm32f4xx_hal.h>
 #include <../CMSIS_RTOS/cmsis_os.h>
 #include "main.h"
-#include "hardware.h"
-#include "i2c.h"
 #include "thermal.h"
 #include "ili9341.h"
 #include <string.h>
+
+#include "cpu_utils.h"
+
+uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE];
+// uint16_t gradientFb[10 * 24 * THERMAL_SCALE];
 
 osThreadId LEDThread1Handle, LEDThread2Handle, IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle;
 
@@ -16,7 +19,6 @@ ILI9341 display;
 volatile uint8_t vis_mode = 1;
 volatile bool isSensorReady = false;
 volatile bool isSensorReadDone = false;
-volatile bool isFrameReady = false;
 volatile TickType_t xSensorTime = 0;
 volatile TickType_t xDrawTime = 0;
 volatile uint32_t inWait = 0;
@@ -35,9 +37,11 @@ int main(void)
 	GPIO_Init();
 	I2C_Init();
 	SPI_Init();
+	DMA_Init();
 
 	display.init(&spi1);
 	display.clear(BLACK);
+	memset(framebuffer, 0x10, sizeof(framebuffer));
 	
 	isSensorReady = irSensor.init(&i2c1, ALTERNATE_COLOR_SCHEME);
 
@@ -68,8 +72,13 @@ static void LED_Thread1(void const *argument)
   
 	for (;;)
 	{
-		// GPIO_WritePin(USR_LED_PORT, USR_LED1_PIN, isSensorReadDone);
-		osDelay(500);
+		if (isSensorReady)
+		{
+			GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 1);
+			osDelay(250);
+		}
+		GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 0);
+		osDelay(250);
 	}
 }
 
@@ -79,10 +88,10 @@ static void LED_Thread2(void const *argument)
   
 	for (;;)
 	{
-		GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 1);
-		osDelay(500);
-		GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 0);
-		osDelay(500);
+		/*GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 1);
+		osDelay(1000);
+		GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 0);*/
+		osDelay(1000);
 	}
 }
 
@@ -106,25 +115,30 @@ static void IrSensor_Thread(void const *argument)
 			}
 			irSensor.readImage(0.95f); // second subpage
 			irSensor.findMinAndMaxTemp();
+			irSensor.visualizeImage(framebuffer, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, vis_mode);
 			const TickType_t xTime2 = xTaskGetTickCount();
 			xSensorTime = xTime2 - xTime1;
 			isSensorReadDone = true;
 		}
-		osDelay(10);
+		osDelay(15);
 	}
 }
 
 static void DrawTask_Thread(void const *argument)
 {
+	uint8_t i = 0;
+	uint8_t maxi = 4;
 	(void) argument;
 	for (;;)
 	{
+		const uint16_t cpuUsage = osGetCPUUsage();
 		const TickType_t xTime1 = xTaskGetTickCount();
-		//display.clear(BLUE);
-
-		display.fillScreen(0, 16, 319, 239, xTime1);
-		display.printf(0, 0, WHITE, BLACK, "Frame:%04ums   Scan:%04ums", xDrawTime, xSensorTime);
-		//display.drawBorder(0, 0, 319, 239, 1, WHITE);
+		display.bufferDraw(0, 71, 224, 168, framebuffer);
+		if (i >= maxi) {
+			display.printf(0, 0, WHITE, BLACK, "Frame:%04ums  Scan:%04ums  CPU:%02u%% VM:%01u", xDrawTime, xSensorTime, cpuUsage, vis_mode);
+			i = 0;
+		}
+		i++;
 		xDrawTime = xTaskGetTickCount() - xTime1;
 
 		osDelay(20);
@@ -146,7 +160,7 @@ static void ReadKeys_Thread(void const *argument)
 				continue;
 			}
 			vis_mode++;
-			if (vis_mode > 2)
+			if (vis_mode > 1)
 			{
 				vis_mode = 0;
 			}
