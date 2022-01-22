@@ -8,8 +8,8 @@
   </ToolchainVersion>
   <BspID>com.sysprogs.arm.stm32</BspID>
   <BspVersion>2022.01</BspVersion>
-  <McuID>STM32F407VG</McuID>
-  <MCUDefinitionFile>STM32F4xxxx/DeviceDefinitions/stm32f407xx.xml</MCUDefinitionFile>
+  <McuID>STM32F429ZI</McuID>
+  <MCUDefinitionFile>STM32F4xxxx/DeviceDefinitions/stm32f429xx.xml</MCUDefinitionFile>
   <MCUProperties>
     <Entries>
       <KeyValue>
@@ -37,7 +37,6 @@
   <MCUMakFile>stm32.mak</MCUMakFile>
   <ReferencedFrameworks>
     <string>com.sysprogs.arm.stm32.freertos</string>
-    <string>com.sysprogs.arm.stm32.bspdrv.ili9341</string>
     <string>com.sysprogs.arm.stm32.utilities</string>
     <string>com.sysprogs.arm.stm32.hal</string>
     <string>com.sysprogs.arm.stm32.ll</string>

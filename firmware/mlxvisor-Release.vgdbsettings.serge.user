@@ -11,19 +11,7 @@
     </CatchpointConfiguration>
     <MaskInterruptsWhileStepping>false</MaskInterruptsWhileStepping>
     <MemoryWindowPreferences />
-    <LiveVariables>
-      <LiveVariable>
-        <Expression>i2c1</Expression>
-        <Enabled>true</Enabled>
-        <Breakpoint>
-          <ComparisonMode>Equals</ComparisonMode>
-          <Enabled>false</Enabled>
-        </Breakpoint>
-        <Plot>false</Plot>
-        <IsCollapsed>true</IsCollapsed>
-        <IsFavorite>false</IsFavorite>
-      </LiveVariable>
-    </LiveVariables>
+    <LiveVariables />
     <NestedLiveVariables>
       <NestedVariableSettingsCollection>
         <ID>com.sysprogs.AllGlobals</ID>

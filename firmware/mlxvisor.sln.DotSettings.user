@@ -2,4 +2,5 @@
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=48EF4CD8_002D1C5B_002D4EA5_002DAFE0_002D6E0A0BA3AA43_002Fd_003Ainc_002Ff_003Aili9341_002Eh/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=48EF4CD8_002D1C5B_002D4EA5_002DAFE0_002D6E0A0BA3AA43_002Fd_003Ainc_002Ff_003Amini_005Ffonts_002Eh/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=48EF4CD8_002D1C5B_002D4EA5_002DAFE0_002D6E0A0BA3AA43_002Fd_003Ainc_002Ff_003Amlx90640_002Eh/@EntryIndexedValue">ForceIncluded</s:String>
-	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=48EF4CD8_002D1C5B_002D4EA5_002DAFE0_002D6E0A0BA3AA43_002Fd_003Ainc_002Ff_003Athermal_002Eh/@EntryIndexedValue">ForceIncluded</s:String></wpf:ResourceDictionary>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=48EF4CD8_002D1C5B_002D4EA5_002DAFE0_002D6E0A0BA3AA43_002Fd_003Ainc_002Ff_003Athermal_002Eh/@EntryIndexedValue">ForceIncluded</s:String>
+	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=48EF4CD8_002D1C5B_002D4EA5_002DAFE0_002D6E0A0BA3AA43_002Fd_003Asrc_002Ff_003Amain_002Ecpp/@EntryIndexedValue">ForceIncluded</s:String></wpf:ResourceDictionary>

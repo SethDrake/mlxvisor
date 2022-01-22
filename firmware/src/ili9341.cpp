@@ -2,6 +2,8 @@
 #include <spi.h>
 #include <hardware.h>
 #include <mini_fonts.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 ILI9341::ILI9341()
 {
@@ -43,28 +45,17 @@ void ILI9341::sendData(uint8_t value)
 	SPIx_WriteData(spi, value);
 }
 
-void ILI9341::sendData16(uint16_t value)
-{
-	setDC(1); //data mode
-	SPIx_WriteData16(spi, value);
-}
-
-void ILI9341::sendData32(uint32_t value)
-{
-	setDC(1); //data mode
-	SPIx_WriteBuffer(spi, (uint8_t*)&value, 4);
-}
-
 void ILI9341::init(SPI_HandleTypeDef* spi)
 {
 	this->spi = spi;
 
-	//SPIx_SetPrescaler(spi, SPI1_PRESCALER_SLOW);
+	//SPIx_Enable(spi);
+	SPIx_SetPrescaler(spi, SPI1_PRESCALER_SLOW);
 
 	setCS(0);
-	setRESET(0);
+	/*setRESET(0);
 	HAL_Delay(5);
-	setRESET(1);
+	setRESET(1);*/
 
 	sendCmd(ILI9341_SOFT_RESET_REG); //software reset
 	HAL_Delay(5);
@@ -84,7 +75,8 @@ void ILI9341::init(SPI_HandleTypeDef* spi)
 	sendData(0x86);
 
 	sendCmd(ILI9341_MEMACCESS_REG); // Memory Access Control
-	sendData(0x48); //my,mx,mv,ml,BGR,mh,0.0
+	// sendData(0x48); //my,mx,mv,ml,BGR,mh,0.0
+	sendData(0x88); //my,mx,mv,ml,BGR,mh,0.0 - 10001000
 
 	sendCmd(ILI9341_PIXFORMATSET_REG);
 	sendData(0x55);
@@ -149,7 +141,7 @@ void ILI9341::init(SPI_HandleTypeDef* spi)
 	
 	setCS(1);
 
-	//SPIx_SetPrescaler(spi, SPI1_PRESCALER);
+	SPIx_SetPrescaler(spi, SPI1_PRESCALER);
 }
 
 void ILI9341::enable(uint8_t enabled)
@@ -183,8 +175,8 @@ uint32_t ILI9341::readID()
 	uint32_t result = 0;
 
 	setCS(0);
-	sendCmd(ILI9341_READID4_REG);
-	SPIx_ReadBuffer(spi, (uint8_t*)&result, 3);
+	sendCmd(ILI9341_IDENTINFO_R_REG);
+	SPIx_ReadBuffer(spi, (uint8_t*)&result, 4);
 	setDC(1);
 	setCS(1);
 	
@@ -203,6 +195,24 @@ void ILI9341::clear(uint16_t color)
 	}
 }
 
+void ILI9341::setCol(uint16_t StartCol, uint16_t EndCol)
+{
+	sendCmd(ILI9341_COLADDRSET_REG); // Column Command address
+	sendData(StartCol >> 8);
+	sendData(StartCol & 0xFF);
+	sendData(EndCol >> 8);
+	sendData(EndCol & 0xFF);
+}
+
+void ILI9341::setPage(uint16_t StartPage, uint16_t EndPage)
+{
+	sendCmd(ILI9341_PAGEADDRSET_REG); // Page Command address
+	sendData(StartPage >> 8);
+	sendData(StartPage & 0xFF);
+	sendData(EndPage >> 8);
+	sendData(EndPage & 0xFF);
+}
+
 void ILI9341::setWindow(uint16_t startX, uint16_t startY, uint16_t stopX, uint16_t stopY)
 {
 	if (isLandscape)
@@ -212,17 +222,24 @@ void ILI9341::setWindow(uint16_t startX, uint16_t startY, uint16_t stopX, uint16
 	}
 	else
 	{
-		setPage(ILI9341_LCD_WIDTH - 1 - stopY, ILI9341_LCD_HEIGHT - 1 - startY);
+		setPage(ILI9341_LCD_WIDTH - 1 - stopY, ILI9341_LCD_WIDTH - 1 - startY);
 		setCol(startX, stopX);	
 	}
 }
 
 void ILI9341::pixelDraw(uint16_t xpos, uint16_t ypos, uint16_t color)
 {
+	setCS(0); // CS=0;
+	setWindow(xpos, ypos, xpos, ypos);
+	sendCmd(ILI9341_MEMORYWRITE_REG);
+	sendData(color >> 8);
+	sendData(color & 0xFF);
+	setCS(1); // CS=1;
 }
 
 void ILI9341::lineDraw(uint16_t ypos, uint16_t* line, uint32_t size)
 {
+	bufferDraw(0, ypos, size, 1, line);
 }
 
 void ILI9341::fillScreen(uint16_t xstart, uint16_t ystart, uint16_t xstop, uint16_t ystop, uint16_t color)
@@ -235,8 +252,9 @@ void ILI9341::fillScreen(uint16_t xstart, uint16_t ystart, uint16_t xstop, uint1
 	setDC(1);
 
 	SPIx_SetDataSize(spi, SPI_DATASIZE_16BIT);
+	SPIx_Enable(spi);
 	while (pixels) {
-		SPIx_WriteData16(spi, color);
+		 SPIx_WriteData16(spi, color);
 		pixels--;
 	}
 	SPIx_SetDataSize(spi, SPI_DATASIZE_8BIT);
@@ -245,59 +263,135 @@ void ILI9341::fillScreen(uint16_t xstart, uint16_t ystart, uint16_t xstop, uint1
 
 void ILI9341::putChar(uint16_t x, uint16_t y, uint8_t chr, uint16_t charColor, uint16_t bkgColor)
 {
+	uint8_t i, j;
+	
+	const uint8_t f_width = font[0];	
+	const uint8_t f_height = font[1];
+	const uint16_t f_bytes = (f_width * f_height / 8);
+	
+	uint16_t t = 0;
+	uint16_t charbuf[(f_width + 1) * f_height];
+	
+	//fill charbuf
+	if (isLandscape)
+	{
+		for (i = 0; i < f_width; i++)
+		{
+			for (j = 0; j < f_height; j++) {
+				const uint16_t bitNumberGlobal = f_width * (f_height - j) + (f_width - i);
+				const uint16_t byteNumberLocal = (bitNumberGlobal / 8);
+				const uint8_t bitNumberInByte = bitNumberGlobal - byteNumberLocal * 8;
+				uint8_t glyphByte = font[(chr - 0x20) * f_bytes + byteNumberLocal + 2];
+				const uint8_t mask = 1 << bitNumberInByte;
+				if (glyphByte & mask) {
+					charbuf[t++] = charColor;
+				}
+				else 
+				{
+					charbuf[t++] = bkgColor;
+				}
+			}
+		}
+		for (j = 0; j < f_height; j++) {
+			//vertical empty line right from symbol
+			charbuf[t++] = bkgColor;
+		}
+	}
+	else //portrait
+	{
+		for (i = 0; i < f_height; i++)
+		{
+			for (j = 0; j < f_width; j++) {
+				const uint16_t bitNumberGlobal = f_width * i + (f_width - j);
+				const uint16_t byteNumberLocal = (bitNumberGlobal / 8);
+				const uint8_t bitNumberInByte = bitNumberGlobal - byteNumberLocal * 8;
+				uint8_t glyphByte = font[(chr - 0x20) * f_bytes + byteNumberLocal + 2];
+				const uint8_t mask = 1 << bitNumberInByte;
+				if (glyphByte & mask) {
+					charbuf[t++] = charColor;
+				}
+				else 
+				{
+					charbuf[t++] = bkgColor;
+				}
+			}
+			charbuf[t++] = bkgColor; //vertical empty line right from symbol
+		}
+		y -= 3;
+	}
+	
+	bufferDraw(x, y, f_width + 1, f_height, charbuf);
+}
+
+void ILI9341::putString(const char str[], uint16_t x, uint16_t y, uint16_t charColor, uint16_t bkgColor)
+{
+	while (*str != 0) {
+		putChar(x, y, *str, charColor, bkgColor);
+		x += font[0]; //increment to font width
+		str++;
+	}
 }
 
 void ILI9341::printf(uint16_t x, uint16_t y, const char* format, ...)
 {
+	char buf[40];
+	va_list args;
+	va_start(args, format);
+	vsprintf(buf, format, args);
+	putString(buf, x, y, color, bgColor);
 }
 
 void ILI9341::printf(uint16_t x, uint16_t y, uint16_t charColor, uint16_t bkgColor, const char* format, ...)
 {
+	char buf[40];
+	va_list args;
+	va_start(args, format);
+	vsprintf(buf, format, args);
+	putString(buf, x, y, charColor, bkgColor);
 }
 
-void ILI9341::bufferDraw(uint16_t x, uint16_t y, uint16_t xsize, uint16_t ysize, uint16_t* buf)
+void ILI9341::bufferDraw(uint16_t x, uint16_t y, uint16_t xsize, uint16_t ysize, const uint16_t* buf)
 {
+	setCS(0); // CS=0
+	setWindow(x, y, x + xsize - 1, y + ysize - 1);
+	sendCmd(ILI9341_MEMORYWRITE_REG);
+	setDC(1);
+
+	SPIx_SetDataSize(spi, SPI_DATASIZE_16BIT);
+	SPIx_Enable(spi);
+	for (uint32_t l = 0; l < xsize * ysize; l++) {
+		SPIx_WriteData16(spi, buf[l]);
+	}
+	SPIx_SetDataSize(spi, SPI_DATASIZE_8BIT);
+	setCS(1); // CS=1;
 }
 
 void ILI9341::drawBorder(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint16_t borderWidth,
                          uint16_t color)
 {
+	fillScreen(xpos, ypos, xpos + borderWidth, ypos + height, color);
+	fillScreen(xpos + borderWidth, ypos + height - borderWidth, xpos + width, ypos + height, color);
+	fillScreen(xpos + width - borderWidth, ypos, xpos + width, ypos + height - borderWidth, color);
+	fillScreen(xpos + borderWidth, ypos, xpos + width - borderWidth, ypos + borderWidth, color);
 }
 
 void ILI9341::setColor(uint16_t color, uint16_t bgColor)
 {
+	this->color = color;
+	this->bgColor = bgColor;
 }
 
 void ILI9341::setFont(const unsigned char font[])
 {
+	this->font = font;
 }
 
 void ILI9341::setLandscape()
 {
-	isLandscape = true;
+	this->isLandscape = true;
 }
 
 void ILI9341::setPortrait()
 {
-	isLandscape = false;
-}
-
-void ILI9341::setCol(uint16_t StartCol, uint16_t EndCol)
-{
-	sendCmd(ILI9341_COLADDRSET_REG); // Column Command address
-	setDC(1);
-	sendData16(StartCol);
-	sendData16(EndCol);
-}
-
-void ILI9341::setPage(uint16_t StartPage, uint16_t EndPage)
-{
-	sendCmd(ILI9341_PAGEADDRSET_REG); // Page Command address
-	setDC(1);
-	sendData16(StartPage);
-	sendData16(EndPage); 
-}
-
-void ILI9341::putString(const char str[], uint16_t x, uint16_t y, uint16_t charColor, uint16_t bkgColor)
-{
+	this->isLandscape = false;
 }

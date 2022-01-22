@@ -46,17 +46,11 @@
     <Filter Include="Header files\Device-specific files\Utilities">
       <UniqueIdentifier>{b47b9b58-54c2-4a3a-9ffe-d2a5e7ed33b1}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header files\Device-specific files\ili9341 Driver">
-      <UniqueIdentifier>{ab8a29a6-87da-4569-b7f7-67efdbf05316}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="stm32.props">
       <Filter>Source files\Device-specific files</Filter>
     </None>
-    <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\StartupFiles\startup_stm32f407xx.c">
-      <Filter>Source files\Device-specific files</Filter>
-    </ClCompile>
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\croutine.c">
       <Filter>Source files\Device-specific files\FreeRTOS</Filter>
     </ClCompile>
@@ -816,42 +810,9 @@
     <ClCompile Include="src\system_stm32f4xx.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\accelero.h">
-      <Filter>Header files\Device-specific files\ili9341 Driver</Filter>
-    </ClInclude>
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\audio.h">
-      <Filter>Header files\Device-specific files\ili9341 Driver</Filter>
-    </ClInclude>
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\camera.h">
-      <Filter>Header files\Device-specific files\ili9341 Driver</Filter>
-    </ClInclude>
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\epd.h">
-      <Filter>Header files\Device-specific files\ili9341 Driver</Filter>
-    </ClInclude>
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\gyro.h">
-      <Filter>Header files\Device-specific files\ili9341 Driver</Filter>
-    </ClInclude>
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\idd.h">
-      <Filter>Header files\Device-specific files\ili9341 Driver</Filter>
-    </ClInclude>
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\io.h">
-      <Filter>Header files\Device-specific files\ili9341 Driver</Filter>
-    </ClInclude>
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\lcd.h">
-      <Filter>Header files\Device-specific files\ili9341 Driver</Filter>
-    </ClInclude>
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\magneto.h">
-      <Filter>Header files\Device-specific files\ili9341 Driver</Filter>
-    </ClInclude>
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\ts.h">
-      <Filter>Header files\Device-specific files\ili9341 Driver</Filter>
-    </ClInclude>
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\tsensor.h">
-      <Filter>Header files\Device-specific files\ili9341 Driver</Filter>
-    </ClInclude>
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\ili9341\ili9341.h">
-      <Filter>Header files\Device-specific files\ili9341 Driver</Filter>
-    </ClInclude>
+    <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\StartupFiles\startup_stm32f429xx.c">
+      <Filter>Source files\Device-specific files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="inc\FreeRTOSConfig.h">

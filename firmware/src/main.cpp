@@ -17,7 +17,8 @@ volatile uint8_t vis_mode = 1;
 volatile bool isSensorReady = false;
 volatile bool isSensorReadDone = false;
 volatile bool isFrameReady = false;
-volatile TickType_t xExecutionTime = 0;
+volatile TickType_t xSensorTime = 0;
+volatile TickType_t xDrawTime = 0;
 volatile uint32_t inWait = 0;
 
 static void LED_Thread1(void const *argument);
@@ -25,19 +26,6 @@ static void LED_Thread2(void const *argument);
 static void IrSensor_Thread(void const *argument);
 static void ReadKeys_Thread(void const *argument);
 static void DrawTask_Thread(void const *argument);
-
-void scanI2C()
-{
-	uint8_t foundDevices[16] = {};
-	const uint8_t found = I2Cx_ScanBus(&i2c1, foundDevices);
-	for(uint8_t i = 0; i < found; i++)
-	{
-		GPIO_WritePin(USR_LED_PORT, USR_LED4_PIN, 1);
-		HAL_Delay(1000);
-		GPIO_WritePin(USR_LED_PORT, USR_LED4_PIN, 0);
-		HAL_Delay(1000);
-	}
-}
 
 int main(void)
 {
@@ -48,22 +36,16 @@ int main(void)
 	I2C_Init();
 	SPI_Init();
 
-	// scanI2C();
-
-	// GPIO_WritePin(GPIOD, GPIO_PIN_4, 1);// PD4 -> UP
-	// GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);// PA9 -> UP
-
 	display.init(&spi1);
-	display.clear(0x0000);
-	uint32_t displayId = display.readID();
-
+	display.clear(BLACK);
+	
 	isSensorReady = irSensor.init(&i2c1, ALTERNATE_COLOR_SCHEME);
 
 	osThreadDef(LED1, LED_Thread1, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
 	osThreadDef(LED2, LED_Thread2, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
 	osThreadDef(READ_KEYS, ReadKeys_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
 	osThreadDef(IR_SENSOR, IrSensor_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE + 1024);
-	osThreadDef(DRAW_TASK, DrawTask_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+	osThreadDef(DRAW_TASK, DrawTask_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE + 1024);
   
 	LEDThread1Handle = osThreadCreate(osThread(LED1), NULL);
 	LEDThread2Handle = osThreadCreate(osThread(LED2), NULL);
@@ -86,7 +68,7 @@ static void LED_Thread1(void const *argument)
   
 	for (;;)
 	{
-		GPIO_WritePin(USR_LED_PORT, USR_LED1_PIN, isSensorReadDone);
+		// GPIO_WritePin(USR_LED_PORT, USR_LED1_PIN, isSensorReadDone);
 		osDelay(500);
 	}
 }
@@ -97,9 +79,9 @@ static void LED_Thread2(void const *argument)
   
 	for (;;)
 	{
-		GPIO_WritePin(USR_LED_PORT, USR_LED2_PIN, 1);
+		GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 1);
 		osDelay(500);
-		GPIO_WritePin(USR_LED_PORT, USR_LED2_PIN, 0);
+		GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 0);
 		osDelay(500);
 	}
 }
@@ -125,10 +107,27 @@ static void IrSensor_Thread(void const *argument)
 			irSensor.readImage(0.95f); // second subpage
 			irSensor.findMinAndMaxTemp();
 			const TickType_t xTime2 = xTaskGetTickCount();
-			xExecutionTime = xTime2 - xTime1;
+			xSensorTime = xTime2 - xTime1;
 			isSensorReadDone = true;
 		}
 		osDelay(10);
+	}
+}
+
+static void DrawTask_Thread(void const *argument)
+{
+	(void) argument;
+	for (;;)
+	{
+		const TickType_t xTime1 = xTaskGetTickCount();
+		//display.clear(BLUE);
+
+		display.fillScreen(0, 16, 319, 239, xTime1);
+		display.printf(0, 0, WHITE, BLACK, "Frame:%04ums   Scan:%04ums", xDrawTime, xSensorTime);
+		//display.drawBorder(0, 0, 319, 239, 1, WHITE);
+		xDrawTime = xTaskGetTickCount() - xTime1;
+
+		osDelay(20);
 	}
 }
 
@@ -162,19 +161,10 @@ static void ReadKeys_Thread(void const *argument)
 	}
 }
 
-static void DrawTask_Thread(void const *argument)
-{
-	(void) argument;
-	for (;;)
-	{
-		osDelay(2000);
-	}
-}
-
 void Error_Handler(const uint8_t source)
 {
 	uint8_t k = source;
-	GPIO_WritePin(USR_LED_PORT, USR_LED4_PIN, 1);
+	GPIO_WritePin(USR_LED2_PORT, USR_LED2_PIN, 1);
 	while (true) {}
 }
 

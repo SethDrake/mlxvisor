@@ -60,7 +60,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>inc;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -92,7 +92,6 @@
     <ClInclude Include="inc\stm32f4xx_it.h" />
     <ClInclude Include="inc\thermal.h" />
     <None Include="stm32.props" />
-    <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\StartupFiles\startup_stm32f407xx.c" />
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\croutine.c" />
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\event_groups.c" />
     <None Include="$(BSP_ROOT)\FreeRTOS\Source\History.txt" />
@@ -349,17 +348,6 @@
     <None Include="stm32.xml" />
     <ClCompile Include="$(BSP_ROOT)\Utilities\CPU\cpu_utils.c" />
     <ClInclude Include="$(BSP_ROOT)\Utilities\CPU\cpu_utils.h" />
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\accelero.h" />
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\audio.h" />
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\camera.h" />
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\epd.h" />
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\gyro.h" />
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\idd.h" />
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\io.h" />
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\lcd.h" />
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\magneto.h" />
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\ts.h" />
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\Common\tsensor.h" />
-    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\BSP\Components\ili9341\ili9341.h" />
+    <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\StartupFiles\startup_stm32f429xx.c" />
   </ItemGroup>
 </Project>

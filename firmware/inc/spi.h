@@ -11,13 +11,14 @@ extern "C" {
 #define SPI_TIMEOUT_MAX		((uint32_t)0x1000)
 
 void			    SPIx_WriteData(SPI_HandleTypeDef* spi, uint8_t value);
-void			    SPIx_WriteData16(SPI_HandleTypeDef* spi, uint16_t value);
+HAL_StatusTypeDef	SPIx_WriteData16(SPI_HandleTypeDef* spi, uint16_t value);
 void			    SPIx_WriteBuffer(SPI_HandleTypeDef* spi, uint8_t *pBuffer, uint16_t size);
 uint8_t			    SPIx_ReadData(SPI_HandleTypeDef* spi);
 uint16_t		    SPIx_ReadData16(SPI_HandleTypeDef* spi);
 HAL_StatusTypeDef   SPIx_ReadBuffer(SPI_HandleTypeDef* spi, uint8_t *pBuffer, uint16_t size);
 void				SPIx_SetPrescaler(SPI_HandleTypeDef* spi, uint32_t prescaler);
 void				SPIx_SetDataSize(SPI_HandleTypeDef* spi, uint32_t dataSize);
+void				SPIx_Enable(SPI_HandleTypeDef* spi);
 
 extern void	  SPIx_Error(void);
 
