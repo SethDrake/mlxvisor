@@ -54,6 +54,7 @@ int main(void)
 	// GPIO_WritePin(GPIOA, GPIO_PIN_9, 1);// PA9 -> UP
 
 	display.init(&spi1);
+	display.clear(0x0000);
 	uint32_t displayId = display.readID();
 
 	isSensorReady = irSensor.init(&i2c1, ALTERNATE_COLOR_SCHEME);

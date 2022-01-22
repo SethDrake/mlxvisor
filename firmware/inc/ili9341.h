@@ -37,9 +37,14 @@ protected:
 private:
 	void sendCmd(uint8_t cmd);
 	void sendData(uint8_t value);
+	void sendData16(uint16_t value);
+	void sendData32(uint32_t value);
 	void setCol(uint16_t StartCol, uint16_t EndCol);
 	void setPage(uint16_t StartPage, uint16_t EndPage);
 	void putString(const char str[], uint16_t x, uint16_t y, uint16_t charColor, uint16_t bkgColor);
+	void setCS(uint8_t val);
+	void setDC(uint8_t val);
+	void setRESET(uint8_t val);
 };
 
 #define RED								0xf800
