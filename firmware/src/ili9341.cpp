@@ -28,10 +28,10 @@ void ILI9341::setDC(uint8_t val)
 	GPIO_WritePin(LCD_DC_PORT, LCD_DC_PIN, val);
 }
 
-void ILI9341::setRESET(uint8_t val)
-{
-	GPIO_WritePin(LCD_RESET_PORT, LCD_RESET_PIN, val);
-}
+// void ILI9341::setRESET(uint8_t val)
+// {
+// 	GPIO_WritePin(LCD_RESET_PORT, LCD_RESET_PIN, val);
+// }
 
 void ILI9341::sendCmd(uint8_t cmd)
 {

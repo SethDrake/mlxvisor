@@ -74,7 +74,7 @@ static void LED_Thread1(void const *argument)
   
 	for (;;)
 	{
-		if (isSensorReady)
+		//if (isSensorReady)
 		{
 			GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 1);
 			osDelay(250);
@@ -90,9 +90,9 @@ static void LED_Thread2(void const *argument)
   
 	for (;;)
 	{
-		/*GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 1);
+		GPIO_WritePin(USR_LED4_PORT, USR_LED4_PIN, 1);
 		osDelay(1000);
-		GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 0);*/
+		GPIO_WritePin(USR_LED4_PORT, USR_LED4_PIN, 0);
 		osDelay(1000);
 	}
 }
@@ -134,7 +134,7 @@ static void DrawTask_Thread(void const *argument)
 {
 	(void) argument;
 	uint8_t i = 0;
-	uint8_t maxi = 50;
+	uint8_t maxi = 25;
 	uint8_t oneTimeOpDone = 0;
 
 	for (;;)
@@ -199,7 +199,7 @@ static void ReadKeys_Thread(void const *argument)
 void Error_Handler(const uint8_t source)
 {
 	uint8_t k = source;
-	GPIO_WritePin(USR_LED2_PORT, USR_LED2_PIN, 1);
+	GPIO_WritePin(USR_LED3_PORT, USR_LED3_PIN, 1);
 	while (true) {}
 }
 

@@ -43,7 +43,7 @@ private:
 	void putString(const char str[], uint16_t x, uint16_t y, uint16_t charColor, uint16_t bkgColor);
 	void setCS(uint8_t val);
 	void setDC(uint8_t val);
-	void setRESET(uint8_t val);
+	// void setRESET(uint8_t val);
 };
 
 #define RED								0xf800

@@ -21,14 +21,18 @@ void Clock_Init()
 	RCC_OscInitStruct.HSEState = RCC_HSE_ON;
 	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
 	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
-	RCC_OscInitStruct.PLL.PLLM = 4; //8;
-	RCC_OscInitStruct.PLL.PLLN = 240; //336;
-	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2; //RCC_PLLP_DIV2;
-	RCC_OscInitStruct.PLL.PLLQ = 10; //7;
+	RCC_OscInitStruct.PLL.PLLM = 4;
+	RCC_OscInitStruct.PLL.PLLN = 240;
+	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+	RCC_OscInitStruct.PLL.PLLQ = 10;
+	// RCC_OscInitStruct.PLL.PLLM = 8;
+	// RCC_OscInitStruct.PLL.PLLN = 336;
+	// RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+	// RCC_OscInitStruct.PLL.PLLQ = 7;
 	HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
 	/* Activate the Over-Drive mode */
-	HAL_PWREx_EnableOverDrive();
+	// HAL_PWREx_EnableOverDrive();
  
 	/* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 
 	clocks dividers */
@@ -56,14 +60,14 @@ void GPIO_Init()
 	__HAL_RCC_GPIOB_CLK_ENABLE();
 	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_GPIOD_CLK_ENABLE();
-	__HAL_RCC_GPIOF_CLK_ENABLE();
-	__HAL_RCC_GPIOG_CLK_ENABLE();
+	// __HAL_RCC_GPIOF_CLK_ENABLE();
+	// __HAL_RCC_GPIOG_CLK_ENABLE();
 
 	/* Configure I2C Pins */
 	GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
 	GPIO_InitStruct.Pull      = GPIO_NOPULL;
 	GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
-	GPIO_InitStruct.Alternate = GPIO_AF4_I2C3;
+	GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
 	GPIO_InitStruct.Pin       = I2C1_SCL_PIN; //SCL
 	HAL_GPIO_Init(I2C1_SCL_PORT, &GPIO_InitStruct); 
 	GPIO_InitStruct.Pin		  = I2C1_SDA_PIN; //SDA
@@ -73,7 +77,7 @@ void GPIO_Init()
 	GPIO_InitStruct.Mode   = GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Pull   = GPIO_PULLDOWN;
 	GPIO_InitStruct.Speed  = GPIO_SPEED_FREQ_VERY_HIGH;
-	GPIO_InitStruct.Alternate = GPIO_AF5_SPI5;
+	GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
 	GPIO_InitStruct.Pin    = SPI1_MOSI_PIN; //MOSI
 	HAL_GPIO_Init(SPI1_MOSI_PORT, &GPIO_InitStruct);
 	GPIO_InitStruct.Pin    = SPI1_MISO_PIN; //MISO
@@ -97,8 +101,8 @@ void GPIO_Init()
 	HAL_GPIO_Init(LCD_CS_PORT, &GPIO_InitStruct);
 	GPIO_InitStruct.Pin = LCD_DC_PIN; //LCD DC
 	HAL_GPIO_Init(LCD_DC_PORT, &GPIO_InitStruct);
-	GPIO_InitStruct.Pin = LCD_RESET_PIN; //LCD RESET
-	HAL_GPIO_Init(LCD_RESET_PORT, &GPIO_InitStruct);
+	// GPIO_InitStruct.Pin = LCD_RESET_PIN; //LCD RESET
+	// HAL_GPIO_Init(LCD_RESET_PORT, &GPIO_InitStruct);
 	
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -107,13 +111,17 @@ void GPIO_Init()
 	HAL_GPIO_Init(USR_LED1_PORT, &GPIO_InitStruct);
 	GPIO_InitStruct.Pin = USR_LED2_PIN; //LED2
 	HAL_GPIO_Init(USR_LED2_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin = USR_LED3_PIN; //LED3
+	HAL_GPIO_Init(USR_LED3_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin = USR_LED4_PIN; //LED4
+	HAL_GPIO_Init(USR_LED4_PORT, &GPIO_InitStruct);
 }
 
 void I2C_Init()
 {
 	if (HAL_I2C_GetState(&i2c1) == HAL_I2C_STATE_RESET)
 	{
-		i2c1.Instance              = I2C3;
+		i2c1.Instance              = I2C1;
 		i2c1.Init.ClockSpeed       = I2C1_SPEED;
 		i2c1.Init.DutyCycle        = I2C_DUTYCYCLE_2;
 		i2c1.Init.OwnAddress1      = 0;
@@ -124,9 +132,9 @@ void I2C_Init()
 		i2c1.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLED;  
 
 		/* Enable I2C1 clock */
-		__HAL_RCC_I2C3_CLK_ENABLE();
-		__HAL_RCC_I2C3_FORCE_RESET();
-		__HAL_RCC_I2C3_RELEASE_RESET();
+		__HAL_RCC_I2C1_CLK_ENABLE();
+		__HAL_RCC_I2C1_FORCE_RESET();
+		__HAL_RCC_I2C1_RELEASE_RESET();
 
 		HAL_I2C_Init(&i2c1);
 	}
@@ -137,7 +145,7 @@ void SPI_Init()
 	if (HAL_SPI_GetState(&spi1) == HAL_SPI_STATE_RESET)
 	{
 		/* SPI configuration -----------------------------------------------------*/
-		spi1.Instance = SPI5;
+		spi1.Instance = SPI2;
 		spi1.Init.BaudRatePrescaler = SPI1_PRESCALER;
 		spi1.Init.Direction      = SPI_DIRECTION_2LINES;
 		spi1.Init.CLKPhase       = SPI_PHASE_1EDGE;
@@ -151,7 +159,7 @@ void SPI_Init()
 		spi1.Init.Mode           = SPI_MODE_MASTER;
 
 		/* Enable SPI1 clock */
-		__HAL_RCC_SPI5_CLK_ENABLE();
+		__HAL_RCC_SPI2_CLK_ENABLE();
 	} 
 }
 
@@ -173,7 +181,7 @@ void DMA_Init()
 	hdma.Init.MemBurst            = DMA_MBURST_INC4;
 	hdma.Init.PeriphBurst         = DMA_PBURST_INC4;
 
-	__HAL_RCC_DMA2_CLK_ENABLE();
+	__HAL_RCC_DMA1_CLK_ENABLE();
   
 	HAL_DMA_Init(&hdma);   
   
@@ -183,8 +191,8 @@ void DMA_Init()
 	HAL_NVIC_SetPriority(SPI1_TX_DMA_IRQ, 0, 1);
 	HAL_NVIC_EnableIRQ(SPI1_TX_DMA_IRQ);
 
-	HAL_NVIC_SetPriority(SPI1_IRQn, 0, 2);
-	HAL_NVIC_EnableIRQ(SPI1_IRQn);
+	// HAL_NVIC_SetPriority(SPI1_IRQn, 0, 2);
+	// HAL_NVIC_EnableIRQ(SPI1_IRQn);
 }
 
 void GPIO_WritePin(GPIO_TypeDef* port, uint16_t pin, uint8_t state)

@@ -134,7 +134,7 @@ void SysTick_Handler(void)
   * @param  None
   * @retval None  
   */
-void DMA2_Stream6_IRQHandler(void)
+void DMA1_Stream4_IRQHandler(void)
 {
 	HAL_DMA_IRQHandler(spi1.hdmatx);
 }
