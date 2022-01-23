@@ -7,6 +7,8 @@
 
 #define THERM_COEFF 0.0625
 #define TEMP_COEFF 0.25
+#define SUPPLY_VOLTAGE 3.3f
+#define RECALC_DELAY 15
 
 class IRSensor {
 public:
@@ -54,6 +56,7 @@ private:
 	paramsMLX90640_t mlxParams;
 	uint16_t mlxEE[832];
 	uint16_t frameData[834];
+	uint16_t recalcCnt;
 	float vdd;
 	float ta;
 	float dots[24*32];

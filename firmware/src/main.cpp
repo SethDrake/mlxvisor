@@ -108,13 +108,13 @@ static void IrSensor_Thread(void const *argument)
 			while (!irSensor.isFrameReady())
 			{
 				inWait = inWait + 1;
-				osDelay(5);
+				osDelay(10);
 			}
 			irSensor.readImage(0.95f); //first subpage
 			while (!irSensor.isFrameReady())
 			{
 				inWait = inWait + 1;
-				osDelay(5);
+				osDelay(10);
 			}
 			irSensor.readImage(0.95f); // second subpage
 			irSensor.findMinAndMaxTemp();
@@ -129,7 +129,7 @@ static void IrSensor_Thread(void const *argument)
 			xSensorTime = xTime2 - xTime1;
 			isSensorReadDone = true;
 		}
-		osDelay(15);
+		osDelay(20);
 	}
 }
 
@@ -138,15 +138,20 @@ static void DrawTask_Thread(void const *argument)
 	(void) argument;
 	uint8_t i = 0;
 	uint8_t maxi = 4;
+	uint8_t oneTimeOpDone = 0;
 
 	for (;;)
 	{
+		if (!oneTimeOpDone) {
+			display.bufferDraw(224, 71, 10, 24 * THERMAL_SCALE, gradientFb);
+			oneTimeOpDone = 1;
+		}
+
 		const uint16_t cpuUsage = osGetCPUUsage();
 		const TickType_t xTime1 = xTaskGetTickCount();
 		display.bufferDraw(0, 71, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, framebuffer);
-		display.bufferDraw(224, 71, 10, 24 * THERMAL_SCALE, gradientFb);
 		if (i >= maxi) {
-			display.printf(0, 0, WHITE, BLACK, "Frame:%04ums  Scan:%04ums  CPU:%02u%% VM:%01u", xDrawTime, xSensorTime, cpuUsage, vis_mode);
+			display.printf(0, 0, WHITE, BLACK, "Frm:%03ums Scan:%03ums CPU:%02u%% VM:%01u W:%02u", xDrawTime, xSensorTime, cpuUsage, vis_mode, inWait);
 			i = 0;
 		}
 		i++;

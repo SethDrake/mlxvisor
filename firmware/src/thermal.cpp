@@ -9,6 +9,7 @@ IRSensor::IRSensor()
 	this->maxTemp = 0;
 	this->fbSizeX = 0;
 	this->fbSizeY = 0;
+	this->recalcCnt = 0;
 }
 
 IRSensor::~IRSensor()
@@ -27,13 +28,9 @@ bool IRSensor::init(I2C_HandleTypeDef* i2c, const uint8_t* colorScheme)
 	    return false;
     }
 
-    setADCResolution(MLX90640_ADC_18BIT);
+    setADCResolution(MLX90640_ADC_19BIT);
     setRefreshRate(MLX90640_16_HZ);
     setMlxMode(MLX90640_CHESS);
-
-    // mlx90640_refreshrate refreshRate = readRefreshRate();
-    // mlx90640_resolution_t adcResolution = readADCResolution();
-    // mlx90640_mode_t mode = readMlxMode();
 
 	readMlxEE();
     convertMlxEEToParams();
@@ -707,7 +704,6 @@ uint8_t IRSensor::CheckAdjacentPixels(uint16_t pix1, uint16_t pix2)
 
 void IRSensor::readImage(float emissivity)
 {
-    const float SUPPLY_VOLTAGE = 3.3;
 	const uint8_t MAX_ATTEMPS = 5;
     uint16_t statusRegister = 0;
 	uint16_t isReady = 1;
@@ -726,38 +722,44 @@ void IRSensor::readImage(float emissivity)
     frameData[832] = controlRegister1;
     frameData[833] = statusRegister & 0x0001;
 
-    /* Vdd */
-    float _vdd = frameData[810];
-    if(_vdd > 32767)
-    {
-        _vdd = _vdd - 65536;
-    }
-    const int resolutionRAM = (frameData[832] & 0x0C00) >> 10;
-    const float resolutionCorrection = pow(2, (double)mlxParams.resolutionEE) / pow(2, (double)resolutionRAM);
-    _vdd = (resolutionCorrection * _vdd - mlxParams.vdd25) / mlxParams.kVdd + SUPPLY_VOLTAGE;
-    this->vdd = _vdd;
+	if (this->recalcCnt == 0) {
+		/* Vdd */
+		float _vdd = frameData[810];
+		if (_vdd > 32767)
+		{
+			_vdd = _vdd - 65536;
+		}
+		const int resolutionRAM = (frameData[832] & 0x0C00) >> 10;
+		const float resolutionCorrection = pow(2, (double)mlxParams.resolutionEE) / pow(2, (double)resolutionRAM);
+		_vdd = (resolutionCorrection * _vdd - mlxParams.vdd25) / mlxParams.kVdd + SUPPLY_VOLTAGE;
+		this->vdd = _vdd;
 
-    float ptat = frameData[800];
-    if(ptat > 32767)
-    {
-        ptat = ptat - 65536;
-    }
+		float ptat = frameData[800];
+		if (ptat > 32767)
+		{
+			ptat = ptat - 65536;
+		}
 
-    float ptatArt = frameData[768];
-    if(ptatArt > 32767)
-    {
-        ptatArt = ptatArt - 65536;
-    }
-    ptatArt = (ptat / (ptat * mlxParams.alphaPTAT + ptatArt)) * pow(2, 18.0);
+		float ptatArt = frameData[768];
+		if (ptatArt > 32767)
+		{
+			ptatArt = ptatArt - 65536;
+		}
+		ptatArt = (ptat / (ptat * mlxParams.alphaPTAT + ptatArt)) * (float)pow(2, 18.0f);
 
-    float _ta = (ptatArt / (1 + mlxParams.KvPTAT * (vdd - SUPPLY_VOLTAGE)) - mlxParams.vPTAT25);
-    _ta = _ta / mlxParams.KtPTAT + 25;
-    this->ta = _ta;
+		float _ta = (ptatArt / (1 + mlxParams.KvPTAT * (vdd - SUPPLY_VOLTAGE)) - mlxParams.vPTAT25);
+		_ta = _ta / mlxParams.KtPTAT + 25;
+		this->ta = _ta;
+	}
+	this->recalcCnt++;
+	if (this->recalcCnt >= RECALC_DELAY)
+	{
+		this->recalcCnt = 0;
+	}
 
-    float tr = this->ta - OPENAIR_TA_SHIFT;
+    const float tr = this->ta - OPENAIR_TA_SHIFT;
 
 	calculateTempMap(emissivity, tr);
-    // calculateImageMap();
 }
 
 void IRSensor::calculateTempMap(float emissivity, float tr)
@@ -879,7 +881,7 @@ void IRSensor::calculateTempMap(float emissivity, float tr)
                 range = 3;            
             }      
             
-            To = sqrt(sqrt(irData / (alphaCompensated * alphaCorrR[range] * (1 + mlxParams.ksTo[range] * (To - mlxParams.ct[range]))) + taTr)) - 273.15;
+            To = sqrt(sqrt(irData / (alphaCompensated * alphaCorrR[range] * (1 + mlxParams.ksTo[range] * (To - mlxParams.ct[range]))) + taTr)) - 273.15f;
                         
             dots[pixelNumber] = To;
         }
