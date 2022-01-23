@@ -134,7 +134,7 @@ static void DrawTask_Thread(void const *argument)
 {
 	(void) argument;
 	uint8_t i = 0;
-	uint8_t maxi = 25;
+	uint8_t maxi = 50;
 	uint8_t oneTimeOpDone = 0;
 
 	for (;;)
