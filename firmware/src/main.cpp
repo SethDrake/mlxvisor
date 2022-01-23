@@ -8,8 +8,8 @@
 
 #include "cpu_utils.h"
 
-uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE];
-uint16_t gradientFb[10 * 24 * THERMAL_SCALE];
+static uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE];
+static uint16_t gradientFb[10 * 24 * THERMAL_SCALE];
 
 osThreadId LEDThread1Handle, LEDThread2Handle, IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle;
 

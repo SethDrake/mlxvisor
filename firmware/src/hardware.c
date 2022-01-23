@@ -58,10 +58,7 @@ void GPIO_Init()
 	/* Enable GPIO clock */
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
-	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_GPIOD_CLK_ENABLE();
-	// __HAL_RCC_GPIOF_CLK_ENABLE();
-	// __HAL_RCC_GPIOG_CLK_ENABLE();
 
 	/* Configure I2C Pins */
 	GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
@@ -145,7 +142,7 @@ void SPI_Init()
 	if (HAL_SPI_GetState(&spi1) == HAL_SPI_STATE_RESET)
 	{
 		/* SPI configuration -----------------------------------------------------*/
-		spi1.Instance = SPI2;
+		spi1.Instance = SPI1;
 		spi1.Init.BaudRatePrescaler = SPI1_PRESCALER;
 		spi1.Init.Direction      = SPI_DIRECTION_2LINES;
 		spi1.Init.CLKPhase       = SPI_PHASE_1EDGE;
@@ -159,7 +156,7 @@ void SPI_Init()
 		spi1.Init.Mode           = SPI_MODE_MASTER;
 
 		/* Enable SPI1 clock */
-		__HAL_RCC_SPI2_CLK_ENABLE();
+		__HAL_RCC_SPI1_CLK_ENABLE();
 	} 
 }
 
@@ -181,7 +178,7 @@ void DMA_Init()
 	hdma.Init.MemBurst            = DMA_MBURST_INC4;
 	hdma.Init.PeriphBurst         = DMA_PBURST_INC4;
 
-	__HAL_RCC_DMA1_CLK_ENABLE();
+	__HAL_RCC_DMA2_CLK_ENABLE();
   
 	HAL_DMA_Init(&hdma);   
   
