@@ -100,7 +100,7 @@ static void LED_Thread2(void const *argument)
 static void IrSensor_Thread(void const *argument)
 {
 	(void) argument;
-	uint8_t oneTimeOpDone = 0;
+	// uint8_t oneTimeOpDone = 0;
 
 	for (;;)
 	{
@@ -122,11 +122,6 @@ static void IrSensor_Thread(void const *argument)
 			irSensor.findMinAndMaxTemp();
 			irSensor.visualizeImage(framebuffer, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, vis_mode);
 
-			if (!oneTimeOpDone) {
-				irSensor.drawGradient(gradientFb, 10, 24 * THERMAL_SCALE);
-				oneTimeOpDone = 1;
-			}
-
 			const TickType_t xTime2 = xTaskGetTickCount();
 			xSensorTime = xTime2 - xTime1;
 			isSensorReadDone = true;
@@ -139,20 +134,28 @@ static void DrawTask_Thread(void const *argument)
 {
 	(void) argument;
 	uint8_t i = 0;
-	uint8_t maxi = 4;
+	uint8_t maxi = 50;
 	uint8_t oneTimeOpDone = 0;
 
 	for (;;)
 	{
 		if (!oneTimeOpDone) {
-			display.bufferDraw(224, 71, 10, 24 * THERMAL_SCALE, gradientFb);
+			irSensor.drawGradient(gradientFb, 10, 24 * THERMAL_SCALE);
+			display.bufferDraw(32 * THERMAL_SCALE, 239 - 24 * THERMAL_SCALE, 10, 24 * THERMAL_SCALE, gradientFb);
 			oneTimeOpDone = 1;
 		}
 
-		const uint16_t cpuUsage = osGetCPUUsage();
 		const TickType_t xTime1 = xTaskGetTickCount();
-		display.bufferDraw(0, 71, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, framebuffer);
+		display.bufferDraw(0, 239 - 24 * THERMAL_SCALE, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, framebuffer);
 		if (i >= maxi) {
+			const uint16_t cpuUsage = osGetCPUUsage();
+			const int16_t maxTemp = (int16_t)irSensor.getMaxTemp();
+			const int16_t minTemp = (int16_t)irSensor.getMinTemp();
+
+			display.fillScreen(235, 67, 319, 239, BLACK); //clear info panel
+			display.printf(235, 225, WHITE, BLACK, "%u\x81", maxTemp);
+			display.printf(235, 68, GREEN, BLACK, "%u\x81", minTemp);
+
 			display.printf(0, 0, WHITE, BLACK, "Frm:%03ums Scan:%03ums CPU:%02u%% VM:%01u W:%02u", xDrawTime, xSensorTime, cpuUsage, vis_mode, inWait);
 			i = 0;
 		}

@@ -1022,15 +1022,15 @@ uint16_t IRSensor::getColdDotIndex()
 
 void IRSensor::drawGradient(uint16_t* fb, uint16_t sizeX, uint16_t sizeY)
 {
-	const float diff = (maxTemp + minTempCorr - minTemp + maxTempCorr) / sizeY;
+	const float diff = 10.0f / sizeY;
 	uint16_t line[sizeY];
 	for (uint8_t j = 0; j < sizeY; j++)
 	{
-		const float temp = minTemp + (diff * j);
-		line[j] = temperatureToRGB565(temp, minTemp + minTempCorr, maxTemp + maxTempCorr);	
+		const float temp = 20.0f + (diff * j);
+		line[j] = temperatureToRGB565(temp, 20.0f, 30.0f);	
 	}
 
-	volatile uint16_t *pSdramAddress = fb;
+	volatile uint16_t* pSdramAddress = fb;
 	for (uint8_t i = 0; i < sizeX; i++)
 	{
 		for (uint8_t j = 0; j < sizeY; j++)
