@@ -15,6 +15,7 @@ osThreadId LEDThread1Handle, LEDThread2Handle, IRSensorThreadHandle, ReadKeysTas
 
 IRSensor irSensor;
 ILI9341 display;
+float emissivity = 0.95f;
 
 volatile uint8_t vis_mode = 1;
 volatile bool isSensorReady = false;
@@ -110,13 +111,14 @@ static void IrSensor_Thread(void const *argument)
 				inWait = inWait + 1;
 				osDelay(10);
 			}
-			irSensor.readImage(0.95f); //first subpage
+			irSensor.readImage(); //first subpage
 			while (!irSensor.isFrameReady())
 			{
 				inWait = inWait + 1;
 				osDelay(10);
 			}
-			irSensor.readImage(0.95f); // second subpage
+			irSensor.readImage(); // second subpage
+			irSensor.calculateTempMap(emissivity);
 			irSensor.findMinAndMaxTemp();
 			irSensor.visualizeImage(framebuffer, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, vis_mode);
 

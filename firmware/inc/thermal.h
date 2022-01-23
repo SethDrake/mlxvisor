@@ -27,8 +27,8 @@ public:
 	void setMlxMode(mlx90640_mode_t mode);
 	bool isFrameReady();
 	bool isImageReady();
-	void readImage(float emissivity);
-	void calculateTempMap(float emissivity, float tr);
+	void readImage();
+	void calculateTempMap(float emissivity);
 	void calculateImageMap();
 	void findMinAndMaxTemp();
 	uint16_t getSubPage();

@@ -28,7 +28,7 @@ bool IRSensor::init(I2C_HandleTypeDef* i2c, const uint8_t* colorScheme)
 	    return false;
     }
 
-    setADCResolution(MLX90640_ADC_19BIT);
+    setADCResolution(MLX90640_ADC_18BIT);
     setRefreshRate(MLX90640_16_HZ);
     setMlxMode(MLX90640_CHESS);
 
@@ -702,7 +702,7 @@ uint8_t IRSensor::CheckAdjacentPixels(uint16_t pix1, uint16_t pix2)
      return 0;  
 }
 
-void IRSensor::readImage(float emissivity)
+void IRSensor::readImage()
 {
 	const uint8_t MAX_ATTEMPS = 5;
     uint16_t statusRegister = 0;
@@ -756,18 +756,16 @@ void IRSensor::readImage(float emissivity)
 	{
 		this->recalcCnt = 0;
 	}
-
-    const float tr = this->ta - OPENAIR_TA_SHIFT;
-
-	calculateTempMap(emissivity, tr);
 }
 
-void IRSensor::calculateTempMap(float emissivity, float tr)
+void IRSensor::calculateTempMap(float emissivity)
 {
 	float irDataCP[2];
 	int8_t pattern;
 	float alphaCorrR[4];
     int8_t range;
+
+	const float tr = this->ta - OPENAIR_TA_SHIFT;
 
 	const uint16_t subPage = frameData[833];
     
