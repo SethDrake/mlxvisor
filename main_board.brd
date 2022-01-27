@@ -32,8 +32,8 @@
 <layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="yes"/>
 <layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="yes"/>
 <layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="yes"/>
-<layer number="25" name="tNames" color="7" fill="1" visible="yes" active="yes"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="yes"/>
+<layer number="25" name="tNames" color="7" fill="1" visible="no" active="yes"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="no" active="yes"/>
 <layer number="27" name="tValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="28" name="bValues" color="7" fill="1" visible="no" active="yes"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="yes"/>
@@ -2487,16 +2487,16 @@ design rules under a new name.</description>
 <attribute name="SPICEPREFIX" value="R" x="48.1838" y="114.1222" size="1.778" layer="27" rot="R180" display="off"/>
 <attribute name="VALUE" x="80.5688" y="55.7022" size="1.27" layer="27" rot="R180"/>
 </element>
-<element name="S1" library="SSA12G" package="SW_SSA12G" value="" x="46.101" y="67.945" smashed="yes" rot="MR0">
-<attribute name="AVAILABILITY" value="In Stock" x="9.271" y="22.225" size="1.778" layer="28" rot="MR0" display="off"/>
-<attribute name="COMMENT" value="1-1437575-5" x="9.271" y="22.225" size="1.778" layer="28" rot="MR0" display="off"/>
-<attribute name="DESCRIPTION" value=" 2 Position SPDT Extended Top Actuator Through Hole Vertical Mount Slide Switch " x="9.271" y="22.225" size="1.778" layer="28" rot="MR0" display="off"/>
-<attribute name="MF" value="TE Connectivity" x="9.271" y="22.225" size="1.778" layer="28" rot="MR0" display="off"/>
-<attribute name="MP" value="SSA12G" x="9.271" y="22.225" size="1.778" layer="28" rot="MR0" display="off"/>
-<attribute name="NAME" x="50.854090625" y="70.196459375" size="1.779159375" layer="26" rot="MR0"/>
-<attribute name="PACKAGE" value="None" x="9.271" y="22.225" size="1.778" layer="28" rot="MR0" display="off"/>
-<attribute name="PRICE" value="None" x="9.271" y="22.225" size="1.778" layer="28" rot="MR0" display="off"/>
-<attribute name="VALUE" x="50.855709375" y="63.94103125" size="1.779759375" layer="28" rot="MR0"/>
+<element name="S1" library="SSA12G" package="SW_SSA12G" value="" x="46.0883" y="67.9069" smashed="yes" rot="R180">
+<attribute name="AVAILABILITY" value="In Stock" x="9.2583" y="113.6269" size="1.778" layer="27" rot="R180" display="off"/>
+<attribute name="COMMENT" value="1-1437575-5" x="9.2583" y="113.6269" size="1.778" layer="27" rot="R180" display="off"/>
+<attribute name="DESCRIPTION" value=" 2 Position SPDT Extended Top Actuator Through Hole Vertical Mount Slide Switch " x="9.2583" y="113.6269" size="1.778" layer="27" rot="R180" display="off"/>
+<attribute name="MF" value="TE Connectivity" x="9.2583" y="113.6269" size="1.778" layer="27" rot="R180" display="off"/>
+<attribute name="MP" value="SSA12G" x="9.2583" y="113.6269" size="1.778" layer="27" rot="R180" display="off"/>
+<attribute name="NAME" x="50.841390625" y="65.655440625" size="1.779159375" layer="25" rot="R180"/>
+<attribute name="PACKAGE" value="None" x="9.2583" y="113.6269" size="1.778" layer="27" rot="R180" display="off"/>
+<attribute name="PRICE" value="None" x="9.2583" y="113.6269" size="1.778" layer="27" rot="R180" display="off"/>
+<attribute name="VALUE" x="50.843009375" y="71.91086875" size="1.779759375" layer="27" rot="R180"/>
 </element>
 <element name="S2" library="int-1500m90b" package="SW6-3.25-10X10X8.6MM" value="INT-1500M90B" x="87.63" y="31.75" smashed="yes">
 <attribute name="AVAILABILITY" value="Not in stock" x="106.68" y="3.81" size="1.778" layer="27" display="off"/>
@@ -3105,14 +3105,14 @@ design rules under a new name.</description>
 <wire x1="68.3641" y1="63.8048" x2="69.6341" y2="62.5348" width="1.016" layer="1"/>
 <wire x1="68.3641" y1="63.8048" x2="63.5" y2="63.8048" width="1.016" layer="1"/>
 <wire x1="63.5" y1="63.8048" x2="63.1825" y2="63.8048" width="1.016" layer="1"/>
-<wire x1="48.601" y1="67.945" x2="49.871" y2="66.675" width="1.016" layer="1"/>
-<wire x1="49.871" y1="66.675" x2="49.871" y2="65.699" width="1.016" layer="1"/>
 <wire x1="51.5817" y1="63.9883" x2="63.9699" y2="63.9883" width="1.016" layer="1"/>
-<wire x1="49.871" y1="65.699" x2="51.5817" y2="63.9883" width="1.016" layer="1"/>
+<wire x1="51.5817" y1="63.9883" x2="49.871" y2="65.699" width="1.016" layer="1"/>
 <wire x1="63.9699" y1="63.9883" x2="63.9699" y2="65.1383" width="1.016" layer="1"/>
 <wire x1="63.9699" y1="65.1383" x2="65.7098" y2="66.8782" width="1.016" layer="1"/>
 <wire x1="63.9699" y1="63.9883" x2="63.7864" y2="63.8048" width="0.3" layer="1"/>
 <wire x1="63.7864" y1="63.8048" x2="63.5" y2="63.8048" width="0.3" layer="1"/>
+<wire x1="49.871" y1="65.699" x2="48.5883" y2="66.9817" width="1.016" layer="1"/>
+<wire x1="48.5883" y1="66.9817" x2="48.5883" y2="67.9069" width="1.016" layer="1"/>
 </signal>
 <signal name="VDDA" class="1">
 <contactref element="U1" pad="22"/>
@@ -3135,10 +3135,12 @@ design rules under a new name.</description>
 <contactref element="S1" pad="2"/>
 <wire x1="58.928" y1="60.409" x2="55.141" y2="60.409" width="0.8128" layer="1"/>
 <wire x1="55.141" y1="60.409" x2="54.991" y2="60.259" width="0.3" layer="1"/>
-<wire x1="54.991" y1="60.259" x2="51.882" y2="60.259" width="1.016" layer="1"/>
-<wire x1="51.882" y1="60.259" x2="46.0502" y2="66.0908" width="1.016" layer="1"/>
-<wire x1="46.101" y1="67.945" x2="46.0502" y2="67.8942" width="1.016" layer="1"/>
-<wire x1="46.0502" y1="67.8942" x2="46.0502" y2="66.0908" width="1.016" layer="1"/>
+<wire x1="54.991" y1="60.259" x2="52.07" y2="60.259" width="1.016" layer="1"/>
+<wire x1="52.07" y1="60.259" x2="51.882" y2="60.259" width="1.016" layer="1"/>
+<wire x1="51.882" y1="60.259" x2="47.056" y2="60.259" width="1.016" layer="1"/>
+<wire x1="47.056" y1="60.259" x2="46.0756" y2="61.2394" width="1.016" layer="1"/>
+<wire x1="46.0756" y1="61.2394" x2="46.0756" y2="67.8942" width="1.016" layer="1"/>
+<wire x1="46.0756" y1="67.8942" x2="46.0883" y2="67.9069" width="1.016" layer="1"/>
 </signal>
 <signal name="PROG">
 <contactref element="U4" pad="5"/>
@@ -3307,11 +3309,11 @@ design rules under a new name.</description>
 <contactref element="U1" pad="31"/>
 <contactref element="JP4" pad="9"/>
 <wire x1="34.23" y1="30.17" x2="29.647" y2="30.17" width="0.3" layer="1"/>
-<wire x1="29.647" y1="30.17" x2="28.5623" y2="31.2547" width="0.3" layer="1"/>
-<wire x1="28.5623" y1="31.2547" x2="28.5369" y2="31.2293" width="0.3" layer="1"/>
-<via x="28.5369" y="31.2293" extent="1-16" drill="0.9"/>
-<wire x1="28.5369" y1="31.2293" x2="28.5369" y2="25.9969" width="0.3" layer="16"/>
-<wire x1="28.5369" y1="25.9969" x2="25.4508" y2="22.9108" width="0.3" layer="16"/>
+<wire x1="29.647" y1="30.17" x2="28.63215" y2="31.18485" width="0.3" layer="1"/>
+<wire x1="28.63215" y1="31.18485" x2="28.6893" y2="31.242" width="0.3" layer="1"/>
+<via x="28.6893" y="31.242" extent="1-16" drill="0.9"/>
+<wire x1="28.6893" y1="31.242" x2="28.6893" y2="26.1493" width="0.3" layer="16"/>
+<wire x1="28.6893" y1="26.1493" x2="25.4508" y2="22.9108" width="0.3" layer="16"/>
 <wire x1="25.4508" y1="22.9108" x2="13.1191" y2="22.9108" width="0.3" layer="16"/>
 <wire x1="13.1191" y1="22.9108" x2="9.3091" y2="26.7208" width="0.3" layer="16"/>
 <wire x1="9.3091" y1="26.7208" x2="6.7691" y2="26.7208" width="0.3" layer="16"/>
@@ -3325,11 +3327,11 @@ design rules under a new name.</description>
 <wire x1="17.9602" y1="35.9894" x2="19.05" y2="34.8996" width="0.3" layer="16"/>
 <wire x1="19.05" y1="34.8996" x2="19.05" y2="30.48" width="0.3" layer="16"/>
 <wire x1="26.6954" y1="26.2128" x2="26.6954" y2="30.4292" width="0.3" layer="16"/>
-<wire x1="26.6954" y1="30.4292" x2="26.0731" y2="31.0515" width="0.3" layer="16"/>
-<wire x1="26.0731" y1="31.0515" x2="26.0477" y2="31.0515" width="0.3" layer="16"/>
-<via x="26.0477" y="31.0515" extent="1-16" drill="0.9"/>
-<wire x1="34.23" y1="29.67" x2="27.4292" y2="29.67" width="0.3" layer="1"/>
-<wire x1="27.4292" y1="29.67" x2="26.0477" y2="31.0515" width="0.3" layer="1"/>
+<wire x1="26.6954" y1="30.4292" x2="26.0985" y2="31.0261" width="0.3" layer="16"/>
+<wire x1="26.0985" y1="31.0261" x2="25.8953" y2="31.0261" width="0.3" layer="16"/>
+<via x="25.8953" y="31.0261" extent="1-16" drill="0.9"/>
+<wire x1="34.23" y1="29.67" x2="27.2514" y2="29.67" width="0.3" layer="1"/>
+<wire x1="27.2514" y1="29.67" x2="25.8953" y2="31.0261" width="0.3" layer="1"/>
 <wire x1="21.8313" y1="27.6987" x2="21.8313" y2="25.6159" width="0.3" layer="16"/>
 <wire x1="21.8313" y1="25.6159" x2="23.1775" y2="24.2697" width="0.3" layer="16"/>
 <wire x1="24.7523" y1="24.2697" x2="26.6954" y2="26.2128" width="0.3" layer="16"/>
