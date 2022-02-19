@@ -6,7 +6,7 @@
 <setting alwaysvectorfont="no"/>
 <setting verticaltext="up"/>
 </settings>
-<grid distance="50" unitdist="mil" unit="mm" style="dots" multiple="1" display="yes" altdistance="5" altunitdist="mil" altunit="mm"/>
+<grid distance="50" unitdist="mil" unit="mm" style="dots" multiple="1" display="yes" altdistance="0.0127" altunitdist="mm" altunit="mm"/>
 <layers>
 <layer number="1" name="Top" color="4" fill="1" visible="yes" active="yes"/>
 <layer number="2" name="Route2" color="16" fill="1" visible="no" active="no"/>
@@ -73,20 +73,16 @@
 <layer number="99" name="SpiceOrder" color="5" fill="1" visible="no" active="no"/>
 </layers>
 <board>
+<fusionsync huburn="a.YnVzaW5lc3M6cmFtYmxlcjY5Nw" projecturn="a.YnVzaW5lc3M6cmFtYmxlcjY5NyNEMjAxOTEyMjQyNDk2OTMxNTE" f3durn="urn:adsk.wipprod:dm.lineage:bHDcZ2FaTXqtTl9IB7PqNQ" pcbguid="" lastpulledtime="" lastsyncedchangeguid="" latestrevisionid="95c03de1-c068-4b4e-b2f2-ce3e2071d574" lastsyncedrevisionid="95c03de1-c068-4b4e-b2f2-ce3e2071d574" lastboardhashguid="d1d654ad-80bb-0683-6bda-78ac676d0201" lastpushedtime="2022-01-27T18:53:14Z" linktopcb3d="false"/>
 <plain>
 <wire x1="0" y1="0" x2="100.31" y2="0" width="0" layer="20" grouprefs="DISPLAY_BORDER"/>
-<wire x1="100.31" y1="0" x2="100.2592" y2="69.7994" width="0" layer="20"/>
-<wire x1="100.2592" y1="69.7994" x2="0.0381" y2="69.7867" width="0" layer="20"/>
-<wire x1="0.0381" y1="69.7867" x2="0" y2="0" width="0" layer="20" grouprefs="DISPLAY_BORDER"/>
+<wire x1="100.31" y1="0" x2="100.2592" y2="74.8794" width="0" layer="20"/>
+<wire x1="100.2592" y1="74.8794" x2="0.0381" y2="74.8667" width="0" layer="20"/>
+<wire x1="0.0381" y1="74.8667" x2="0" y2="0" width="0" layer="20" grouprefs="DISPLAY_BORDER"/>
 <wire x1="4.2291" y1="8.9408" x2="79.1591" y2="8.9408" width="0.3" layer="37" grouprefs="DISPLAY_BORDER"/>
 <wire x1="79.1591" y1="8.9408" x2="79.1591" y2="52.1208" width="0.3" layer="37" grouprefs="DISPLAY_BORDER"/>
 <wire x1="79.1591" y1="52.1208" x2="4.2291" y2="52.1208" width="0.3" layer="37" grouprefs="DISPLAY_BORDER"/>
 <wire x1="4.2291" y1="52.1208" x2="4.2291" y2="8.9408" width="0.3" layer="37" grouprefs="DISPLAY_BORDER"/>
-<hole x="3.81" y="66.04" drill="1"/>
-<hole x="3.81" y="3.81" drill="1"/>
-<hole x="96.52" y="66.04" drill="1"/>
-<hole x="69.85" y="3.81" drill="1"/>
-<hole x="55.88" y="66.04" drill="1"/>
 </plain>
 <libraries>
 <library name="rcl" urn="urn:adsk.eagle:library:334">
@@ -3194,14 +3190,12 @@ design rules under a new name.</description>
 <contactref element="U1" pad="9"/>
 <contactref element="Z2" pad="1"/>
 <contactref element="C4" pad="1"/>
-<wire x1="43.91" y1="34.35" x2="43.9576" y2="34.3976" width="0.3" layer="1"/>
-<wire x1="43.9576" y1="34.3976" x2="43.9576" y2="35.59805" width="0.3" layer="1"/>
-<wire x1="43.9576" y1="35.59805" x2="44.49895" y2="36.1394" width="0.3" layer="1"/>
-<wire x1="44.51660625" y1="36.1394" x2="44.49895" y2="36.1394" width="0.3" layer="1"/>
-<wire x1="44.51660625" y1="36.1394" x2="46.47720625" y2="38.1" width="0.3" layer="1"/>
+<wire x1="43.91" y1="34.35" x2="43.9068" y2="34.3532" width="0.3" layer="1"/>
+<wire x1="43.9068" y1="35.59805" x2="43.9068" y2="34.3532" width="0.3" layer="1"/>
+<wire x1="43.9068" y1="35.59805" x2="46.40875" y2="38.1" width="0.3" layer="1"/>
 <wire x1="50.8" y1="38.1" x2="54.61" y2="41.91" width="0.3" layer="1"/>
 <wire x1="54.61" y1="41.91" x2="55.88" y2="41.91" width="0.8128" layer="1"/>
-<wire x1="46.47720625" y1="38.1" x2="50.8" y2="38.1" width="0.3" layer="1"/>
+<wire x1="46.40875" y1="38.1" x2="50.8" y2="38.1" width="0.3" layer="1"/>
 <wire x1="55.433" y1="44.45" x2="55.88" y2="44.003" width="0.3" layer="1"/>
 <wire x1="55.88" y1="44.003" x2="55.88" y2="41.91" width="0.8128" layer="1"/>
 </signal>
@@ -3369,10 +3363,9 @@ design rules under a new name.</description>
 <wire x1="22.86" y1="39.37" x2="22.86" y2="30.353" width="0.3" layer="16"/>
 <wire x1="22.86" y1="30.353" x2="24.2062" y2="29.0068" width="0.3" layer="16"/>
 <via x="24.2062" y="29.0068" extent="1-16" drill="0.9"/>
-<wire x1="34.2154" y1="29.1719" x2="24.3713" y2="29.1719" width="0.3" layer="1"/>
+<wire x1="34.2281" y1="29.1719" x2="24.3713" y2="29.1719" width="0.3" layer="1"/>
 <wire x1="24.2062" y1="29.0068" x2="24.3713" y2="29.1719" width="0.3" layer="1"/>
-<wire x1="34.2173" y1="29.17" x2="34.2154" y2="29.1719" width="0.3" layer="1"/>
-<wire x1="34.2173" y1="29.17" x2="34.23" y2="29.17" width="0.3" layer="1"/>
+<wire x1="34.23" y1="29.17" x2="34.2281" y2="29.1719" width="0.3" layer="1"/>
 </signal>
 <signal name="LCD_DC">
 <contactref element="U1" pad="34"/>
@@ -3383,9 +3376,9 @@ design rules under a new name.</description>
 <wire x1="24.0284" y1="26.5303" x2="21.3868" y2="29.1719" width="0.3" layer="16"/>
 <via x="24.0284" y="26.0223" extent="1-16" drill="0.9"/>
 <wire x1="24.0284" y1="26.0223" x2="26.5811" y2="28.575" width="0.3" layer="1"/>
-<wire x1="32.385" y1="28.575" x2="32.4866" y2="28.6766" width="0.3" layer="1"/>
-<wire x1="32.4866" y1="28.6766" x2="34.2234" y2="28.6766" width="0.3" layer="1"/>
-<wire x1="34.2234" y1="28.6766" x2="34.23" y2="28.67" width="0.3" layer="1"/>
+<wire x1="32.385" y1="28.575" x2="32.4739" y2="28.6639" width="0.3" layer="1"/>
+<wire x1="34.23" y1="28.67" x2="34.2239" y2="28.6639" width="0.3" layer="1"/>
+<wire x1="34.2239" y1="28.6639" x2="32.4739" y2="28.6639" width="0.3" layer="1"/>
 <wire x1="19.939" y1="36.8808" x2="21.3868" y2="35.433" width="0.3" layer="16"/>
 <wire x1="26.5811" y1="28.575" x2="32.385" y2="28.575" width="0.3" layer="1"/>
 </signal>
@@ -3492,6 +3485,21 @@ design rules under a new name.</description>
 <vertex x="44.2849" y="67.31"/>
 </polygon>
 </signal>
+<signal name="N$4">
+<via x="3.81" y="66.04" extent="1-16" drill="1"/>
+</signal>
+<signal name="N$12">
+<via x="55.88" y="66.04" extent="1-16" drill="1"/>
+</signal>
+<signal name="N$13">
+<via x="96.52" y="66.04" extent="1-16" drill="1"/>
+</signal>
+<signal name="N$14">
+<via x="3.81" y="3.81" extent="1-16" drill="1"/>
+</signal>
+<signal name="N$15">
+<via x="69.85" y="3.81" extent="1-16" drill="1"/>
+</signal>
 </signals>
 <mfgpreviewcolors>
 <mfgpreviewcolor name="soldermaskcolor" color="0xC8008000"/>
@@ -3511,6 +3519,11 @@ design rules under a new name.</description>
 Since Version 8.2, EAGLE supports online libraries. The ids
 of those online libraries will not be understood (or retained)
 with this version.
+</note>
+<note version="8.3" severity="warning">
+Since Version 8.3, EAGLE supports Fusion synchronisation.
+This feature will not be available in this version and saving
+the document will break the link to the Fusion PCB feature.
 </note>
 <note version="8.3" severity="warning">
 Since Version 8.3, EAGLE supports URNs for individual library
