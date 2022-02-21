@@ -76,10 +76,10 @@ static void LED_Thread1(void const *argument)
 	{
 		//if (isSensorReady)
 		{
-			GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 1);
+			//GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 1);
 			osDelay(250);
 		}
-		GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 0);
+		//GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 0);
 		osDelay(250);
 	}
 }
@@ -90,9 +90,9 @@ static void LED_Thread2(void const *argument)
   
 	for (;;)
 	{
-		GPIO_WritePin(USR_LED4_PORT, USR_LED4_PIN, 1);
+		//GPIO_WritePin(USR_LED4_PORT, USR_LED4_PIN, 1);
 		osDelay(1000);
-		GPIO_WritePin(USR_LED4_PORT, USR_LED4_PIN, 0);
+		//GPIO_WritePin(USR_LED4_PORT, USR_LED4_PIN, 0);
 		osDelay(1000);
 	}
 }
@@ -173,7 +173,7 @@ static void ReadKeys_Thread(void const *argument)
 	bool isPressed = false;
 	for (;;)
 	{
-		if (GPIO_ReadPin(USR_BTN_PORT, USR_BTN_PIN))
+		if (GPIO_ReadPin(USR_BTN_OK_PORT, USR_BTN_OK_PIN))
 		{
 			if (isPressed)
 			{
@@ -199,7 +199,7 @@ static void ReadKeys_Thread(void const *argument)
 void Error_Handler(const uint8_t source)
 {
 	uint8_t k = source;
-	GPIO_WritePin(USR_LED3_PORT, USR_LED3_PIN, 1);
+	//GPIO_WritePin(USR_LED3_PORT, USR_LED3_PIN, 1);
 	while (true) {}
 }
 

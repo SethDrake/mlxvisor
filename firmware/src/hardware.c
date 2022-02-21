@@ -58,6 +58,7 @@ void GPIO_Init()
 	/* Enable GPIO clock */
 	__HAL_RCC_GPIOA_CLK_ENABLE();
 	__HAL_RCC_GPIOB_CLK_ENABLE();
+	__HAL_RCC_GPIOC_CLK_ENABLE();
 	__HAL_RCC_GPIOD_CLK_ENABLE();
 
 	/* Configure I2C Pins */
@@ -85,10 +86,18 @@ void GPIO_Init()
 	/* Configure the Common GPIOs */
 	/* Input */
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Pull = GPIO_PULLDOWN;
 	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	GPIO_InitStruct.Pin = USR_BTN_PIN; //BTN
-	HAL_GPIO_Init(USR_BTN_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin = USR_BTN_OK_PIN; 
+	HAL_GPIO_Init(USR_BTN_OK_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin = USR_BTN_U_PIN; 
+	HAL_GPIO_Init(USR_BTN_U_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin = USR_BTN_R_PIN; 
+	HAL_GPIO_Init(USR_BTN_R_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin = USR_BTN_D_PIN; 
+	HAL_GPIO_Init(USR_BTN_D_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin = USR_BTN_L_PIN; 
+	HAL_GPIO_Init(USR_BTN_L_PORT, &GPIO_InitStruct);
 
 	/* Output */
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -101,17 +110,17 @@ void GPIO_Init()
 	// GPIO_InitStruct.Pin = LCD_RESET_PIN; //LCD RESET
 	// HAL_GPIO_Init(LCD_RESET_PORT, &GPIO_InitStruct);
 	
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	GPIO_InitStruct.Pin = USR_LED1_PIN; //LED1
-	HAL_GPIO_Init(USR_LED1_PORT, &GPIO_InitStruct);
-	GPIO_InitStruct.Pin = USR_LED2_PIN; //LED2
-	HAL_GPIO_Init(USR_LED2_PORT, &GPIO_InitStruct);
-	GPIO_InitStruct.Pin = USR_LED3_PIN; //LED3
-	HAL_GPIO_Init(USR_LED3_PORT, &GPIO_InitStruct);
-	GPIO_InitStruct.Pin = USR_LED4_PIN; //LED4
-	HAL_GPIO_Init(USR_LED4_PORT, &GPIO_InitStruct);
+	// GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	// GPIO_InitStruct.Pull = GPIO_NOPULL;
+	// GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	// GPIO_InitStruct.Pin = USR_LED1_PIN; //LED1
+	// HAL_GPIO_Init(USR_LED1_PORT, &GPIO_InitStruct);
+	// GPIO_InitStruct.Pin = USR_LED2_PIN; //LED2
+	// HAL_GPIO_Init(USR_LED2_PORT, &GPIO_InitStruct);
+	// GPIO_InitStruct.Pin = USR_LED3_PIN; //LED3
+	// HAL_GPIO_Init(USR_LED3_PORT, &GPIO_InitStruct);
+	// GPIO_InitStruct.Pin = USR_LED4_PIN; //LED4
+	// HAL_GPIO_Init(USR_LED4_PORT, &GPIO_InitStruct);
 }
 
 void I2C_Init()
