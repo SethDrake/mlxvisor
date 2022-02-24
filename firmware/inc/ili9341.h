@@ -33,7 +33,6 @@ protected:
 	volatile uint16_t bgColor;
 	const unsigned char *font;
 	volatile bool isLandscape;
-	volatile bool isBusy;
 
 private:
 	void sendCmd(uint8_t cmd);

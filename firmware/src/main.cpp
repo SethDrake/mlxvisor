@@ -100,7 +100,6 @@ static void LED_Thread2(void const *argument)
 static void IrSensor_Thread(void const *argument)
 {
 	(void) argument;
-	// uint8_t oneTimeOpDone = 0;
 
 	for (;;)
 	{
