@@ -8,7 +8,7 @@
  extern "C" {
 #endif
 
-#define I2C1_SPEED          800000
+#define I2C1_SPEED          1000000
 #define SPI1_PRESCALER      SPI_BAUDRATEPRESCALER_2
 #define SPI1_PRESCALER_SLOW SPI_BAUDRATEPRESCALER_16
 

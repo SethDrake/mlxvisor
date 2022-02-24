@@ -1,6 +1,7 @@
 ﻿#include <thermal.h>
 #include <i2c.h>
 #include <math.h>
+#include <iostream>
 
 IRSensor::IRSensor()
 {
@@ -1054,39 +1055,8 @@ void IRSensor::visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint
 
 	if (method == 0)
 	{
-        for (uint16_t i = 0; i < 32 * 24; i++)
-		{
-			colors[i] = this->temperatureToRGB565(dots[i], minTemp + minTempCorr, maxTemp + maxTempCorr);		
-		}
-
-        const uint8_t scaleX = sizeX / 32;
-		const uint8_t scaleY = sizeY / 24;
-
-		col = 32;
-		while(col > 0)
-		{
-			for (uint8_t k = 0; k < scaleX; k++)
-            {
-	            row = 24;
-				while(row > 0)
-				{
-	                pixelIdx = ((row - 1) * 32) + (col - 1);
-					for (uint8_t j = 0; j < scaleY; j++) {
-		                *(volatile uint16_t *)pSdramAddress = colors[pixelIdx];
-		                pSdramAddress++;
-	                }
-					row--;
-				}
-            }
-			col--;
-		}
-	}
-	else if (method == 1)
-	{
-		float tmp, u, t, d1, d2, d3, d4;
-		float p1, p2, p3, p4;
-
-        for (uint16_t i = 0; i < 32 * 24; i++)
+		const uint16_t pixelsCnt = 32 * 24;
+		for (uint16_t i = 0; i < pixelsCnt; i++)
 		{
 			colors[i] = this->temperatureToRGB565(dots[i], minTemp + minTempCorr, maxTemp + maxTempCorr);		
 		}
@@ -1094,8 +1064,35 @@ void IRSensor::visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint
 		const uint8_t scaleX = sizeX / 32;
 		const uint8_t scaleY = sizeY / 24;
 
-		col = 32 * scaleX;
-		while(col > 0)
+		col = 0;
+		while(col < 32)
+		{
+			for (uint8_t k = 0; k < scaleX; k++)
+            {
+	            row = 0;
+				while(row < 24)
+				{
+	                pixelIdx = (row * 32) + col;
+					for (uint8_t j = 0; j < scaleY; j++) {
+		                *(volatile uint16_t *)pSdramAddress = colors[pixelIdx];
+		                pSdramAddress++;
+	                }
+					row++;
+				}
+            }
+			col++;
+		}
+	}
+	else if (method == 1)
+	{
+		float tmp, u, t, d1, d2, d3, d4;
+		float p1, p2, p3, p4;
+
+		const uint8_t scaleX = sizeX / 32;
+		const uint8_t scaleY = sizeY / 24;
+
+		col = 0;
+		while (col < 32 * scaleX)
 		{
 			t = col / (float)scaleX;
 			int16_t x = (int16_t)t;
@@ -1105,8 +1102,8 @@ void IRSensor::visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint
             }
             t = t - x;
 
-			row = 24 * scaleY;
-			while(row > 0)
+			row = 0;
+			while (row < 24 * scaleY)
 			{
 				u = row / (float)scaleY;
 				int16_t y = (int16_t)u;
@@ -1133,9 +1130,9 @@ void IRSensor::visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint
                 *(volatile uint16_t *)pSdramAddress = this->temperatureToRGB565(interp, minTemp + minTempCorr, maxTemp + maxTempCorr);
 	            pSdramAddress++;
 
-				row--;
+				row++;
 			}
-			col--;
+			col++;
 		}
 	}
 
