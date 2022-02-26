@@ -2799,12 +2799,9 @@ design rules under a new name.</description>
 <wire x1="74.1528" y1="63.0682" x2="76.1873" y2="63.0682" width="0.8128" layer="1"/>
 <wire x1="76.1873" y1="63.0682" x2="77.7138" y2="63.0682" width="0.8128" layer="1"/>
 <wire x1="77.7138" y1="63.0682" x2="77.9018" y2="63.2562" width="0.3" layer="1"/>
-<contactref element="U2" pad="P$5"/>
 <wire x1="88.1761" y1="61.3898" x2="87.5538" y2="61.3898" width="1.016" layer="1"/>
 <wire x1="87.5538" y1="61.3898" x2="87.1454" y2="61.3898" width="0.6096" layer="1"/>
 <wire x1="86.2838" y1="60.5282" x2="86.2838" y2="58.6232" width="0.3" layer="1"/>
-<wire x1="86.2838" y1="58.6232" x2="86.6648" y2="58.2422" width="0.3" layer="1"/>
-<wire x1="86.6648" y1="58.2422" x2="87.4338" y2="58.2422" width="0.3" layer="1"/>
 <wire x1="87.1454" y1="61.3898" x2="86.2838" y2="60.5282" width="0.3" layer="1"/>
 <wire x1="92.1738" y1="59.8422" x2="89.7237" y2="59.8422" width="0.6096" layer="1"/>
 <wire x1="89.7237" y1="59.8422" x2="88.1761" y2="61.3898" width="1.016" layer="1"/>
@@ -2888,6 +2885,9 @@ design rules under a new name.</description>
 <wire x1="94.94" y1="3.58" x2="93.9" y2="2.54" width="0.8128" layer="1"/>
 <wire x1="93.9" y1="2.54" x2="88.9" y2="2.54" width="0.8128" layer="1"/>
 <wire x1="87.63" y1="2.54" x2="88.9" y2="2.54" width="0.3" layer="1"/>
+<contactref element="U2" pad="P$2"/>
+<wire x1="86.2838" y1="58.6232" x2="85.9028" y2="58.2422" width="0.3" layer="1"/>
+<wire x1="85.9028" y1="58.2422" x2="85.1338" y2="58.2422" width="0.3" layer="1"/>
 </signal>
 <signal name="I2C_SDA">
 <contactref element="U1" pad="93"/>
@@ -2975,10 +2975,7 @@ design rules under a new name.</description>
 <contactref element="LED1" pad="A"/>
 <wire x1="75.8038" y1="60.6972" x2="76.4628" y2="61.3562" width="0.8128" layer="1"/>
 <wire x1="76.4628" y1="61.3562" x2="77.9018" y2="61.3562" width="0.8128" layer="1"/>
-<contactref element="U2" pad="P$2"/>
-<wire x1="85.1338" y1="58.2422" x2="85.7758" y2="58.2422" width="0.3" layer="1"/>
-<wire x1="85.7758" y1="58.2422" x2="86.2838" y2="57.7342" width="0.3" layer="1"/>
-<wire x1="86.2838" y1="57.7342" x2="86.2838" y2="56.8452" width="0.3" layer="1"/>
+<wire x1="86.2838" y1="56.8452" x2="86.2838" y2="57.7342" width="0.3" layer="1"/>
 <wire x1="86.2838" y1="56.8452" x2="87.0458" y2="56.0832" width="0.3" layer="1"/>
 <wire x1="92.0468" y1="56.5152" x2="92.1738" y2="56.6422" width="0.3" layer="1"/>
 <wire x1="92.0468" y1="56.5152" x2="90.7798" y2="56.5152" width="0.3" layer="1"/>
@@ -2996,6 +2993,9 @@ design rules under a new name.</description>
 <wire x1="73.704928125" y1="53.1622" x2="73.6854" y2="53.0987" width="0.8128" layer="1"/>
 <wire x1="77.9018" y1="57.3532" x2="77.9018" y2="54.0004" width="0.8128" layer="1"/>
 <wire x1="77.9018" y1="54.0004" x2="78.74" y2="53.1622" width="0.8128" layer="1"/>
+<contactref element="U2" pad="P$5"/>
+<wire x1="86.2838" y1="57.7342" x2="86.7918" y2="58.2422" width="0.3" layer="1"/>
+<wire x1="86.7918" y1="58.2422" x2="87.4338" y2="58.2422" width="0.3" layer="1"/>
 </signal>
 <signal name="D-">
 <contactref element="X1" pad="2"/>
