@@ -2,6 +2,9 @@
 #include <stm32f4xx_hal.h>
 #include <../CMSIS_RTOS/cmsis_os.h>
 #include "main.h"
+
+#include <cmath>
+
 #include "thermal.h"
 #include "ili9341.h"
 #include <string.h>
@@ -11,7 +14,7 @@
 static uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE];
 static uint16_t gradientFb[10 * 24 * THERMAL_SCALE];
 
-osThreadId LEDThread1Handle, LEDThread2Handle, IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle;
+osThreadId IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle;
 
 IRSensor irSensor;
 ILI9341 display;
@@ -20,12 +23,11 @@ float emissivity = 0.95f;
 volatile uint8_t vis_mode = 1;
 volatile bool isSensorReady = false;
 volatile bool isSensorReadDone = false;
+volatile bool isTImageDone = false;
 volatile TickType_t xSensorTime = 0;
 volatile TickType_t xDrawTime = 0;
 volatile uint32_t inWait = 0;
 
-static void LED_Thread1(void const *argument);
-static void LED_Thread2(void const *argument);
 static void IrSensor_Thread(void const *argument);
 static void ReadKeys_Thread(void const *argument);
 static void DrawTask_Thread(void const *argument);
@@ -47,14 +49,10 @@ int main(void)
 	
 	isSensorReady = irSensor.init(&i2c1, ALTERNATE_COLOR_SCHEME);
 
-	osThreadDef(LED1, LED_Thread1, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-	osThreadDef(LED2, LED_Thread2, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
 	osThreadDef(READ_KEYS, ReadKeys_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
 	osThreadDef(IR_SENSOR, IrSensor_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE + 1024);
 	osThreadDef(DRAW_TASK, DrawTask_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE + 1024);
-  
-	LEDThread1Handle = osThreadCreate(osThread(LED1), NULL);
-	LEDThread2Handle = osThreadCreate(osThread(LED2), NULL);
+
 	ReadKeysTaskHandle = osThreadCreate(osThread(READ_KEYS), NULL);
 	IRSensorThreadHandle = osThreadCreate(osThread(IR_SENSOR), NULL);
 	DrawTaskHandle = osThreadCreate(osThread(DRAW_TASK), NULL);
@@ -68,38 +66,31 @@ int main(void)
 	}
 }
 
-static void LED_Thread1(void const *argument)
+void drawRightPanel()
 {
-	(void) argument;
-  
-	for (;;)
-	{
-		//if (isSensorReady)
-		{
-			//GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 1);
-			osDelay(250);
-		}
-		//GPIO_WritePin(USR_LED1_PORT, USR_LED1_PIN, 0);
-		osDelay(250);
-	}
+	const int16_t maxTemp = (int16_t)irSensor.getMaxTemp();
+	const int16_t minTemp = (int16_t)irSensor.getMinTemp();
+
+	display.fillScreen(235, 225, 235 + 40, 225 + 14, BLACK); //clear right panel
+	display.printf(235, 225, WHITE, BLACK, "%d\x81", maxTemp);
+	display.fillScreen(235, 68, 235 + 40, 68 + 14, BLACK);
+	display.printf(235, 68, GREEN, BLACK, "%d\x81", minTemp);
 }
 
-static void LED_Thread2(void const *argument)
+void drawBottomPanel()
 {
-	(void) argument;
-  
-	for (;;)
-	{
-		//GPIO_WritePin(USR_LED4_PORT, USR_LED4_PIN, 1);
-		osDelay(1000);
-		//GPIO_WritePin(USR_LED4_PORT, USR_LED4_PIN, 0);
-		osDelay(1000);
-	}
+	const uint16_t cpuUsage = osGetCPUUsage();
+	display.printf(0, 14, WHITE, BLACK, "E=%.2f", emissivity);
+	display.printf(0, 0, WHITE, BLACK, "Frm:%03ums Scan:%03ums CPU:%02u%% VM:%01u W:%01u", xDrawTime, xSensorTime, cpuUsage, vis_mode, inWait);
 }
 
 static void IrSensor_Thread(void const *argument)
 {
 	(void) argument;
+	const uint16_t centerX = (32-1)/2 * THERMAL_SCALE;
+	const uint16_t centerY = (24-1)/2 * THERMAL_SCALE;
+	uint8_t i = 0;
+	const uint8_t maxi = 5;
 
 	for (;;)
 	{
@@ -117,9 +108,20 @@ static void IrSensor_Thread(void const *argument)
 				osDelay(10);
 			}
 			irSensor.readImage(); // second subpage
+		    isTImageDone = false;
 			irSensor.calculateTempMap(emissivity);
-			irSensor.findMinAndMaxTemp();
+
+			if (i >= maxi) {
+				irSensor.findMinAndMaxTemp();
+				i = 0;
+			}
+			i++;
+
 			irSensor.visualizeImage(framebuffer, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, vis_mode);
+			//central mark with temp
+			display.drawMarkInBuf(framebuffer, 24 * THERMAL_SCALE, centerX, centerY, WHITE);
+			display.printf(framebuffer, 24 * THERMAL_SCALE, centerX - 18, centerY - 25, WHITE, "%.1f\x81", irSensor.getCenterTemp());
+			isTImageDone = true;
 
 			const TickType_t xTime2 = xTaskGetTickCount();
 			xSensorTime = xTime2 - xTime1;
@@ -133,9 +135,9 @@ static void DrawTask_Thread(void const *argument)
 {
 	(void) argument;
 	uint8_t i = 0;
-	uint8_t maxi = 50;
+	const uint8_t maxi = 25;
 	uint8_t oneTimeOpDone = 0;
-
+	
 	for (;;)
 	{
 		if (!oneTimeOpDone) {
@@ -145,17 +147,14 @@ static void DrawTask_Thread(void const *argument)
 		}
 
 		const TickType_t xTime1 = xTaskGetTickCount();
-		display.bufferDraw(0, 239 - 24 * THERMAL_SCALE, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, framebuffer);
+
+		if (isTImageDone) {
+			display.bufferDraw(0, 239 - 24 * THERMAL_SCALE, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, framebuffer);
+		}
+
 		if (i >= maxi) {
-			const uint16_t cpuUsage = osGetCPUUsage();
-			const int16_t maxTemp = (int16_t)irSensor.getMaxTemp();
-			const int16_t minTemp = (int16_t)irSensor.getMinTemp();
-
-			display.fillScreen(235, 67, 319, 239, BLACK); //clear info panel
-			display.printf(235, 225, WHITE, BLACK, "%u\x81", maxTemp);
-			display.printf(235, 68, GREEN, BLACK, "%u\x81", minTemp);
-
-			display.printf(0, 0, WHITE, BLACK, "Frm:%03ums Scan:%03ums CPU:%02u%% VM:%01u W:%02u", xDrawTime, xSensorTime, cpuUsage, vis_mode, inWait);
+			drawRightPanel();
+			drawBottomPanel();
 			i = 0;
 		}
 		i++;
@@ -176,7 +175,7 @@ static void ReadKeys_Thread(void const *argument)
 		{
 			if (isPressed)
 			{
-				osDelay(350);
+				osDelay(200);
 				continue;
 			}
 			vis_mode++;
@@ -191,7 +190,7 @@ static void ReadKeys_Thread(void const *argument)
 		{
 			isPressed = false;
 		}
-		osDelay(75);
+		osDelay(200);
 	}
 }
 

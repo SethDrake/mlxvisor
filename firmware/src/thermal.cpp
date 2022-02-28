@@ -1,13 +1,16 @@
 ﻿#include <thermal.h>
+#include <ili9341.h>
 #include <i2c.h>
 #include <math.h>
 #include <iostream>
+#include <string.h>
 
 IRSensor::IRSensor()
 {
 	this->i2c = NULL;
 	this->minTemp = 0;
 	this->maxTemp = 0;
+	this->centerTemp = 0;
 	this->fbSizeX = 0;
 	this->fbSizeY = 0;
 	this->recalcCnt = 0;
@@ -761,6 +764,9 @@ void IRSensor::readImage()
 
 void IRSensor::calculateTempMap(float emissivity)
 {
+	//memcpy(dots, s_dots, sizeof(float) * 768); 
+    //return;
+
 	float irDataCP[2];
 	int8_t pattern;
 	float alphaCorrR[4];
@@ -1011,6 +1017,11 @@ float IRSensor::getMinTemp()
 	return this->minTemp;
 }
 
+float IRSensor::getCenterTemp()
+{
+    return this->centerTemp;
+}
+
 uint16_t IRSensor::getHotDotIndex()
 {
 	return this->hotDotIndex;
@@ -1036,7 +1047,7 @@ void IRSensor::drawGradient(uint16_t* fb, uint16_t sizeX, uint16_t sizeY)
 	{
 		for (uint8_t j = 0; j < sizeY; j++)
 		{
-			*(volatile uint16_t *)pSdramAddress = line[j];	
+			*pSdramAddress = line[j];	
 			pSdramAddress++;
 		}
 	}
@@ -1044,10 +1055,14 @@ void IRSensor::drawGradient(uint16_t* fb, uint16_t sizeX, uint16_t sizeY)
 
 void IRSensor::visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint8_t method)
 {
-	uint8_t col = 0;
-	uint8_t row = 0;
-	uint16_t pixelIdx;
-	uint16_t color;
+	uint8_t col;
+	uint8_t row;
+
+    fbSizeX = sizeX;
+    fbSizeY = sizeY;
+
+	const uint8_t scaleX = fbSizeX / 32;
+	const uint8_t scaleY = fbSizeY / 24;
 
 	volatile uint16_t* pSdramAddress = fb;//(uint16_t *)this->fb_addr;
 
@@ -1061,9 +1076,6 @@ void IRSensor::visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint
 			colors[i] = this->temperatureToRGB565(dots[i], minTemp + minTempCorr, maxTemp + maxTempCorr);		
 		}
 
-		const uint8_t scaleX = sizeX / 32;
-		const uint8_t scaleY = sizeY / 24;
-
 		col = 0;
 		while(col < 32)
 		{
@@ -1072,9 +1084,8 @@ void IRSensor::visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint
 	            row = 0;
 				while(row < 24)
 				{
-	                pixelIdx = (row * 32) + col;
 					for (uint8_t j = 0; j < scaleY; j++) {
-		                *(volatile uint16_t *)pSdramAddress = colors[pixelIdx];
+						*pSdramAddress = colors[(row * 32) + col];
 		                pSdramAddress++;
 	                }
 					row++;
@@ -1085,16 +1096,10 @@ void IRSensor::visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint
 	}
 	else if (method == 1)
 	{
-		float tmp, u, t, d1, d2, d3, d4;
-		float p1, p2, p3, p4;
-
-		const uint8_t scaleX = sizeX / 32;
-		const uint8_t scaleY = sizeY / 24;
-
 		col = 0;
 		while (col < 32 * scaleX)
 		{
-			t = col / (float)scaleX;
+			float t = col / (float)scaleX;
 			int16_t x = (int16_t)t;
             if (x >= 31)
             {
@@ -1105,7 +1110,7 @@ void IRSensor::visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint
 			row = 0;
 			while (row < 24 * scaleY)
 			{
-				u = row / (float)scaleY;
+				float u = row / (float)scaleY;
 				int16_t y = (int16_t)u;
 	            if (y >= 23)
 	            {
@@ -1113,21 +1118,18 @@ void IRSensor::visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint
 	            }
 	            u = u - y;
 
-                d1 = (1 - t) * (1 - u);
-				d2 = t * (1 - u);
-				d3 = t * u;
-				d4 = (1 - t) * u;
+				const float d1 = (1 - t) * (1 - u);
+				const float d2 = t * (1 - u);
+				const float d3 = t * u;
+				const float d4 = (1 - t) * u;
 
-				p1 = dots[y * 32 + x];
-				p2 = dots[y * 32 + x + 1];
-				p3 = dots[(y + 1) * 32 + x + 1];
-				p4 = dots[(y + 1) * 32 + x];
+				const float p1 = dots[y * 32 + x];
+				const float p2 = dots[y * 32 + x + 1];
+				const float p3 = dots[(y + 1) * 32 + x + 1];
+				const float p4 = dots[(y + 1) * 32 + x];
 
-				float interp = p1*d1 + p2*d2 + p3*d3 + p4*d4;
-
-				// pixelIdx = (y * 32) + x;
-
-                *(volatile uint16_t *)pSdramAddress = this->temperatureToRGB565(interp, minTemp + minTempCorr, maxTemp + maxTempCorr);
+				const float interp = p1*d1 + p2*d2 + p3*d3 + p4*d4;
+                *pSdramAddress = this->temperatureToRGB565(interp, minTemp + minTempCorr, maxTemp + maxTempCorr);
 	            pSdramAddress++;
 
 				row++;
@@ -1146,6 +1148,17 @@ bool IRSensor::isImageReady()
 
 void IRSensor::findMinAndMaxTemp()
 {
+	const float oldCenterTemp = this->centerTemp;
+
+	const uint16_t centerX = (32 - 1) / 2;
+	const uint16_t centerY = (24 - 1) / 2;
+	this->centerTemp = dots[centerY * 32 + centerX];
+	if (this->centerTemp >= 600) //restore prev value if overflow error
+	{
+		this->centerTemp = oldCenterTemp;
+        return;
+    }
+
 	this->minTemp = 1000;
 	this->maxTemp = -100;
 	for (uint16_t i = 0; i < 32 * 24; i++)
@@ -1182,7 +1195,7 @@ uint16_t IRSensor::temperatureToRGB565(const float temperature, const float minT
 		val = rgb2color(colorScheme[(colorSchemeSize - 1) * 3 + 0], colorScheme[(colorSchemeSize - 1) * 3 + 1], colorScheme[(colorSchemeSize - 1) * 3 + 2]);
 	}
 	else {
-		const float step = (maxTemp - minTemp) / 10.0;
+		const float step = (maxTemp - minTemp) / 10.0f;
 		const uint8_t step1 = (uint8_t)((temperature - minTemp) / step);
 		const uint8_t step2 = step1 + 1;
 		const uint8_t red = calculateRGB(colorScheme[step1 * 3 + 0], colorScheme[step2 * 3 + 0], (minTemp + step1 * step), step, temperature);

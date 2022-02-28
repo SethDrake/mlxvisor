@@ -261,7 +261,7 @@ void ILI9341::fillScreen(uint16_t xstart, uint16_t ystart, uint16_t xstop, uint1
 	setCS(1); // CS=1;
 }
 
-void ILI9341::putChar(uint16_t x, uint16_t y, uint8_t chr, uint16_t charColor, uint16_t bkgColor)
+void ILI9341::putChar(uint8_t chr, uint16_t charColor, uint16_t bkgColor, uint16_t* buffer, uint16_t buffOffset, uint8_t clearBg)
 {
 	uint8_t i, j;
 	
@@ -270,7 +270,6 @@ void ILI9341::putChar(uint16_t x, uint16_t y, uint8_t chr, uint16_t charColor, u
 	const uint16_t f_bytes = (f_width * f_height / 8);
 	
 	uint16_t t = 0;
-	uint16_t charbuf[(f_width + 1) * f_height];
 	
 	//fill charbuf
 	if (isLandscape)
@@ -284,17 +283,31 @@ void ILI9341::putChar(uint16_t x, uint16_t y, uint8_t chr, uint16_t charColor, u
 				uint8_t glyphByte = font[(chr - 0x20) * f_bytes + byteNumberLocal + 2];
 				const uint8_t mask = 1 << bitNumberInByte;
 				if (glyphByte & mask) {
-					charbuf[t++] = charColor;
+					buffer[t++] = charColor;
 				}
 				else 
 				{
-					charbuf[t++] = bkgColor;
+					if (clearBg) {
+						buffer[t++] = bkgColor;
+					}
+					else
+					{
+						t++;
+					}
 				}
 			}
+			t += buffOffset;
 		}
 		for (j = 0; j < f_height; j++) {
 			//vertical empty line right from symbol
-			charbuf[t++] = bkgColor;
+			if (clearBg) {
+				buffer[t++] = bkgColor;
+			}
+			else
+			{
+				t++;
+			}
+			t += buffOffset;
 		}
 	}
 	else //portrait
@@ -308,25 +321,61 @@ void ILI9341::putChar(uint16_t x, uint16_t y, uint8_t chr, uint16_t charColor, u
 				uint8_t glyphByte = font[(chr - 0x20) * f_bytes + byteNumberLocal + 2];
 				const uint8_t mask = 1 << bitNumberInByte;
 				if (glyphByte & mask) {
-					charbuf[t++] = charColor;
+					buffer[t++] = charColor;
 				}
 				else 
 				{
-					charbuf[t++] = bkgColor;
+					if (clearBg) {
+						buffer[t++] = bkgColor;
+					}
+					else
+					{
+						t++;
+					}
 				}
+				t += buffOffset;
 			}
-			charbuf[t++] = bkgColor; //vertical empty line right from symbol
+			//vertical empty line right from symbol
+			if (clearBg) {
+				buffer[t++] = bkgColor;
+			}
+			else
+			{
+				t++;
+			}
+			t += buffOffset;
 		}
-		y -= 3;
 	}
-	
-	bufferDraw(x, y, f_width + 1, f_height, charbuf);
 }
 
 void ILI9341::putString(const char str[], uint16_t x, uint16_t y, uint16_t charColor, uint16_t bkgColor)
 {
+	const uint8_t f_width = font[0];	
+	const uint8_t f_height = font[1];
+	const uint16_t xSize = f_width + 1;
+	const uint16_t ySize = f_height;
+	uint16_t charbuf[(f_width + 1) * f_height];
+
 	while (*str != 0) {
-		putChar(x, y, *str, charColor, bkgColor);
+		putChar(*str, charColor, bkgColor, charbuf, 0, true);
+		if (!isLandscape)
+		{
+			y -= 3;
+		}
+		bufferDraw(x, y, xSize, ySize, charbuf);
+		x += font[0]; //increment to font width
+		str++;
+	}
+}
+
+void ILI9341::putString(uint16_t* fb, uint16_t fbSizeY, const char str[], uint16_t x, uint16_t y, uint16_t charColor)
+{
+	const uint8_t f_width = font[0];	
+	const uint8_t f_height = font[1];
+	const uint16_t vOffset = fbSizeY - f_height;
+
+	while (*str != 0) {
+		putChar(*str, charColor, 0, fb + x * fbSizeY + y, vOffset, false);
 		x += font[0]; //increment to font width
 		str++;
 	}
@@ -352,6 +401,16 @@ void ILI9341::printf(uint16_t x, uint16_t y, uint16_t charColor, uint16_t bkgCol
 	putString(buf, x, y, charColor, bkgColor);
 }
 
+void ILI9341::printf(uint16_t* fb, uint16_t fbSizeY, uint16_t x, uint16_t y, uint16_t charColor, const char* format, ...)
+{
+	char buf[40];
+	va_list args;
+	va_start(args, format);
+	// ReSharper disable once CppLocalVariableMightNotBeInitialized
+	vsprintf(buf, format, args);
+	putString(fb, fbSizeY, buf, x, y, charColor);
+}
+
 void ILI9341::bufferDraw(uint16_t x, uint16_t y, uint16_t xsize, uint16_t ysize, uint16_t* buf)
 {
 	setCS(0); // CS=0
@@ -367,6 +426,69 @@ void ILI9341::bufferDraw(uint16_t x, uint16_t y, uint16_t xsize, uint16_t ysize,
 	}*/
 	//SPIx_SetDataSize(spi, SPI_DATASIZE_8BIT);
 	setCS(1); // CS=1;
+}
+
+void ILI9341::drawPixelInBuf(uint16_t* fb, uint16_t fbSizeY, uint16_t x, uint16_t y, uint16_t color)
+{
+	fb[(x * fbSizeY) + y] = color;
+}
+
+void ILI9341::drawCircleInBuf(uint16_t* fb, uint16_t fbSizeY, uint16_t posX, uint16_t posY, uint16_t radius, uint16_t color)
+{
+	int x = radius;
+	int y = 0;
+	int err = 0;
+ 
+	while (x >= y)
+	{
+		drawPixelInBuf(fb, fbSizeY, posX + x, posY + y, color);
+		drawPixelInBuf(fb, fbSizeY, posX + y, posY + x, color);
+		drawPixelInBuf(fb, fbSizeY, posX - y, posY + x, color);
+		drawPixelInBuf(fb, fbSizeY, posX - x, posY + y, color);
+		drawPixelInBuf(fb, fbSizeY, posX - x, posY - y, color);
+		drawPixelInBuf(fb, fbSizeY, posX - y, posY - x, color);
+		drawPixelInBuf(fb, fbSizeY, posX + y, posY - x, color);
+		drawPixelInBuf(fb, fbSizeY, posX + x, posY - y, color);
+ 
+		if (err <= 0)
+		{
+			y += 1;
+			err += 2*y + 1;
+		}
+ 
+		if (err > 0)
+		{
+			x -= 1;
+			err -= 2*x + 1;
+		}
+	}
+}
+
+void ILI9341::drawHLineInBuf(uint16_t* fb, uint16_t fbSizeY, uint16_t posX, uint16_t posY, uint16_t width, uint16_t color)
+{
+	for(uint16_t x = 0; x < width; x++)
+	{
+		drawPixelInBuf(fb, fbSizeY, posX + x, posY, color);
+	}
+}
+
+void ILI9341::drawVLineInBuf(uint16_t* fb, uint16_t fbSizeY, uint16_t posX, uint16_t posY, uint16_t height, uint16_t color)
+{
+	for (uint16_t y = 0; y < height; y++)
+	{
+		drawPixelInBuf(fb, fbSizeY, posX, posY + y, color);
+	}
+}
+
+void ILI9341::drawMarkInBuf(uint16_t* fb, uint16_t fbSizeY, uint16_t posX, uint16_t posY, uint16_t color)
+{
+	const uint8_t r = 6;
+	const uint8_t l = r-2;
+	drawCircleInBuf(fb, fbSizeY, posX, posY, r, color);
+	drawVLineInBuf(fb, fbSizeY, posX, posY + r + 1, l, color); //top
+	drawHLineInBuf(fb, fbSizeY, posX - r - l + 1, posY, l, color); //right
+	drawVLineInBuf(fb, fbSizeY, posX, posY - r - l, l, color); //bottom
+	drawHLineInBuf(fb, fbSizeY, posX + r, posY, l, color); //left
 }
 
 void ILI9341::drawBorder(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint16_t borderWidth,

@@ -17,11 +17,16 @@ public:
 	void pixelDraw(uint16_t xpos, uint16_t ypos, uint16_t color);
 	void lineDraw(uint16_t ypos, uint16_t* line, uint32_t size);
 	void fillScreen(uint16_t xstart, uint16_t ystart, uint16_t xstop, uint16_t ystop, uint16_t color);
-	void putChar(uint16_t x, uint16_t y, uint8_t chr, uint16_t charColor, uint16_t bkgColor);
 	void printf(uint16_t x, uint16_t y, const char *format, ...);
 	void printf(uint16_t x, uint16_t y, uint16_t charColor, uint16_t bkgColor, const char *format, ...);
+	void printf(uint16_t* fb, uint16_t fbSizeY, uint16_t x, uint16_t y, uint16_t charColor, const char* format, ...);
 	void bufferDraw(uint16_t x, uint16_t y, uint16_t xsize, uint16_t ysize, uint16_t* buf);
 	void drawBorder(uint16_t xpos, uint16_t ypos, uint16_t width, uint16_t height, uint16_t borderWidth, uint16_t color);
+	void drawPixelInBuf(uint16_t* fb, uint16_t fbSizeY, uint16_t x, uint16_t y, uint16_t color);
+	void drawCircleInBuf(uint16_t* fb, uint16_t fbSizeY, uint16_t posX, uint16_t posY, uint16_t radius, uint16_t color);
+	void drawHLineInBuf(uint16_t* fb, uint16_t fbSizeY, uint16_t posX, uint16_t posY, uint16_t width, uint16_t color);
+	void drawVLineInBuf(uint16_t* fb, uint16_t fbSizeY, uint16_t posX, uint16_t posY, uint16_t height, uint16_t color);
+	void drawMarkInBuf(uint16_t* fb, uint16_t fbSizeY, uint16_t posX, uint16_t posY, uint16_t color);
 	void setColor(uint16_t color, uint16_t bgColor);
 	void setFont(const unsigned char font[]);
 	void setLandscape(void);
@@ -39,7 +44,9 @@ private:
 	void sendData(uint8_t value);
 	void setCol(uint16_t StartCol, uint16_t EndCol);
 	void setPage(uint16_t StartPage, uint16_t EndPage);
+	void putChar(uint8_t chr, uint16_t charColor, uint16_t bkgColor, uint16_t* buffer, uint16_t buffOffset, uint8_t clearBg);
 	void putString(const char str[], uint16_t x, uint16_t y, uint16_t charColor, uint16_t bkgColor);
+	void putString(uint16_t* fb, uint16_t fbSizeY, const char str[], uint16_t x, uint16_t y, uint16_t charColor);
 	void setCS(uint8_t val);
 	void setDC(uint8_t val);
 	// void setRESET(uint8_t val);
