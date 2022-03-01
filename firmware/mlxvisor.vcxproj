@@ -92,6 +92,7 @@
     <ClInclude Include="inc\spi.h" />
     <ClInclude Include="inc\stm32f4xx_it.h" />
     <ClInclude Include="inc\thermal.h" />
+    <ClInclude Include="inc\ui.h" />
     <None Include="stm32.props" />
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\croutine.c" />
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\event_groups.c" />

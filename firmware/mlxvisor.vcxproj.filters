@@ -848,6 +848,9 @@
     <ClInclude Include="inc\ili9341.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\ui.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\thermal.cpp">
