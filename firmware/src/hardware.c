@@ -65,18 +65,48 @@ void Clock_Init()
 	PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
 	PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
 
-	/*if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) == HAL_OK)
+	if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) == HAL_OK)
 	{
 		rtc.Instance = RTC;
 		rtc.Init.HourFormat = RTC_HOURFORMAT_24;
-		rtc.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
+		rtc.Init.AsynchPrediv = RTC_ASYNCH_PREDIV;
 		rtc.Init.SynchPrediv = RTC_SYNCH_PREDIV;
 		rtc.Init.OutPut = RTC_OUTPUT_DISABLE;
 		rtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
 		rtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
 		HAL_RTC_Init(&rtc);
-	}*/
 
+		RTC_Config();
+	}
+}
+
+void RTC_Config()
+{
+	RTC_DateTypeDef sDate = { 0 };
+	RTC_TimeTypeDef sTime = { 0 };
+
+	//init calendar if not already configured
+	if (HAL_RTCEx_BKUPRead(&rtc, RTC_BKP_DR1) != 0xF00D)
+	{
+		sDate.WeekDay = RTC_WEEKDAY_WEDNESDAY;
+		sDate.Month = RTC_MONTH_FEBRUARY;
+		sDate.Date = 2;
+		sDate.Year = 22;
+		HAL_RTC_SetDate(&rtc, &sDate, RTC_FORMAT_BIN);
+
+		sTime.Hours = 0;
+		sTime.Minutes = 30;
+		sTime.Seconds = 0;
+		sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+		sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+		HAL_RTC_SetTime(&rtc, &sTime, RTC_FORMAT_BIN);
+	}
+	else
+	{
+		HAL_RTCEx_BKUPWrite(&rtc, RTC_BKP_DR1, 0xF00D);
+	}
+	
+	
 }
 
 void GPIO_Init()

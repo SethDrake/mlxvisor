@@ -45,12 +45,16 @@
 #define USR_BTN_D_PIN		GPIO_PIN_6
 #define USR_BTN_L_PORT		GPIOD
 #define USR_BTN_L_PIN		GPIO_PIN_5
+
+#define RTC_ASYNCH_PREDIV       127
+#define RTC_SYNCH_PREDIV        255
   
 extern I2C_HandleTypeDef	i2c1;
 extern SPI_HandleTypeDef	spi1;
 extern RTC_HandleTypeDef	rtc;
 
 void	Clock_Init(void);
+void	RTC_Config(void);
 void	GPIO_Init(void);
 void	I2C_Init(void);
 void	SPI_Init(void);
