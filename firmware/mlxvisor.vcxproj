@@ -81,14 +81,17 @@
     <ClCompile Include="src\i2c.c" />
     <ClCompile Include="src\ili9341.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\options.cpp" />
     <ClCompile Include="src\spi.c" />
     <ClCompile Include="src\stm32f4xx_hal_timebase_tim.c" />
     <ClCompile Include="src\stm32f4xx_it.c" />
     <ClCompile Include="src\system_stm32f4xx.c" />
     <ClCompile Include="src\thermal.cpp" />
+    <ClCompile Include="src\ui.cpp" />
     <ClInclude Include="inc\hardware.h" />
     <ClInclude Include="inc\i2c.h" />
     <ClInclude Include="inc\ili9341.h" />
+    <ClInclude Include="inc\options.h" />
     <ClInclude Include="inc\spi.h" />
     <ClInclude Include="inc\stm32f4xx_it.h" />
     <ClInclude Include="inc\thermal.h" />

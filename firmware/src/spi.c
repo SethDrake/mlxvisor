@@ -29,13 +29,6 @@ void SPIx_WriteBuffer(SPI_HandleTypeDef* spi, uint8_t* pBuffer, uint16_t size)
 
 void SPIx_WriteBufferDMA(SPI_HandleTypeDef* spi, uint16_t* pBuffer, uint32_t size)
 {
-	/*SPIx_SetDataSize(spi, SPI_DATASIZE_16BIT);
-	SPIx_Enable(spi);
-	for (uint32_t l = 0; l < size; l++) {
-		SPIx_WriteData16(spi, pBuffer[l]);
-	}
-	SPIx_SetDataSize(spi, SPI_DATASIZE_8BIT);*/
-
 	SPIx_SetDataSize(spi, SPI_DATASIZE_16BIT);
 	const HAL_StatusTypeDef status = HAL_SPI_Transmit_DMA(spi, (uint8_t*)pBuffer, size);
 	if (status != HAL_OK)

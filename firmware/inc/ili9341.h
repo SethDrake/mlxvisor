@@ -8,7 +8,7 @@ class ILI9341 {
 public:
 	ILI9341();
 	~ILI9341();
-	void init(SPI_HandleTypeDef* spi);
+	void Init(SPI_HandleTypeDef* spi);
 	void enable(uint8_t enabled);
 	void sleep(uint8_t enabled);
 	uint32_t readID();
@@ -31,6 +31,7 @@ public:
 	void setFont(const unsigned char font[]);
 	void setLandscape(void);
 	void setPortrait(void);
+	bool isIdle(void);
 	
 protected:
 	SPI_HandleTypeDef* spi;

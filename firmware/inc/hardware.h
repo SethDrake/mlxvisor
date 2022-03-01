@@ -45,20 +45,12 @@
 #define USR_BTN_D_PIN		GPIO_PIN_6
 #define USR_BTN_L_PORT		GPIOD
 #define USR_BTN_L_PIN		GPIO_PIN_5
-
-// #define USR_LED1_PORT		GPIOD
-// #define USR_LED1_PIN		GPIO_PIN_12
-// #define USR_LED2_PORT		GPIOD
-// #define USR_LED2_PIN		GPIO_PIN_13
-// #define USR_LED3_PORT		GPIOD
-// #define USR_LED3_PIN		GPIO_PIN_14
-// #define USR_LED4_PORT		GPIOD
-// #define USR_LED4_PIN		GPIO_PIN_15
   
 extern I2C_HandleTypeDef	i2c1;
 extern SPI_HandleTypeDef	spi1;
+extern RTC_HandleTypeDef	rtc;
 
-void	Clock_Init(void);  
+void	Clock_Init(void);
 void	GPIO_Init(void);
 void	I2C_Init(void);
 void	SPI_Init(void);

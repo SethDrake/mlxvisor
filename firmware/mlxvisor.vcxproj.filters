@@ -851,6 +851,9 @@
     <ClInclude Include="inc\ui.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="inc\options.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\thermal.cpp">
@@ -875,6 +878,12 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="src\hooks.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ui.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\options.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

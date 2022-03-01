@@ -20,7 +20,7 @@ IRSensor::~IRSensor()
 {
 }
 
-bool IRSensor::init(I2C_HandleTypeDef* i2c, const uint8_t* colorScheme)
+bool IRSensor::Init(I2C_HandleTypeDef* i2c, mlx90640_refreshrate_t rate, mlx90640_resolution_t resolution, const uint8_t* colorScheme)
 {
 	this->i2c = i2c;
 	this->setColorScheme(colorScheme);
@@ -32,14 +32,27 @@ bool IRSensor::init(I2C_HandleTypeDef* i2c, const uint8_t* colorScheme)
 	    return false;
     }
 
-    setADCResolution(MLX90640_ADC_18BIT);
-    setRefreshRate(MLX90640_16_HZ);
-    setMlxMode(MLX90640_CHESS);
+	setMlxMode(MLX90640_CHESS);
+
+	setRefreshRate(rate);
+    setADCResolution(resolution);
 
 	readMlxEE();
     convertMlxEEToParams();
 
     return true;
+}
+
+void IRSensor::Reset()
+{
+    recalcCnt = 0;
+    memset(dots, 0, sizeof(dots));
+	memset(frameData, 0, sizeof(frameData));
+    minTemp = 0;
+    maxTemp = 0;
+    centerTemp = 0;
+	_isImageReady = false;
+	I2Cx_Error(); //reset i2c bus
 }
 
 void IRSensor::setColorScheme(const uint8_t* colorScheme)
@@ -582,12 +595,10 @@ void IRSensor::convertMlxEEToParams()
     uint16_t pixCnt = 0;
     uint16_t brokenPixCnt = 0;
     uint16_t outlierPixCnt = 0;
-    
-    for(pixCnt = 0; pixCnt<20; pixCnt++)
-    {
-        mlxParams.brokenPixels[pixCnt] = 0xFFFF;
-        mlxParams.outlierPixels[pixCnt] = 0xFFFF;
-    }
+
+	memset(mlxParams.brokenPixels, 0xFF, sizeof(mlxParams.brokenPixels));
+	memset(mlxParams.outlierPixels, 0xFF, sizeof(mlxParams.outlierPixels));
+
         
     pixCnt = 0;    
     while (pixCnt < 768 && brokenPixCnt < 20 && outlierPixCnt < 20)
@@ -618,7 +629,8 @@ uint16_t* IRSensor::readSerialNumber()
 mlx90640_refreshrate_t IRSensor::readRefreshRate()
 {
 	const uint16_t controlRegister1 = I2Cx_ReadData16(i2c, MLX90640_ADDR, 0x800D);
-    return (mlx90640_refreshrate_t)((controlRegister1 & 0x0380) >> 7);
+	rate = (mlx90640_refreshrate_t)((controlRegister1 & 0x0380) >> 7);
+	return rate;
 }
 
 void IRSensor::setRefreshRate(mlx90640_refreshrate_t rate)
@@ -628,12 +640,15 @@ void IRSensor::setRefreshRate(mlx90640_refreshrate_t rate)
 	const uint16_t controlRegister1 = I2Cx_ReadData16(i2c, MLX90640_ADDR, 0x800D);
     value = (controlRegister1 & 0xFC7F) | value;
 	I2Cx_WriteData16(i2c, MLX90640_ADDR, 0x800D, value);
+
+	this->rate = rate;
 }
 
 mlx90640_resolution_t IRSensor::readADCResolution()
 {
 	const uint16_t controlRegister1 = I2Cx_ReadData16(i2c, MLX90640_ADDR, 0x800D);
-    return (mlx90640_resolution_t)((controlRegister1 & 0x0C00) >> 10);
+	resolution = (mlx90640_resolution_t)((controlRegister1 & 0x0C00) >> 10);
+	return resolution;
 }
 
 void IRSensor::setADCResolution(mlx90640_resolution_t resolution)
@@ -643,6 +658,18 @@ void IRSensor::setADCResolution(mlx90640_resolution_t resolution)
 	const uint16_t controlRegister1 = I2Cx_ReadData16(i2c, MLX90640_ADDR, 0x800D);
     value = (controlRegister1 & 0xF3FF) | value;
 	I2Cx_WriteData16(i2c, MLX90640_ADDR, 0x800D, value);
+
+	this->resolution = resolution;
+}
+
+mlx90640_refreshrate_t IRSensor::getRefreshRate()
+{
+    return rate;
+}
+
+mlx90640_resolution_t IRSensor::getADCResolution()
+{
+    return resolution;
 }
 
 mlx90640_mode_t IRSensor::readMlxMode()
@@ -706,7 +733,7 @@ uint8_t IRSensor::CheckAdjacentPixels(uint16_t pix1, uint16_t pix2)
      return 0;  
 }
 
-void IRSensor::readImage()
+void IRSensor::ReadImage()
 {
 	const uint8_t MAX_ATTEMPS = 5;
     uint16_t statusRegister = 0;
@@ -762,7 +789,7 @@ void IRSensor::readImage()
 	}
 }
 
-void IRSensor::calculateTempMap(float emissivity)
+void IRSensor::CalculateTempMap(float emissivity)
 {
 	//memcpy(dots, s_dots, sizeof(float) * 768); 
     //return;
@@ -893,100 +920,6 @@ void IRSensor::calculateTempMap(float emissivity)
     }
 }
 
-void IRSensor::calculateImageMap()
-{
-	float irDataCP[2];
-    float irData;
-    float alphaCompensated;
-	int8_t ilPattern;
-    int8_t chessPattern;
-    int8_t pattern;
-    int8_t conversionPattern;
-    float image;
-    float kta;
-    float kv;
-    
-    uint16_t subPage = frameData[833];
-    
-    float ktaScale = pow(2, (double)mlxParams.ktaScale);
-    float kvScale = pow(2, (double)mlxParams.kvScale);
-    
-//------------------------- Gain calculation -----------------------------------    
-    float gain = frameData[778];
-    if(gain > 32767)
-    {
-        gain = gain - 65536;
-    }
-    
-    gain = mlxParams.gainEE / gain; 
-  
-//------------------------- Image calculation -------------------------------------    
-    uint8_t mode = (frameData[832] & 0x1000) >> 5;
-    
-    irDataCP[0] = frameData[776];  
-    irDataCP[1] = frameData[808];
-    for( int i = 0; i < 2; i++)
-    {
-        if(irDataCP[i] > 32767)
-        {
-            irDataCP[i] = irDataCP[i] - 65536;
-        }
-        irDataCP[i] = irDataCP[i] * gain;
-    }
-    irDataCP[0] = irDataCP[0] - mlxParams.cpOffset[0] * (1 + mlxParams.cpKta * (ta - 25)) * (1 + mlxParams.cpKv * (vdd - 3.3));
-    if( mode == mlxParams.calibrationModeEE)
-    {
-        irDataCP[1] = irDataCP[1] - mlxParams.cpOffset[1] * (1 + mlxParams.cpKta * (ta - 25)) * (1 + mlxParams.cpKv * (vdd - 3.3));
-    }
-    else
-    {
-      irDataCP[1] = irDataCP[1] - (mlxParams.cpOffset[1] + mlxParams.ilChessC[0]) * (1 + mlxParams.cpKta * (ta - 25)) * (1 + mlxParams.cpKv * (vdd - 3.3));
-    }
-
-    for( int pixelNumber = 0; pixelNumber < 768; pixelNumber++)
-    {
-        ilPattern = pixelNumber / 32 - (pixelNumber / 64) * 2; 
-        chessPattern = ilPattern ^ (pixelNumber - (pixelNumber/2)*2); 
-        conversionPattern = ((pixelNumber + 2) / 4 - (pixelNumber + 3) / 4 + (pixelNumber + 1) / 4 - pixelNumber / 4) * (1 - 2 * ilPattern);
-        
-        if(mode == 0)
-        {
-          pattern = ilPattern; 
-        }
-        else 
-        {
-          pattern = chessPattern; 
-        }
-        
-        if(pattern == frameData[833])
-        {    
-            irData = frameData[pixelNumber];
-            if(irData > 32767)
-            {
-                irData = irData - 65536;
-            }
-            irData = irData * gain;
-            
-            kta = mlxParams.kta[pixelNumber]/ktaScale;
-            kv = mlxParams.kv[pixelNumber]/kvScale;
-            irData = irData - mlxParams.offset[pixelNumber]*(1 + kta*(ta - 25))*(1 + kv*(vdd - 3.3));
-
-            if(mode !=  mlxParams.calibrationModeEE)
-            {
-              irData = irData + mlxParams.ilChessC[2] * (2 * ilPattern - 1) - mlxParams.ilChessC[1] * conversionPattern; 
-            }
-            
-            irData = irData - mlxParams.tgc * irDataCP[subPage];
-                        
-            alphaCompensated = mlxParams.alpha[pixelNumber];
-            
-            image = irData*alphaCompensated;
-            
-            colors[pixelNumber] = image;
-        }
-    }
-}
-
 uint16_t IRSensor::getSubPage()
 {
     return frameData[833];
@@ -1032,7 +965,7 @@ uint16_t IRSensor::getColdDotIndex()
 	return this->coldDotIndex;
 }
 
-void IRSensor::drawGradient(uint16_t* fb, uint16_t sizeX, uint16_t sizeY)
+void IRSensor::DrawGradient(uint16_t* fb, uint16_t sizeX, uint16_t sizeY)
 {
 	const float diff = 10.0f / sizeY;
 	uint16_t line[sizeY];
@@ -1053,7 +986,7 @@ void IRSensor::drawGradient(uint16_t* fb, uint16_t sizeX, uint16_t sizeY)
 	}
 }
 
-void IRSensor::visualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint8_t method)
+void IRSensor::VisualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint8_t method)
 {
 	uint8_t col;
 	uint8_t row;
@@ -1146,7 +1079,7 @@ bool IRSensor::isImageReady()
 	return this->_isImageReady;
 }
 
-void IRSensor::findMinAndMaxTemp()
+void IRSensor::FindMinAndMaxTemp()
 {
 	const float oldCenterTemp = this->centerTemp;
 

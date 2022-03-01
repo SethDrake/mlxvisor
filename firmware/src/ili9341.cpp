@@ -45,7 +45,7 @@ void ILI9341::sendData(uint8_t value)
 	SPIx_WriteData(spi, value);
 }
 
-void ILI9341::init(SPI_HandleTypeDef* spi)
+void ILI9341::Init(SPI_HandleTypeDef* spi)
 {
 	this->spi = spi;
 
@@ -519,4 +519,9 @@ void ILI9341::setLandscape()
 void ILI9341::setPortrait()
 {
 	this->isLandscape = false;
+}
+
+bool ILI9341::isIdle()
+{
+	return spi->State == HAL_SPI_STATE_READY;
 }

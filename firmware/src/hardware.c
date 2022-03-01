@@ -2,11 +2,13 @@
 
 I2C_HandleTypeDef i2c1;
 SPI_HandleTypeDef spi1;
+RTC_HandleTypeDef rtc;
 
 void Clock_Init()
 {
 	RCC_ClkInitTypeDef RCC_ClkInitStruct;
 	RCC_OscInitTypeDef RCC_OscInitStruct;
+	RCC_PeriphCLKInitTypeDef  PeriphClkInitStruct;
   
 	/* Enable Power Control clock */
 	__HAL_RCC_PWR_CLK_ENABLE();
@@ -17,8 +19,9 @@ void Clock_Init()
 	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
   
 	/* Enable HSE Oscillator and activate PLL with HSE as source */
-	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_LSI;
 	RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
 	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
 	RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
 	RCC_OscInitStruct.PLL.PLLM = 4;
@@ -49,6 +52,31 @@ void Clock_Init()
 		/* Enable the Flash prefetch */
 		__HAL_FLASH_PREFETCH_BUFFER_ENABLE();
 	}
+
+	/* Enable Backup SRAM */
+	__HAL_RCC_BKPSRAM_CLK_ENABLE();
+	HAL_PWR_EnableBkUpAccess();
+	// Enable backup regulator
+	HAL_PWREx_EnableBkUpReg(); 
+
+	/* Enable RTC */
+	__HAL_RCC_RTC_ENABLE();
+
+	PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+	PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+
+	/*if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) == HAL_OK)
+	{
+		rtc.Instance = RTC;
+		rtc.Init.HourFormat = RTC_HOURFORMAT_24;
+		rtc.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
+		rtc.Init.SynchPrediv = RTC_SYNCH_PREDIV;
+		rtc.Init.OutPut = RTC_OUTPUT_DISABLE;
+		rtc.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
+		rtc.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
+		HAL_RTC_Init(&rtc);
+	}*/
+
 }
 
 void GPIO_Init()
