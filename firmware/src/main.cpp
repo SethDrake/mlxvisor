@@ -35,6 +35,7 @@ int main(void)
 	GPIO_Init();
 	I2C_Init();
 	SPI_Init();
+	ADC_Init();
 	DMA_Init();
 
 	options.LoadOptions();
@@ -122,6 +123,10 @@ static void ReadKeys_Thread(void const *argument)
 		ui.setButtonState(Button::LEFT, GPIO_ReadPin(USR_BTN_L_PORT, USR_BTN_L_PIN));
 		ui.setButtonState(Button::OK, GPIO_ReadPin(USR_BTN_OK_PORT, USR_BTN_OK_PIN));
 		ui.ProcessButtons();
+
+		//HAL_ADC_Start_DMA(&adc1, (uint32_t*)&ui.adcVbat, 1);
+		HAL_ADC_Start(&adc1);
+		ui.adcVbat = HAL_ADC_GetValue(&adc1);
 		osDelay(300);
 	}
 }

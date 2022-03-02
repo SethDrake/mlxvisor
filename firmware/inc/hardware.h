@@ -28,12 +28,14 @@
 #define SPI1_TX_DMA_STRM    DMA2_Stream3
 #define SPI1_TX_DMA_IRQ     DMA2_Stream3_IRQn
 
+#define ADC1_DMA_CHL        DMA_CHANNEL_2
+#define ADC1_DMA_STRM       DMA2_Stream0
+#define ADC1_DMA_IRQ        DMA2_Stream0_IRQn
+
 #define LCD_CS_PORT			GPIOC
 #define LCD_CS_PIN			GPIO_PIN_4
 #define LCD_DC_PORT			GPIOC
 #define LCD_DC_PIN			GPIO_PIN_5
-// #define LCD_RESET_PORT		GPIOA
-// #define LCD_RESET_PIN		GPIO_PIN_3
 
 #define USR_BTN_OK_PORT		GPIOB
 #define USR_BTN_OK_PIN		GPIO_PIN_4
@@ -52,12 +54,14 @@
 extern I2C_HandleTypeDef	i2c1;
 extern SPI_HandleTypeDef	spi1;
 extern RTC_HandleTypeDef	rtc;
+extern ADC_HandleTypeDef	adc1;
 
 void	Clock_Init(void);
 void	RTC_Config(void);
 void	GPIO_Init(void);
 void	I2C_Init(void);
 void	SPI_Init(void);
+void	ADC_Init(void);
 void	DMA_Init(void);
 
 void      GPIO_WritePin(GPIO_TypeDef* port, uint16_t pin, uint8_t state);

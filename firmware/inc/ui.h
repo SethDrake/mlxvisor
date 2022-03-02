@@ -41,6 +41,7 @@ public:
 	void setButtonState(Button btn, bool isPressed);
 	bool isButtonPressed(Button btn);
 	bool isAnyButtonPressed();
+	__IO uint16_t adcVbat;
 protected:
 	void DrawMainScreen();
 	void DrawSettingsScreen();
@@ -60,7 +61,7 @@ private:
 	volatile uint8_t buttonsState = 0;
 	volatile TickType_t xDrawTime = 0;
 	bool isStaticPartsRendered;
-	uint8_t delayCntr = 0;
+	uint8_t delayCntr;
 
 	uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE];
 	uint16_t gradientFb[10 * 24 * THERMAL_SCALE];

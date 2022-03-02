@@ -130,6 +130,17 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief  This function handles DMA interrupt request.
+  * @param  None
+  * @retval None  
+  */
+void DMA2_Stream0_IRQHandler(void)
+{
+	HAL_DMA_IRQHandler(adc1.DMA_Handle);
+}
+
+
+/**
   * @brief  This function handles DMA Tx interrupt request.
   * @param  None
   * @retval None  

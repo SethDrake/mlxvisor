@@ -9,6 +9,7 @@ UI::UI()
 	this->display = NULL;
 	this->irSensor = NULL;
 	this->options = NULL;
+	this->delayCntr = DRAW_DELAY;
 
 	memset(framebuffer, 0x10, sizeof(framebuffer));
 	memset(gradientFb, 0x10, sizeof(gradientFb));
@@ -115,7 +116,10 @@ void UI::ProcessButtons()
 
 void UI::DrawBattery()
 {
-
+	if (adcVbat > 0) {
+		const float vBat = 0.3f + 2 * (3.3f * adcVbat) / 4096;
+		display->printf(273, 225, WHITE, BLACK, "[%1.2f]", vBat);
+	}
 }
 
 void UI::DrawClock()
@@ -123,16 +127,20 @@ void UI::DrawClock()
 	RTC_TimeTypeDef time;
 	RTC_DateTypeDef date;
 
-	HAL_RTC_GetDate(&rtc, &date, RTC_FORMAT_BIN);
 	HAL_RTC_GetTime(&rtc, &time, RTC_FORMAT_BIN);
+	HAL_RTC_GetDate(&rtc, &date, RTC_FORMAT_BIN);
 
-	display->printf(240, 14, WHITE, BLACK, "%02u-%02u-%04u", date.Date, date.Month, date.Year);
+	display->printf(240, 14, WHITE, BLACK, "%02u-%02u-20%02u", date.Date, date.Month, date.Year);
 	display->printf(248, 0, WHITE, BLACK, "%02u:%02u:%02u", time.Hours, time.Minutes, time.Seconds);
 }
 
 void UI::DrawScreen()
 {
 	const TickType_t xTime1 = xTaskGetTickCount();
+	if (delayCntr == DRAW_DELAY) {
+		DrawBattery();
+		DrawClock();
+	}
 	switch(currentSreen)
 	{
 		case UIScreen::MAIN: 
@@ -150,10 +158,6 @@ void UI::DrawScreen()
 		case UIScreen::FILE_VIEW: 
 			DrawFileViewScreen();
 			break;
-	}
-	if (delayCntr == DRAW_DELAY) {
-		DrawBattery();
-		DrawClock();
 	}
 	xDrawTime = xTaskGetTickCount() - xTime1;
 }
