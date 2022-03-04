@@ -6,12 +6,11 @@
 #include "ili9341.h"
 #include "ui.h"
 #include "options.h"
-#include <cmath>
 #include <string.h>
 
 
 
-osThreadId IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle;
+osThreadId IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle, BgTaskHandle;
 
 Options options;
 IRSensor irSensor;
@@ -26,6 +25,7 @@ volatile uint32_t inWait = 0;
 static void IrSensor_Thread(void const *argument);
 static void ReadKeys_Thread(void const *argument);
 static void DrawTask_Thread(void const *argument);
+static void BgTask_Thread(void const *argument);
 
 int main(void)
 {
@@ -51,12 +51,14 @@ int main(void)
 	ui.InitScreen(&display, &irSensor, &options);
 
 	osThreadDef(READ_KEYS, ReadKeys_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
+	osThreadDef(BG_TASK, BgTask_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
 	osThreadDef(IR_SENSOR, IrSensor_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE + 1024);
 	osThreadDef(DRAW_TASK, DrawTask_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE + 1024);
 
 	ReadKeysTaskHandle = osThreadCreate(osThread(READ_KEYS), NULL);
 	IRSensorThreadHandle = osThreadCreate(osThread(IR_SENSOR), NULL);
 	DrawTaskHandle = osThreadCreate(osThread(DRAW_TASK), NULL);
+	BgTaskHandle = osThreadCreate(osThread(BG_TASK), NULL);
   
 	/* Start scheduler */
 	osKernelStart();
@@ -124,10 +126,20 @@ static void ReadKeys_Thread(void const *argument)
 		ui.setButtonState(Button::OK, GPIO_ReadPin(USR_BTN_OK_PORT, USR_BTN_OK_PIN));
 		ui.ProcessButtons();
 
-		//HAL_ADC_Start_DMA(&adc1, (uint32_t*)&ui.adcVbat, 1);
+		osDelay(300);
+	}
+}
+
+static void BgTask_Thread(void const *argument)
+{
+	(void) argument;
+
+	bool isPressed = false;
+	for (;;)
+	{
 		HAL_ADC_Start(&adc1);
 		ui.adcVbat = HAL_ADC_GetValue(&adc1);
-		osDelay(300);
+		osDelay(5000);
 	}
 }
 

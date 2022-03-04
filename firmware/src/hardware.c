@@ -18,6 +18,7 @@ void Clock_Init()
 		clocked below the maximum system frequency, to update the voltage scaling value 
 		regarding system frequency refer to product datasheet.  */
 	__HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
   
 	/* Enable HSE Oscillator and activate PLL with HSE as source */
 	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
@@ -62,13 +63,13 @@ void Clock_Init()
 	/* Enable RTC */
 	__HAL_RCC_RTC_ENABLE();
 
-	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
 	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
+	RCC_OscInitStruct.LSIState = RCC_LSE_ON;
 
-	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
+	/*if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
 		PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-		PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+		PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
 
 		if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) == HAL_OK)
 		{
@@ -83,7 +84,7 @@ void Clock_Init()
 				RTC_Config();
 			}
 		}
-	}
+	}*/
 }
 
 void RTC_Config()
@@ -256,7 +257,7 @@ void ADC_Init()
 	{
 		sConfig.Channel = ADC_CHANNEL_VBAT;
 		sConfig.Rank = 1;
-		sConfig.SamplingTime = ADC_SAMPLETIME_56CYCLES;
+		sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
 		sConfig.Offset = 0;
 		HAL_ADC_ConfigChannel(&adc1, &sConfig);
 	}
