@@ -76,7 +76,7 @@ static void IrSensor_Thread(void const *argument)
 
 	for (;;)
 	{
-		if (isSensorReady) {
+		if (isSensorReady && ui.isSensorReadActive()) {
 			const TickType_t xTime1 = xTaskGetTickCount();
 			while (!irSensor.isFrameReady())
 			{

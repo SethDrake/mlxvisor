@@ -30,6 +30,28 @@ enum class Button
 	OK = 4
 };
 
+enum class MenuItems
+{
+	DATE = 0,
+	TIME = 1,
+	EMISSION = 2,
+	SENSOR_RATE = 3,
+	SENSOR_ADC_RESOLUTION = 4,
+	COLOR_SCHEME = 5,
+	SHOW_MIN_TEMP_MARK = 6,
+	SHOW_MAX_TEMP_MARK = 7,
+	SHOW_CENTER_TEMP_MARK = 8,
+	BACK = 9
+};
+
+#define MENU_ITEMS_COUNT 10
+
+typedef struct MenuItemDef_t
+{
+	uint8_t id;
+	const char* name;
+} menuItem_t;
+
 class UI {
 public:
 	UI();
@@ -41,6 +63,7 @@ public:
 	void setButtonState(Button btn, bool isPressed);
 	bool isButtonPressed(Button btn);
 	bool isAnyButtonPressed();
+	bool isSensorReadActive();
 	__IO uint16_t adcVbat;
 protected:
 	void DrawMainScreen();
@@ -61,7 +84,11 @@ private:
 	volatile uint8_t buttonsState = 0;
 	volatile TickType_t xDrawTime = 0;
 	bool isStaticPartsRendered;
+	bool _isSensorReadActive;
 	uint8_t delayCntr;
+
+	uint8_t activeMenuItemIndex;
+	menuItem_t menuItems[MENU_ITEMS_COUNT];
 
 	uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE];
 	uint16_t gradientFb[10 * 24 * THERMAL_SCALE];

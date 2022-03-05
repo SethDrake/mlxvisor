@@ -4,15 +4,29 @@
 
 UI::UI()
 {
+	memset(framebuffer, 0x10, sizeof(framebuffer));
+	memset(gradientFb, 0x10, sizeof(gradientFb));
+
 	this->currentSreen = UIScreen::MAIN;
 	this->isStaticPartsRendered = false;
 	this->display = NULL;
 	this->irSensor = NULL;
 	this->options = NULL;
 	this->delayCntr = DRAW_DELAY;
+	this->adcVbat = 0;
+	this->_isSensorReadActive = true;
+	this->activeMenuItemIndex = 0;
 
-	memset(framebuffer, 0x10, sizeof(framebuffer));
-	memset(gradientFb, 0x10, sizeof(gradientFb));
+	menuItems[0] = {(uint8_t)MenuItems::DATE, "Date"};
+	menuItems[1] = {(uint8_t)MenuItems::TIME, "Time"};
+	menuItems[2] = {(uint8_t)MenuItems::EMISSION, "Emission"};
+	menuItems[3] = {(uint8_t)MenuItems::SENSOR_RATE, "Sensor rate"};
+	menuItems[4] = {(uint8_t)MenuItems::SENSOR_ADC_RESOLUTION, "Sensor ADC resolution"};
+	menuItems[5] = {(uint8_t)MenuItems::COLOR_SCHEME, "Color scheme"};
+	menuItems[6] = {(uint8_t)MenuItems::SHOW_MIN_TEMP_MARK, "Show min temp marker"};
+	menuItems[7] = {(uint8_t)MenuItems::SHOW_MAX_TEMP_MARK, "Show max temp marker"};
+	menuItems[8] = {(uint8_t)MenuItems::SHOW_CENTER_TEMP_MARK, "Show center temp marker"};
+	menuItems[9] = {(uint8_t)MenuItems::BACK, "Back"};
 }
 
 UI::~UI()
@@ -28,8 +42,21 @@ void UI::InitScreen(ILI9341* display, IRSensor* irSensor, Options* options)
 
 void UI::setScreen(UIScreen screen)
 {
+	while(!display->isIdle()){}
+	memset(framebuffer, 0x10, sizeof(framebuffer));
+	display->clear(BLACK);
+	activeMenuItemIndex = 0;
+
 	this->currentSreen = screen;
 	this->isStaticPartsRendered = false;
+	if (currentSreen == UIScreen::MAIN)
+	{
+		_isSensorReadActive = true;
+	}
+	else
+	{
+		_isSensorReadActive = false;
+	}
 }
 
 void UI::setButtonState(Button btn, bool isPressed)
@@ -99,18 +126,50 @@ void UI::ProcessButtons()
 		}
 		else if (isButtonPressed(Button::DOWN))
 		{
-			//setScreen(UIScreen::SETTINGS);
+			setScreen(UIScreen::SETTINGS);
 		}
 		else if (isButtonPressed(Button::OK))
 		{
 			
 		}
-
-		if (isAnyButtonPressed())
+	}
+	else if (currentSreen == UIScreen::SETTINGS)
+	{
+		if (isButtonPressed(Button::UP))
 		{
-			delayCntr = DRAW_DELAY;
-			buttonsState = 0;
+			if (activeMenuItemIndex > 0)
+			{
+				activeMenuItemIndex--;
+			}
 		}
+		else if (isButtonPressed(Button::LEFT))
+		{
+			
+		}
+		else if (isButtonPressed(Button::RIGHT))
+		{
+			
+		}
+		else if (isButtonPressed(Button::DOWN))
+		{
+			if (activeMenuItemIndex < (MENU_ITEMS_COUNT - 1))
+			{
+				activeMenuItemIndex++;
+			}
+		}
+		else if (isButtonPressed(Button::OK))
+		{
+			if (activeMenuItemIndex == (int)MenuItems::BACK)
+			{
+				setScreen(UIScreen::MAIN);
+			}
+		}
+	}
+
+	if (isAnyButtonPressed())
+	{
+		delayCntr = DRAW_DELAY;
+		buttonsState = 0;
 	}
 }
 
@@ -164,8 +223,8 @@ void UI::DrawScreen()
 
 void UI::DrawMainScreen()
 {
-	const uint16_t centerX = (32 - 1) / 2 * THERMAL_SCALE;
-	const uint16_t centerY = (24 - 1) / 2 * THERMAL_SCALE;
+	const uint16_t centerX = 32 / 2 * THERMAL_SCALE;
+	const uint16_t centerY = 24 / 2 * THERMAL_SCALE;
 	const StoredOptionsDef_t* opts = options->GetCurrent();
 
 	//runtime content
@@ -219,6 +278,19 @@ void UI::DrawMainScreen()
 
 void UI::DrawSettingsScreen()
 {
+	display->printf(0, 225, WHITE, BLACK, "SETTINGS");
+
+	for (uint8_t i = 0; i < MENU_ITEMS_COUNT; i++)
+	{
+		const uint16_t lineStartY = 210 - 15 * (i + 1);
+
+		if (menuItems[i].id == activeMenuItemIndex) {
+			display->printf(0, lineStartY, BLACK, WHITE, " > %s", menuItems[i].name);
+		}
+		else {
+			display->printf(0, lineStartY, WHITE, BLACK, "   %s", menuItems[i].name);
+		}
+	}
 }
 
 void UI::DrawConfirmScreen()
@@ -231,6 +303,11 @@ void UI::DrawFilesListScreen()
 
 void UI::DrawFileViewScreen()
 {
+}
+
+bool UI::isSensorReadActive()
+{
+	return _isSensorReadActive;
 }
 
 const char* UI::sensorRateToString(mlx90640_refreshrate_t rate)

@@ -601,7 +601,7 @@ void IRSensor::convertMlxEEToParams()
 
         
     pixCnt = 0;    
-    while (pixCnt < 768 && brokenPixCnt < 20 && outlierPixCnt < 20)
+    while (pixCnt < 768 && brokenPixCnt < 5 && outlierPixCnt < 5)
     {
         if(mlxEE[pixCnt+64] == 0)
         {
@@ -735,19 +735,13 @@ uint8_t IRSensor::CheckAdjacentPixels(uint16_t pix1, uint16_t pix2)
 
 void IRSensor::ReadImage()
 {
-	const uint8_t MAX_ATTEMPS = 5;
-    uint16_t statusRegister = 0;
-	uint16_t isReady = 1;
-	uint8_t cnt = 0;
-
-	statusRegister = I2Cx_ReadData16(i2c, MLX90640_ADDR, 0x8000);
+	uint16_t statusRegister = I2Cx_ReadData16(i2c, MLX90640_ADDR, 0x8000);
     if ((statusRegister & 0x0008) == 0)
     {
 	    return; //exit if data not ready
     }
 
 	I2Cx_ReadBuffer16(i2c, MLX90640_ADDR, 0x0400, frameData, 832 * 2); //Read meas data
-    // I2Cx_WriteData16(MLX90640_ADDR, 0x8000, statusRegister & 0xFFF7); //Clear bit “New data available in RAM” - Bit3 in 0x8000
 
 	const uint16_t controlRegister1 = I2Cx_ReadData16(i2c, MLX90640_ADDR, 0x800D);
     frameData[832] = controlRegister1;
@@ -791,9 +785,6 @@ void IRSensor::ReadImage()
 
 void IRSensor::CalculateTempMap(float emissivity)
 {
-	//memcpy(dots, s_dots, sizeof(float) * 768); 
-    //return;
-
 	float irDataCP[2];
 	int8_t pattern;
 	float alphaCorrR[4];
@@ -1083,8 +1074,8 @@ void IRSensor::FindMinAndMaxTemp()
 {
 	const float oldCenterTemp = this->centerTemp;
 
-	const uint16_t centerX = (32 - 1) / 2;
-	const uint16_t centerY = (24 - 1) / 2;
+	const uint16_t centerX = 32 / 2;
+	const uint16_t centerY = 24 / 2;
 	this->centerTemp = dots[centerY * 32 + centerX];
 	if (this->centerTemp >= 600) //restore prev value if overflow error
 	{
