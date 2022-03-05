@@ -27,7 +27,7 @@ static void ReadKeys_Thread(void const *argument);
 static void DrawTask_Thread(void const *argument);
 static void BgTask_Thread(void const *argument);
 
-int main(void)
+int main()
 {
 	HAL_Init();
 
@@ -50,10 +50,10 @@ int main(void)
 
 	ui.InitScreen(&display, &irSensor, &options);
 
-	osThreadDef(READ_KEYS, ReadKeys_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-	osThreadDef(BG_TASK, BgTask_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE);
-	osThreadDef(IR_SENSOR, IrSensor_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE + 1024);
-	osThreadDef(DRAW_TASK, DrawTask_Thread, osPriorityNormal, 0, configMINIMAL_STACK_SIZE + 1024);
+	const osThreadDef_t os_thread_def_READ_KEYS = { (char*)"READ_KEYS", (ReadKeys_Thread), (osPriorityNormal), (0), (( ( uint16_t ) 128 ))};
+	const osThreadDef_t os_thread_def_BG_TASK = { (char*)"BG_TASK", (BgTask_Thread), (osPriorityNormal), (0), (((uint16_t) 128))};
+	const osThreadDef_t os_thread_def_IR_SENSOR = { (char*)"IR_SENSOR", (IrSensor_Thread), (osPriorityNormal), (0), (((uint16_t) 128) + 1024)};
+	const osThreadDef_t os_thread_def_DRAW_TASK = { (char*)"DRAW_TASK", (DrawTask_Thread), (osPriorityNormal), (0), (((uint16_t) 128) + 1024)};
 
 	ReadKeysTaskHandle = osThreadCreate(osThread(READ_KEYS), NULL);
 	IRSensorThreadHandle = osThreadCreate(osThread(IR_SENSOR), NULL);
@@ -116,7 +116,6 @@ static void ReadKeys_Thread(void const *argument)
 {
 	(void) argument;
 
-	bool isPressed = false;
 	for (;;)
 	{
 		ui.setButtonState(Button::UP, GPIO_ReadPin(USR_BTN_U_PORT, USR_BTN_U_PIN));
@@ -134,7 +133,6 @@ static void BgTask_Thread(void const *argument)
 {
 	(void) argument;
 
-	bool isPressed = false;
 	for (;;)
 	{
 		HAL_ADC_Start(&adc1);
@@ -145,8 +143,6 @@ static void BgTask_Thread(void const *argument)
 
 void Error_Handler(const uint8_t source)
 {
-	uint8_t k = source;
-	//GPIO_WritePin(USR_LED3_PORT, USR_LED3_PIN, 1);
 	while (true) {}
 }
 
@@ -169,5 +165,3 @@ void assert_failed(uint8_t* file, uint32_t line)
 	}
 }
 #endif
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

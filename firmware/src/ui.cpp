@@ -58,6 +58,7 @@ void UI::setScreen(UIScreen screen)
 		_isSensorReadActive = false;
 	}
 	preventDraw = false;
+	HAL_Delay(100);
 }
 
 void UI::setButtonState(Button btn, bool isPressed)
