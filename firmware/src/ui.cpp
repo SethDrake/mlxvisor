@@ -16,6 +16,7 @@ UI::UI()
 	this->adcVbat = 0;
 	this->_isSensorReadActive = true;
 	this->activeMenuItemIndex = 0;
+	this->preventDraw = false;
 
 	menuItems[0] = {(uint8_t)MenuItems::DATE, "Date"};
 	menuItems[1] = {(uint8_t)MenuItems::TIME, "Time"};
@@ -42,10 +43,9 @@ void UI::InitScreen(ILI9341* display, IRSensor* irSensor, Options* options)
 
 void UI::setScreen(UIScreen screen)
 {
-	while(!display->isIdle()){}
-	memset(framebuffer, 0x10, sizeof(framebuffer));
-	display->clear(BLACK);
+	preventDraw = true;
 	activeMenuItemIndex = 0;
+	delayCntr = DRAW_DELAY;
 
 	this->currentSreen = screen;
 	this->isStaticPartsRendered = false;
@@ -57,6 +57,7 @@ void UI::setScreen(UIScreen screen)
 	{
 		_isSensorReadActive = false;
 	}
+	preventDraw = false;
 }
 
 void UI::setButtonState(Button btn, bool isPressed)
@@ -195,6 +196,10 @@ void UI::DrawClock()
 
 void UI::DrawScreen()
 {
+	if (preventDraw)
+	{
+		return;
+	}
 	const TickType_t xTime1 = xTaskGetTickCount();
 	if (delayCntr == DRAW_DELAY) {
 		DrawBattery();
@@ -278,18 +283,27 @@ void UI::DrawMainScreen()
 
 void UI::DrawSettingsScreen()
 {
-	display->printf(0, 225, WHITE, BLACK, "SETTINGS");
+	if (!isStaticPartsRendered)
+	{
+		display->clear(BLACK);
+		display->printf(0, 225, WHITE, BLACK, "SETTINGS");
+
+		isStaticPartsRendered = true;
+	}
+
+	uint16_t fCol, bCol;
 
 	for (uint8_t i = 0; i < MENU_ITEMS_COUNT; i++)
 	{
-		const uint16_t lineStartY = 210 - 15 * (i + 1);
-
+		const uint16_t lineStartY = 210 - 14 * (i + 1);
 		if (menuItems[i].id == activeMenuItemIndex) {
-			display->printf(0, lineStartY, BLACK, WHITE, " > %s", menuItems[i].name);
+			fCol = BLACK;
+			bCol = WHITE;
+		} else {
+			fCol = WHITE;
+			bCol = BLACK;
 		}
-		else {
-			display->printf(0, lineStartY, WHITE, BLACK, "   %s", menuItems[i].name);
-		}
+		display->printf(10, lineStartY, fCol, bCol, "%s", menuItems[i].name);
 	}
 }
 

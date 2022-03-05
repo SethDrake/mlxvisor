@@ -31,14 +31,16 @@ public:
 	void setFont(const unsigned char font[]);
 	void setLandscape(void);
 	void setPortrait(void);
+	void setIsDrawComplete(bool value);
 	bool isIdle(void);
-	
+
 protected:
 	SPI_HandleTypeDef* spi;
 	volatile uint16_t color;
 	volatile uint16_t bgColor;
 	const unsigned char *font;
 	volatile bool isLandscape;
+	volatile bool isDrawComplete;
 
 private:
 	void sendCmd(uint8_t cmd);

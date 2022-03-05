@@ -76,18 +76,19 @@ protected:
 
 	const char* sensorRateToString(mlx90640_refreshrate_t rate);
 private:
-	UIScreen currentSreen;
+	volatile UIScreen currentSreen;
 	ILI9341* display;
 	IRSensor* irSensor;
 	Options* options;
 	volatile uint8_t prevButtonsState = 0;
 	volatile uint8_t buttonsState = 0;
 	volatile TickType_t xDrawTime = 0;
-	bool isStaticPartsRendered;
-	bool _isSensorReadActive;
-	uint8_t delayCntr;
+	volatile bool isStaticPartsRendered;
+	volatile bool _isSensorReadActive;
+	volatile bool preventDraw;
+	volatile uint8_t delayCntr;
 
-	uint8_t activeMenuItemIndex;
+	volatile uint8_t activeMenuItemIndex;
 	menuItem_t menuItems[MENU_ITEMS_COUNT];
 
 	uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE];

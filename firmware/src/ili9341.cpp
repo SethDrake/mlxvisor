@@ -12,6 +12,7 @@ ILI9341::ILI9341()
 	this->bgColor = BLACK;
 	this->font = Consolas8x14;
 	this->isLandscape = true;
+	this->isDrawComplete = true;
 }
 
 ILI9341::~ILI9341()
@@ -413,6 +414,8 @@ void ILI9341::printf(uint16_t* fb, uint16_t fbSizeY, uint16_t x, uint16_t y, uin
 
 void ILI9341::bufferDraw(uint16_t x, uint16_t y, uint16_t xsize, uint16_t ysize, uint16_t* buf)
 {
+	isDrawComplete = false;
+
 	setCS(0); // CS=0
 	setWindow(x, y, x + xsize - 1, y + ysize - 1);
 	sendCmd(ILI9341_MEMORYWRITE_REG);
@@ -521,7 +524,12 @@ void ILI9341::setPortrait()
 	this->isLandscape = false;
 }
 
+void ILI9341::setIsDrawComplete(bool value)
+{
+	this->isDrawComplete = value;
+}
+
 bool ILI9341::isIdle()
 {
-	return spi->State == HAL_SPI_STATE_READY;
+	return this->isDrawComplete;
 }
