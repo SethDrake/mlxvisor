@@ -46,10 +46,13 @@ enum class MenuItems
 
 #define MENU_ITEMS_COUNT 10
 
+static const uint8_t days_in_month[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
 typedef struct MenuItemDef_t
 {
 	uint8_t id;
 	const char* name;
+	uint8_t subItemsCount;
 } menuItem_t;
 
 class UI {
@@ -76,6 +79,11 @@ protected:
 
 	const char* sensorRateToString(mlx90640_refreshrate_t rate);
 private:
+	uint16_t GetMenuFrontColor(int8_t menuIndex, int8_t activeMenuIndex, bool isActive);
+	uint16_t GetMenuBackColor(int8_t menuIndex, int8_t activeMenuIndex, bool isActive);
+	void EditMenuItem(MenuItems menuItem, Button button);
+	uint8_t GetDaysInMonth(uint8_t month, uint16_t year);
+	void DrawSubItem(uint16_t x, uint16_t y, uint8_t subMenuIndex, bool inEdit, const char* format, uint8_t* val);
 	volatile UIScreen currentSreen;
 	ILI9341* display;
 	IRSensor* irSensor;
@@ -88,7 +96,9 @@ private:
 	volatile bool preventDraw;
 	volatile uint8_t delayCntr;
 
-	volatile uint8_t activeMenuItemIndex;
+	volatile uint8_t selectedMenuItemIndex;
+	volatile bool isMenuItemInEdit;
+	volatile int8_t activeSubMenuItemIndex;
 	menuItem_t menuItems[MENU_ITEMS_COUNT];
 
 	uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE];

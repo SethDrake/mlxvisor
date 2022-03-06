@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include "mlx90640.h"
+#include "stm32f4xx_hal.h"
 
 #define STORED_OPTS_MAGIC 0xF00D
 

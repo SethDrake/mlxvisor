@@ -63,13 +63,13 @@ void Clock_Init()
 	/* Enable RTC */
 	__HAL_RCC_RTC_ENABLE();
 
-	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSE;
+	RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
 	RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
-	RCC_OscInitStruct.LSIState = RCC_LSE_ON;
+	RCC_OscInitStruct.LSIState = RCC_LSI_ON;
 
-	/*if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
+	if (HAL_RCC_OscConfig(&RCC_OscInitStruct) == HAL_OK) {
 		PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-		PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSE;
+		PeriphClkInitStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
 
 		if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) == HAL_OK)
 		{
@@ -84,7 +84,7 @@ void Clock_Init()
 				RTC_Config();
 			}
 		}
-	}*/
+	}
 }
 
 void RTC_Config()
@@ -92,7 +92,7 @@ void RTC_Config()
 	RTC_DateTypeDef sDate;
 	RTC_TimeTypeDef sTime = { 0 };
 
-	HAL_RTCEx_BKUPWrite(&rtc, RTC_BKP_DR1, 0xF10D);
+	//HAL_RTCEx_BKUPWrite(&rtc, RTC_BKP_DR1, 0xF10D);
 
 	//init calendar if not already configured
 	if (HAL_RTCEx_BKUPRead(&rtc, RTC_BKP_DR1) != 0xF00D)
@@ -102,13 +102,13 @@ void RTC_Config()
 		sTime.Seconds = 0;
 		sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
 		sTime.StoreOperation = RTC_STOREOPERATION_RESET;
-		HAL_RTC_SetTime(&rtc, &sTime, RTC_FORMAT_BIN);
 
 		sDate.WeekDay = RTC_WEEKDAY_WEDNESDAY;
 		sDate.Month = RTC_MONTH_MARCH;
 		sDate.Date = 2;
 		sDate.Year = 22;
-		HAL_RTC_SetDate(&rtc, &sDate, RTC_FORMAT_BIN);
+
+		SaveDateTime(&sDate, &sTime);
 
 		HAL_RTCEx_BKUPWrite(&rtc, RTC_BKP_DR1, 0xF00D);
 	}
@@ -318,6 +318,18 @@ void GPIO_TogglePin(GPIO_TypeDef* port, uint16_t pin)
 uint8_t GPIO_ReadPin(GPIO_TypeDef* port, uint16_t pin)
 {
 	return HAL_GPIO_ReadPin(port, pin);
+}
+
+void GetDateTime(RTC_DateTypeDef* date, RTC_TimeTypeDef* time)
+{
+	HAL_RTC_GetTime(&rtc, time, RTC_FORMAT_BIN);
+	HAL_RTC_GetDate(&rtc, date, RTC_FORMAT_BIN);
+}
+
+void SaveDateTime(RTC_DateTypeDef* date, RTC_TimeTypeDef* time)
+{
+	HAL_RTC_SetTime(&rtc, time, RTC_FORMAT_BIN);
+	HAL_RTC_SetDate(&rtc, date, RTC_FORMAT_BIN);
 }
 
 void I2Cx_Error(void)

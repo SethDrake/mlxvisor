@@ -15,19 +15,21 @@ UI::UI()
 	this->delayCntr = DRAW_DELAY;
 	this->adcVbat = 0;
 	this->_isSensorReadActive = true;
-	this->activeMenuItemIndex = 0;
+	this->selectedMenuItemIndex = 0;
+	this->isMenuItemInEdit = false;
+	this->activeSubMenuItemIndex = -1;
 	this->preventDraw = false;
 
-	menuItems[0] = {(uint8_t)MenuItems::DATE, "Date"};
-	menuItems[1] = {(uint8_t)MenuItems::TIME, "Time"};
-	menuItems[2] = {(uint8_t)MenuItems::EMISSION, "Emission"};
-	menuItems[3] = {(uint8_t)MenuItems::SENSOR_RATE, "Sensor rate"};
-	menuItems[4] = {(uint8_t)MenuItems::SENSOR_ADC_RESOLUTION, "Sensor ADC resolution"};
-	menuItems[5] = {(uint8_t)MenuItems::COLOR_SCHEME, "Color scheme"};
-	menuItems[6] = {(uint8_t)MenuItems::SHOW_MIN_TEMP_MARK, "Show min temp marker"};
-	menuItems[7] = {(uint8_t)MenuItems::SHOW_MAX_TEMP_MARK, "Show max temp marker"};
-	menuItems[8] = {(uint8_t)MenuItems::SHOW_CENTER_TEMP_MARK, "Show center temp marker"};
-	menuItems[9] = {(uint8_t)MenuItems::BACK, "Back"};
+	menuItems[0] = {(uint8_t)MenuItems::DATE, "Date", 3};
+	menuItems[1] = {(uint8_t)MenuItems::TIME, "Time", 3};
+	menuItems[2] = {(uint8_t)MenuItems::EMISSION, "Emission", 1};
+	menuItems[3] = {(uint8_t)MenuItems::SENSOR_RATE, "Sensor rate", 1};
+	menuItems[4] = {(uint8_t)MenuItems::SENSOR_ADC_RESOLUTION, "Sensor ADC resolution", 1};
+	menuItems[5] = {(uint8_t)MenuItems::COLOR_SCHEME, "Color scheme", 1};
+	menuItems[6] = {(uint8_t)MenuItems::SHOW_MIN_TEMP_MARK, "Show min temp marker", 1};
+	menuItems[7] = {(uint8_t)MenuItems::SHOW_MAX_TEMP_MARK, "Show max temp marker", 1};
+	menuItems[8] = {(uint8_t)MenuItems::SHOW_CENTER_TEMP_MARK, "Show center temp marker", 1};
+	menuItems[9] = {(uint8_t)MenuItems::BACK, "Back", 0};
 }
 
 UI::~UI()
@@ -44,11 +46,11 @@ void UI::InitScreen(ILI9341* display, IRSensor* irSensor, Options* options)
 void UI::setScreen(UIScreen screen)
 {
 	preventDraw = true;
-	activeMenuItemIndex = 0;
+	selectedMenuItemIndex = 0;
+	isMenuItemInEdit = false;
 	delayCntr = DRAW_DELAY;
 
 	this->currentSreen = screen;
-	this->isStaticPartsRendered = false;
 	if (currentSreen == UIScreen::MAIN)
 	{
 		_isSensorReadActive = true;
@@ -57,8 +59,9 @@ void UI::setScreen(UIScreen screen)
 	{
 		_isSensorReadActive = false;
 	}
+	osDelay(100);
+	this->isStaticPartsRendered = false;
 	preventDraw = false;
-	HAL_Delay(100);
 }
 
 void UI::setButtonState(Button btn, bool isPressed)
@@ -139,31 +142,60 @@ void UI::ProcessButtons()
 	{
 		if (isButtonPressed(Button::UP))
 		{
-			if (activeMenuItemIndex > 0)
+			if (isMenuItemInEdit)
 			{
-				activeMenuItemIndex--;
+				EditMenuItem((MenuItems)menuItems[selectedMenuItemIndex].id, Button::UP);
+			}
+			else {
+				if (selectedMenuItemIndex > 0)
+				{
+					selectedMenuItemIndex--;
+				}
 			}
 		}
 		else if (isButtonPressed(Button::LEFT))
 		{
-			
+			if (isMenuItemInEdit)
+			{
+				if (activeSubMenuItemIndex > 0)
+				{
+					activeSubMenuItemIndex--;
+				}
+			}
 		}
 		else if (isButtonPressed(Button::RIGHT))
 		{
-			
+			if (isMenuItemInEdit)
+			{
+				if (activeSubMenuItemIndex < menuItems[selectedMenuItemIndex].subItemsCount-1)
+				{
+					activeSubMenuItemIndex++;
+				}
+			}
 		}
 		else if (isButtonPressed(Button::DOWN))
 		{
-			if (activeMenuItemIndex < (MENU_ITEMS_COUNT - 1))
+			if (isMenuItemInEdit)
 			{
-				activeMenuItemIndex++;
+				EditMenuItem((MenuItems)menuItems[selectedMenuItemIndex].id, Button::DOWN);
+			}
+			else {
+				if (selectedMenuItemIndex < (MENU_ITEMS_COUNT - 1))
+				{
+					selectedMenuItemIndex++;
+				}
 			}
 		}
 		else if (isButtonPressed(Button::OK))
 		{
-			if (activeMenuItemIndex == (int)MenuItems::BACK)
+			if (selectedMenuItemIndex == (int)MenuItems::BACK)
 			{
 				setScreen(UIScreen::MAIN);
+			}
+			else
+			{
+				isMenuItemInEdit = !isMenuItemInEdit;
+				activeSubMenuItemIndex = isMenuItemInEdit ? 0 : -1;
 			}
 		}
 	}
@@ -188,8 +220,7 @@ void UI::DrawClock()
 	RTC_TimeTypeDef time;
 	RTC_DateTypeDef date;
 
-	HAL_RTC_GetTime(&rtc, &time, RTC_FORMAT_BIN);
-	HAL_RTC_GetDate(&rtc, &date, RTC_FORMAT_BIN);
+	GetDateTime(&date, &time);
 
 	display->printf(240, 14, WHITE, BLACK, "%02u-%02u-20%02u", date.Date, date.Month, date.Year);
 	display->printf(248, 0, WHITE, BLACK, "%02u:%02u:%02u", time.Hours, time.Minutes, time.Seconds);
@@ -292,19 +323,170 @@ void UI::DrawSettingsScreen()
 		isStaticPartsRendered = true;
 	}
 
-	uint16_t fCol, bCol;
+	RTC_TimeTypeDef time;
+	RTC_DateTypeDef date;
+
+	GetDateTime(&date, &time);
+
+	const StoredOptionsDef_t* opts = options->GetCurrent();
 
 	for (uint8_t i = 0; i < MENU_ITEMS_COUNT; i++)
 	{
 		const uint16_t lineStartY = 210 - 14 * (i + 1);
-		if (menuItems[i].id == activeMenuItemIndex) {
-			fCol = BLACK;
-			bCol = WHITE;
-		} else {
-			fCol = WHITE;
-			bCol = BLACK;
-		}
+		const uint16_t fCol = GetMenuFrontColor(menuItems[i].id, selectedMenuItemIndex, true);
+		const uint16_t bCol = GetMenuBackColor(menuItems[i].id, selectedMenuItemIndex, true);
+		
 		display->printf(10, lineStartY, fCol, bCol, "%s", menuItems[i].name);
+
+		//draw submenu
+		const uint16_t shift = sizeof(menuItems[i].name) * 8 + 20;
+		const bool isActualMenuItemInEdit = (menuItems[i].id == selectedMenuItemIndex) && isMenuItemInEdit;
+		if (menuItems[i].id == (int)MenuItems::DATE)
+		{
+			display->printf(shift, lineStartY, GetMenuFrontColor(0, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(0, activeSubMenuItemIndex, isActualMenuItemInEdit), "%02u", date.Date);
+			display->printf(shift + 2*8, lineStartY, WHITE, BLACK, "-");
+			display->printf(shift + 3 * 8, lineStartY, GetMenuFrontColor(1, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(1, activeSubMenuItemIndex, isActualMenuItemInEdit), "%02u", date.Month);
+			display->printf(shift + 5*8, lineStartY, WHITE, BLACK, "-");
+			display->printf(shift + 6 * 8, lineStartY, GetMenuFrontColor(2, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(2, activeSubMenuItemIndex, isActualMenuItemInEdit), "20%02u", date.Year);
+		}
+		else if (menuItems[i].id == (int)MenuItems::TIME)
+		{
+			display->printf(shift, lineStartY, GetMenuFrontColor(0, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(0, activeSubMenuItemIndex, isActualMenuItemInEdit), "%02u", time.Hours);
+			display->printf(shift + 2*8, lineStartY, WHITE, BLACK, ":");
+			display->printf(shift + 3 * 8, lineStartY, GetMenuFrontColor(1, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(1, activeSubMenuItemIndex, isActualMenuItemInEdit), "%02u", time.Minutes);
+			display->printf(shift + 5*8, lineStartY, WHITE, BLACK, ":");
+			display->printf(shift + 6 * 8, lineStartY, GetMenuFrontColor(2, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(2, activeSubMenuItemIndex, isActualMenuItemInEdit), "%02u", time.Seconds);	
+		}
+		else if (menuItems[i].id == (int)MenuItems::EMISSION)
+		{
+			display->printf(shift, lineStartY, GetMenuFrontColor(0, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(0, activeSubMenuItemIndex, isActualMenuItemInEdit), "%2.1f", opts->emission);
+		}
+	}
+}
+
+void UI::DrawSubItem(uint16_t x, uint16_t y, uint8_t subMenuIndex, bool inEdit, const char* format, uint8_t* val)
+{
+	display->printf(x, y, GetMenuFrontColor(0, activeSubMenuItemIndex, inEdit), GetMenuBackColor(0, activeSubMenuItemIndex, inEdit), format, *val);
+}
+
+void UI::EditMenuItem(MenuItems menuItem, Button button)
+{
+	RTC_TimeTypeDef time;
+	RTC_DateTypeDef date;
+
+	GetDateTime(&date, &time);
+
+	if (menuItem == MenuItems::DATE)
+	{
+		if (activeSubMenuItemIndex == 0)
+		{
+			if (button == Button::UP)
+			{
+				date.Date++;
+				if (date.Date > GetDaysInMonth(date.Month, date.Year + 2000))
+				{
+					date.Date = GetDaysInMonth(date.Month, date.Year + 2000);
+				}
+			}
+			else if (button == Button::DOWN)
+			{
+				date.Date--;
+				if (date.Date < 1)
+				{
+					date.Date = 1;
+				}
+			}
+		}
+		else if (activeSubMenuItemIndex == 1)
+		{
+			if (button == Button::UP)
+			{
+				date.Month++;
+				if (date.Month > 12)
+				{
+					date.Month = 12;
+				}
+			}
+			else if (button == Button::DOWN)
+			{
+				date.Month--;
+				if (date.Month < 1)
+				{
+					date.Month = 1;
+				}
+			}
+		}
+		else if (activeSubMenuItemIndex == 2)
+		{
+			if (button == Button::UP)
+			{
+				date.Year++;
+				if (date.Year > 99)
+				{
+					date.Year = 99;
+				}
+			}
+			else if (button == Button::DOWN)
+			{
+				date.Year--;
+				if (date.Year < 1)
+				{
+					date.Year = 1;
+				}
+			}
+		}
+
+		SaveDateTime(&date, &time);
+	}
+	else if (menuItem == MenuItems::TIME)
+	{
+		if (activeSubMenuItemIndex == 0)
+		{
+			if (button == Button::UP)
+			{
+				time.Hours++;
+				if (time.Hours > 23)
+				{
+					time.Hours = 23;
+				}
+			}
+			else if (button == Button::DOWN)
+			{
+				time.Hours--;
+			}
+		}
+		else if (activeSubMenuItemIndex == 1)
+		{
+			if (button == Button::UP)
+			{
+				time.Minutes++;
+				if (time.Minutes > 59)
+				{
+					time.Minutes = 59;
+				}
+			}
+			else if (button == Button::DOWN)
+			{
+				time.Minutes--;
+			}
+		}
+		else if (activeSubMenuItemIndex == 2)
+		{
+			if (button == Button::UP)
+			{
+				time.Seconds++;
+				if (time.Seconds > 59)
+				{
+					time.Seconds = 59;
+				}
+			}
+			else if (button == Button::DOWN)
+			{
+				time.Seconds--;
+			}
+		}
+
+		SaveDateTime(&date, &time);
 	}
 }
 
@@ -323,6 +505,29 @@ void UI::DrawFileViewScreen()
 bool UI::isSensorReadActive()
 {
 	return _isSensorReadActive;
+}
+
+uint16_t UI::GetMenuFrontColor(int8_t menuIndex, int8_t activeMenuIndex, bool isActive)
+{
+	return isActive && (menuIndex == activeMenuIndex) ? BLACK : WHITE;
+}
+
+uint16_t UI::GetMenuBackColor(int8_t menuIndex, int8_t activeMenuIndex, bool isActive)
+{
+	return isActive && (menuIndex == activeMenuIndex) ? WHITE : BLACK;
+}
+
+uint8_t UI::GetDaysInMonth(uint8_t month, uint16_t year)
+{
+	uint8_t	daysInMonth = days_in_month[month - 1];
+	if (month == 2)
+	{
+		if ((year % 4 == 0) && ((year % 4 != 0) || (year % 400 == 0))) //is leap year
+		{
+			daysInMonth++;
+		}
+	}
+	return daysInMonth;
 }
 
 const char* UI::sensorRateToString(mlx90640_refreshrate_t rate)

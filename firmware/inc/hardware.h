@@ -64,9 +64,12 @@ void	SPI_Init(void);
 void	ADC_Init(void);
 void	DMA_Init(void);
 
-void      GPIO_WritePin(GPIO_TypeDef* port, uint16_t pin, uint8_t state);
-void      GPIO_TogglePin(GPIO_TypeDef* port, uint16_t pin);
-uint8_t   GPIO_ReadPin(GPIO_TypeDef* port, uint16_t pin);
+void    GPIO_WritePin(GPIO_TypeDef* port, uint16_t pin, uint8_t state);
+void    GPIO_TogglePin(GPIO_TypeDef* port, uint16_t pin);
+uint8_t GPIO_ReadPin(GPIO_TypeDef* port, uint16_t pin);
+
+void	GetDateTime(RTC_DateTypeDef* date, RTC_TimeTypeDef* time);
+void	SaveDateTime(RTC_DateTypeDef* date, RTC_TimeTypeDef* time);
 
 #ifdef __cplusplus
 }
