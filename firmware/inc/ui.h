@@ -71,7 +71,7 @@ public:
 protected:
 	void DrawMainScreen();
 	void DrawSettingsScreen();
-	void DrawConfirmScreen();
+	void DrawDialogScreen();
 	void DrawFilesListScreen();
 	void DrawFileViewScreen();
 	void DrawBattery();

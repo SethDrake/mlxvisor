@@ -255,7 +255,7 @@ void UI::DrawScreen()
 			DrawSettingsScreen();
 			break;
 		case UIScreen::DIALOG: 
-			DrawConfirmScreen();
+			DrawDialogScreen();
 			break;
 		case UIScreen::FILES_LIST: 
 			DrawFilesListScreen();
@@ -272,14 +272,6 @@ void UI::DrawMainScreen()
 	const uint16_t centerX = 32 / 2 * THERMAL_SCALE;
 	const uint16_t centerY = 24 / 2 * THERMAL_SCALE;
 	const StoredOptionsDef_t* opts = options->GetCurrent();
-
-	//runtime content
-	irSensor->VisualizeImage(framebuffer, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, 1); //prepare thermal image in framebuffer
-	//draw central mark with temp in framebuffer
-	if (opts->showCenterTempMarker) {
-		display->drawMarkInBuf(framebuffer, 24 * THERMAL_SCALE, centerX, centerY, WHITE);
-		display->printf(framebuffer, 24 * THERMAL_SCALE, centerX - 18, centerY - 25, WHITE, "%.1f\x81", irSensor->getCenterTemp());
-	}
 
 	//draw framebuffers and other content
 	//static content
@@ -317,6 +309,14 @@ void UI::DrawMainScreen()
 		delayCntr = 0;
 	}
 	delayCntr++;
+
+	//runtime content
+	irSensor->VisualizeImage(framebuffer, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, 1); //prepare thermal image in framebuffer
+	//draw central mark with temp in framebuffer
+	if (opts->showCenterTempMarker) {
+		display->drawMarkInBuf(framebuffer, 24 * THERMAL_SCALE, centerX, centerY, WHITE);
+		display->printf(framebuffer, 24 * THERMAL_SCALE, centerX - 18, centerY - 25, WHITE, "%.1f\x81", irSensor->getCenterTemp());
+	}
 
 	//thermal image famebuffer
 	display->bufferDraw(0, 239 - 24 * THERMAL_SCALE, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, framebuffer);
@@ -397,7 +397,7 @@ void UI::DrawSettingsScreen()
 	}
 }
 
-void UI::DrawConfirmScreen()
+void UI::DrawDialogScreen()
 {
 }
 
