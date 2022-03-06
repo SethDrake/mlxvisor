@@ -999,7 +999,7 @@ void IRSensor::VisualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint
 
 	_isImageReady = false;
 
-	if (method == 0)
+	/*if (method == 0)
 	{
 		const uint16_t pixelsCnt = 32 * 24;
 		for (uint16_t i = 0; i < pixelsCnt; i++)
@@ -1025,7 +1025,7 @@ void IRSensor::VisualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint
 			col++;
 		}
 	}
-	else if (method == 1)
+	else */if (method == 1)
 	{
 		col = 0;
 		while (col < 32 * scaleX)

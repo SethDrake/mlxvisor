@@ -150,6 +150,12 @@ void DMA2_Stream3_IRQHandler(void)
 	HAL_DMA_IRQHandler(spi1.hdmatx);
 }
 
+void DMA2_Stream6_IRQHandler(void)
+{
+	HAL_DMA_IRQHandler(sdio.hdmarx);
+	HAL_DMA_IRQHandler(sdio.hdmatx);
+}
+
 /**
   * @brief  This function handles SPI interrupt request.
   * @param  None

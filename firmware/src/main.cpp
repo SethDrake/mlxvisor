@@ -4,6 +4,7 @@
 #include "main.h"
 #include "thermal.h"
 #include "ili9341.h"
+#include "sdcard.h"
 #include "ui.h"
 #include "options.h"
 #include <string.h>
@@ -15,6 +16,7 @@ osThreadId IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle, BgTaskHandl
 Options options;
 IRSensor irSensor;
 ILI9341 display;
+SDCard sdCard;
 UI ui;
 
 volatile uint8_t vis_mode = 1;
@@ -43,13 +45,15 @@ int main()
 	display.Init(&spi1);
 	display.clear(BLACK);
 
+	sdCard.Init();
+
 	isSensorReady = irSensor.Init(&i2c1, options.GetCurrent()->sensorRefreshRate, options.GetCurrent()->sensorAdcResolution, options.GetCurrent()->colorScheme);
 
-	ui.InitScreen(&display, &irSensor, &options);
+	ui.InitScreen(&display, &irSensor, &sdCard, &options);
 
 	HAL_ADC_Start(&adc1);
 
-	const osThreadDef_t os_thread_def_READ_KEYS = { (char*)"READ_KEYS", (ReadKeys_Thread), (osPriorityNormal), (0), (( ( uint16_t ) 128 ))};
+	const osThreadDef_t os_thread_def_READ_KEYS = { (char*)"READ_KEYS", (ReadKeys_Thread), (osPriorityNormal), (0), (((uint16_t) 128 + 128))};
 	const osThreadDef_t os_thread_def_BG_TASK = { (char*)"BG_TASK", (BgTask_Thread), (osPriorityNormal), (0), (((uint16_t) 128))};
 	const osThreadDef_t os_thread_def_IR_SENSOR = { (char*)"IR_SENSOR", (IrSensor_Thread), (osPriorityNormal), (0), (((uint16_t) 128) + 1024)};
 	const osThreadDef_t os_thread_def_DRAW_TASK = { (char*)"DRAW_TASK", (DrawTask_Thread), (osPriorityNormal), (0), (((uint16_t) 128) + 1024)};

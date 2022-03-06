@@ -82,6 +82,8 @@
     <ClCompile Include="src\ili9341.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\options.cpp" />
+    <ClCompile Include="src\sdcard.cpp" />
+    <ClCompile Include="src\sdio.c" />
     <ClCompile Include="src\spi.c" />
     <ClCompile Include="src\stm32f4xx_hal_timebase_tim.c" />
     <ClCompile Include="src\stm32f4xx_it.c" />
@@ -92,6 +94,8 @@
     <ClInclude Include="inc\i2c.h" />
     <ClInclude Include="inc\ili9341.h" />
     <ClInclude Include="inc\options.h" />
+    <ClInclude Include="inc\sdcard.h" />
+    <ClInclude Include="inc\sdio.h" />
     <ClInclude Include="inc\spi.h" />
     <ClInclude Include="inc\stm32f4xx_it.h" />
     <ClInclude Include="inc\thermal.h" />
@@ -354,5 +358,17 @@
     <ClInclude Include="$(BSP_ROOT)\Utilities\CPU\cpu_utils.h" />
     <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\StartupFiles\startup_stm32f407xx.c" />
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\portable\MemMang\heap_3.c" />
+    <ClCompile Include="$(BSP_ROOT)\FatFs\src\diskio.c" />
+    <ClCompile Include="$(BSP_ROOT)\FatFs\src\ff.c" />
+    <ClCompile Include="$(BSP_ROOT)\FatFs\src\ff_gen_drv.c" />
+    <ClCompile Include="$(BSP_ROOT)\FatFs\src\option\syscall.c" />
+    <ClCompile Include="$(BSP_ROOT)\FatFs\src\option\unicode.c" />
+    <ClInclude Include="ffconf.h" />
+    <ClInclude Include="$(BSP_ROOT)\FatFs\src\diskio.h" />
+    <ClInclude Include="$(BSP_ROOT)\FatFs\src\ff.h" />
+    <ClInclude Include="$(BSP_ROOT)\FatFs\src\ffconf_template.h" />
+    <ClInclude Include="$(BSP_ROOT)\FatFs\src\ff_gen_drv.h" />
+    <ClInclude Include="$(BSP_ROOT)\FatFs\src\integer.h" />
+    <ClInclude Include="$(BSP_ROOT)\BSP\ConfigTemplates\ffconf.h" />
   </ItemGroup>
 </Project>

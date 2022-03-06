@@ -36,6 +36,7 @@
   <BSPSourceFolderName>Device-specific files</BSPSourceFolderName>
   <MCUMakFile>stm32.mak</MCUMakFile>
   <ReferencedFrameworks>
+    <string>com.sysprogs.arm.stm32.FatFs</string>
     <string>com.sysprogs.arm.stm32.freertos</string>
     <string>com.sysprogs.arm.stm32.utilities</string>
     <string>com.sysprogs.arm.stm32.hal</string>

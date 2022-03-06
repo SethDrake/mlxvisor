@@ -32,6 +32,10 @@
 #define ADC1_DMA_STRM       DMA2_Stream0
 #define ADC1_DMA_IRQ        DMA2_Stream0_IRQn
 
+#define SD_TX_RX_DMA_CHL    DMA_CHANNEL_4
+#define SD_TX_RX_DMA_STRM   DMA2_Stream6  
+#define SD_TX_RX_IRQn       DMA2_Stream6_IRQn
+
 #define LCD_CS_PORT			GPIOC
 #define LCD_CS_PIN			GPIO_PIN_4
 #define LCD_DC_PORT			GPIOC
@@ -48,6 +52,26 @@
 #define USR_BTN_L_PORT		GPIOD
 #define USR_BTN_L_PIN		GPIO_PIN_5
 
+#define SD_CLKDIV		    8 
+#define SD_CLKDIV_SLOW	    5
+
+#define SDIO_D0_PORT		GPIOC
+#define SDIO_D0_PIN			GPIO_PIN_8
+#define SDIO_D1_PORT		GPIOC
+#define SDIO_D1_PIN			GPIO_PIN_9
+#define SDIO_D2_PORT		GPIOC
+#define SDIO_D2_PIN			GPIO_PIN_10
+#define SDIO_D3_PORT		GPIOC
+#define SDIO_D3_PIN			GPIO_PIN_11
+#define SDIO_CK_PORT		GPIOC
+#define SDIO_CK_PIN			GPIO_PIN_12
+#define SDIO_CMD_PORT		GPIOD
+#define SDIO_CMD_PIN		GPIO_PIN_2
+
+#define   MSD_OK                        ((uint8_t)0x00)
+#define   MSD_ERROR                     ((uint8_t)0x01)
+#define   MSD_ERROR_SD_NOT_PRESENT      ((uint8_t)0x02)
+
 #define RTC_ASYNCH_PREDIV       127
 #define RTC_SYNCH_PREDIV        255
   
@@ -55,6 +79,7 @@ extern I2C_HandleTypeDef	i2c1;
 extern SPI_HandleTypeDef	spi1;
 extern RTC_HandleTypeDef	rtc;
 extern ADC_HandleTypeDef	adc1;
+extern SD_HandleTypeDef     sdio;
 
 void	Clock_Init(void);
 void	RTC_Config(void);
@@ -62,6 +87,7 @@ void	GPIO_Init(void);
 void	I2C_Init(void);
 void	SPI_Init(void);
 void	ADC_Init(void);
+uint8_t SDCard_Init(void);
 void	DMA_Init(void);
 
 void    GPIO_WritePin(GPIO_TypeDef* port, uint16_t pin, uint8_t state);

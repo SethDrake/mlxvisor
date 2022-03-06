@@ -65,7 +65,7 @@ private:
 	float vdd;
 	float ta;
 	float dots[24*32];
-	uint16_t colors[24*32];
+	// uint16_t colors[24*32];
 	uint16_t coldDotIndex;
 	uint16_t hotDotIndex;
 	float minTemp;

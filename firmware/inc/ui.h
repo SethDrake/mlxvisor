@@ -5,6 +5,7 @@
 #include "ili9341.h"
 #include "options.h"
 #include "thermal.h"
+#include "sdcard.h"
 #include <../CMSIS_RTOS/cmsis_os.h>
 #include "portmacro.h"
 
@@ -59,7 +60,7 @@ class UI {
 public:
 	UI();
 	~UI();
-	void InitScreen(ILI9341* display, IRSensor* irSensor, Options* options);
+	void InitScreen(ILI9341* display, IRSensor* irSensor, SDCard* sdCard, Options* options);
 	void DrawScreen();
 	void ProcessButtons();
 	void setScreen(UIScreen screen);
@@ -91,6 +92,7 @@ private:
 	ILI9341* display;
 	IRSensor* irSensor;
 	Options* options;
+	SDCard* sdCard;
 	volatile uint8_t prevButtonsState = 0;
 	volatile uint8_t buttonsState = 0;
 	volatile TickType_t xDrawTime = 0;

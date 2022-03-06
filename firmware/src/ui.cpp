@@ -1,4 +1,6 @@
 ﻿#include "ui.h"
+
+#include <cstdio>
 #include <string.h>
 #include "cpu_utils.h"
 
@@ -12,6 +14,7 @@ UI::UI()
 	this->isStaticPartsRendered = false;
 	this->display = NULL;
 	this->irSensor = NULL;
+	this->sdCard = NULL;
 	this->options = NULL;
 	this->delayCntr = DRAW_DELAY;
 	this->adcVbat = 0;
@@ -37,10 +40,11 @@ UI::~UI()
 {
 }
 
-void UI::InitScreen(ILI9341* display, IRSensor* irSensor, Options* options)
+void UI::InitScreen(ILI9341* display, IRSensor* irSensor, SDCard* sdCard, Options* options)
 {
 	this->display = display;
 	this->irSensor = irSensor;
+	this->sdCard = sdCard;
 	this->options = options;
 }
 
@@ -129,7 +133,16 @@ void UI::ProcessButtons()
 		}
 		else if (isButtonPressed(Button::OK))
 		{
-			
+			if (sdCard->isCardOk() && irSensor->isImageReady())
+			{
+				char fileName[25];
+				RTC_TimeTypeDef time;
+				RTC_DateTypeDef date;
+
+				GetDateTime(&date, &time);
+				sprintf(fileName, "20%02u-%02u-%02u-%02u%02u%02u.thv", date.Year, date.Month, date.Date, time.Hours, time.Minutes, time.Seconds);
+				sdCard->SaveThvFile((const char*)&fileName, 32, 24, irSensor->getTempMap());
+			}
 		}
 	}
 	else if (currentSreen == UIScreen::SETTINGS)
@@ -282,7 +295,7 @@ void UI::DrawMainScreen()
 
 		//buttons description
 		display->printf(290, 140, YELLOW, BLACK, "R"); //up
-		display->printf(272, 125, YELLOW, BLACK, "E-"); //left
+		display->printf(272, 125, YELLOW, BLACK, "-E"); //left
 		display->printf(290, 125, YELLOW, BLACK, "S"); //center
 		display->printf(303, 125, YELLOW, BLACK, "E+"); //right
 		display->printf(290, 110, YELLOW, BLACK, "M"); //down

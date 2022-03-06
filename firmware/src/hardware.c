@@ -4,6 +4,7 @@ I2C_HandleTypeDef i2c1;
 SPI_HandleTypeDef spi1;
 RTC_HandleTypeDef rtc;
 ADC_HandleTypeDef adc1;
+SD_HandleTypeDef  sdio;
 
 void Clock_Init()
 {
@@ -147,6 +148,24 @@ void GPIO_Init()
 	GPIO_InitStruct.Pin    = SPI1_SCK_PIN; //SCK
 	HAL_GPIO_Init(SPI1_SCK_PORT, &GPIO_InitStruct);
 
+	/* Configure SDIO Pins */
+	GPIO_InitStruct.Mode   = GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull   = GPIO_PULLUP;
+	GPIO_InitStruct.Speed  = GPIO_SPEED_FREQ_VERY_HIGH;
+	GPIO_InitStruct.Alternate = GPIO_AF12_SDIO;
+	GPIO_InitStruct.Pin    = SDIO_D0_PIN;
+	HAL_GPIO_Init(SDIO_D0_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin    = SDIO_D1_PIN;
+	HAL_GPIO_Init(SDIO_D1_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin    = SDIO_D2_PIN;
+	HAL_GPIO_Init(SDIO_D2_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin    = SDIO_D3_PIN;
+	HAL_GPIO_Init(SDIO_D3_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin    = SDIO_CK_PIN;
+	HAL_GPIO_Init(SDIO_CK_PORT, &GPIO_InitStruct);
+	GPIO_InitStruct.Pin    = SDIO_CMD_PIN;
+	HAL_GPIO_Init(SDIO_CMD_PORT, &GPIO_InitStruct);
+
 	/* Configure the Common GPIOs */
 	/* Input */
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
@@ -249,14 +268,51 @@ void ADC_Init()
 		sConfig.Offset = 0;
 		HAL_ADC_ConfigChannel(&adc1, &sConfig);
 	}
-  
-	
+}
+
+uint8_t SDCard_Init()
+{
+	uint8_t sd_state = MSD_OK;
+
+	sdio.Instance = SDIO;
+	sdio.Init.ClockEdge           = SDIO_CLOCK_EDGE_RISING;
+	sdio.Init.ClockBypass         = SDIO_CLOCK_BYPASS_DISABLE;
+	sdio.Init.ClockPowerSave      = SDIO_CLOCK_POWER_SAVE_DISABLE;
+	sdio.Init.BusWide             = SDIO_BUS_WIDE_1B;
+	sdio.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_ENABLE;
+	sdio.Init.ClockDiv            = SDIO_TRANSFER_CLK_DIV;
+
+	__HAL_RCC_SDIO_CLK_ENABLE();
+
+	HAL_NVIC_SetPriority(SDIO_IRQn, 0x0E, 0x00);
+	HAL_NVIC_EnableIRQ(SDIO_IRQn);
+
+	if (HAL_SD_Init(&sdio) != HAL_OK)
+	{
+		sd_state = MSD_ERROR;
+	}
+
+	/* Configure SD Bus width */
+	if (sd_state == MSD_OK)
+	{
+		/* Enable wide operation */
+		if (HAL_SD_ConfigWideBusOperation(&sdio, SDIO_BUS_WIDE_4B) != HAL_OK)
+		{
+			sd_state = MSD_ERROR;
+		}
+		else
+		{
+			sd_state = MSD_OK;
+		}
+	}
+
+	return sd_state;
 }
 
 void DMA_Init()
 {
 	static DMA_HandleTypeDef hdmaSpi;
-	static DMA_HandleTypeDef hdmaAdc;
+	static DMA_HandleTypeDef hdmaSd;
 
 	__HAL_RCC_DMA2_CLK_ENABLE();
 
@@ -282,27 +338,29 @@ void DMA_Init()
 	HAL_NVIC_SetPriority(SPI1_TX_DMA_IRQ, 0, 1);
 	HAL_NVIC_EnableIRQ(SPI1_TX_DMA_IRQ);
 
-
-	hdmaAdc.Instance                 = ADC1_DMA_STRM;
-	hdmaAdc.Init.Channel             = ADC1_DMA_CHL;
-	hdmaAdc.Init.Direction           = DMA_PERIPH_TO_MEMORY;
-	hdmaAdc.Init.PeriphInc           = DMA_PINC_DISABLE;
-	hdmaAdc.Init.MemInc              = DMA_MINC_ENABLE;
-	hdmaAdc.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-	hdmaAdc.Init.MemDataAlignment    = DMA_PDATAALIGN_WORD;
-	hdmaAdc.Init.Mode                = DMA_NORMAL;
-	hdmaAdc.Init.Priority            = DMA_PRIORITY_LOW;
-	hdmaAdc.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;         
-	hdmaAdc.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
-	hdmaAdc.Init.MemBurst            = DMA_MBURST_SINGLE;
-	hdmaAdc.Init.PeriphBurst         = DMA_PBURST_SINGLE;
+	hdmaSd.Instance				    = SD_TX_RX_DMA_STRM;
+	hdmaSd.Init.Channel             = SD_TX_RX_DMA_CHL;
+	hdmaSd.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+	hdmaSd.Init.PeriphInc           = DMA_PINC_DISABLE;
+	hdmaSd.Init.MemInc              = DMA_MINC_ENABLE;
+	hdmaSd.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
+	hdmaSd.Init.MemDataAlignment    = DMA_MDATAALIGN_WORD;
+	hdmaSd.Init.Mode                = DMA_PFCTRL;
+	hdmaSd.Init.Priority            = DMA_PRIORITY_HIGH;
+	hdmaSd.Init.FIFOMode            = DMA_FIFOMODE_ENABLE;
+	hdmaSd.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
+	hdmaSd.Init.MemBurst            = DMA_MBURST_INC4;
+	hdmaSd.Init.PeriphBurst         = DMA_PBURST_INC4;
   
-	/*HAL_DMA_Init(&hdmaAdc);   
+	/* Associate the DMA handle */
+	__HAL_LINKDMA(&sdio, hdmarx, hdmaSd);
+	// __HAL_LINKDMA(&sdio1, hdmatx, hdmaSd);
 
-	__HAL_LINKDMA(&adc1, DMA_Handle, hdmaAdc);
+	HAL_DMA_DeInit(&hdmaSd);
+	HAL_DMA_Init(&hdmaSd);
 
-	HAL_NVIC_SetPriority(ADC1_DMA_IRQ, 1, 1);
-	HAL_NVIC_EnableIRQ(ADC1_DMA_IRQ);*/
+	HAL_NVIC_SetPriority(SD_TX_RX_IRQn, 0x0F, 0x00);
+	HAL_NVIC_EnableIRQ(SD_TX_RX_IRQn);
 }
 
 void GPIO_WritePin(GPIO_TypeDef* port, uint16_t pin, uint8_t state)
