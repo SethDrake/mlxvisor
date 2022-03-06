@@ -14,14 +14,14 @@ class IRSensor {
 public:
 	IRSensor();
 	~IRSensor();
-	bool Init(I2C_HandleTypeDef* i2c, mlx90640_refreshrate_t rate, mlx90640_resolution_t resolution, const uint8_t* colorScheme);
+	bool Init(I2C_HandleTypeDef* i2c, mlx90640_refreshrate_t rate, mlx90640_resolution_t resolution, thermal_colorscheme_t scheme);
 	void Reset();
 	void ReadImage();
 	void VisualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint8_t method);
 	void DrawGradient(uint16_t* fb, uint16_t sizeX, uint16_t sizeY);
 	void CalculateTempMap(float emissivity);
 	void FindMinAndMaxTemp();
-	void setColorScheme(const uint8_t* colorScheme);
+	void setColorScheme(thermal_colorscheme scheme);
 	uint16_t* readSerialNumber();
 	void readMlxEE();
 	void convertMlxEEToParams();

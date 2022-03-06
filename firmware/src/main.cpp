@@ -43,12 +43,11 @@ int main()
 	display.Init(&spi1);
 	display.clear(BLACK);
 
-	isSensorReady = irSensor.Init(&i2c1, 
-								  options.GetCurrent()->sensorRefreshRate, 
-								  options.GetCurrent()->sensorAdcResolution, 
-								  options.GetCurrent()->colorSchemeIndex == 0 ? DEFAULT_COLOR_SCHEME : ALTERNATE_COLOR_SCHEME);
+	isSensorReady = irSensor.Init(&i2c1, options.GetCurrent()->sensorRefreshRate, options.GetCurrent()->sensorAdcResolution, options.GetCurrent()->colorScheme);
 
 	ui.InitScreen(&display, &irSensor, &options);
+
+	HAL_ADC_Start(&adc1);
 
 	const osThreadDef_t os_thread_def_READ_KEYS = { (char*)"READ_KEYS", (ReadKeys_Thread), (osPriorityNormal), (0), (( ( uint16_t ) 128 ))};
 	const osThreadDef_t os_thread_def_BG_TASK = { (char*)"BG_TASK", (BgTask_Thread), (osPriorityNormal), (0), (((uint16_t) 128))};
@@ -135,8 +134,8 @@ static void BgTask_Thread(void const *argument)
 
 	for (;;)
 	{
-		HAL_ADC_Start(&adc1);
 		ui.adcVbat = HAL_ADC_GetValue(&adc1);
+		HAL_ADC_Start(&adc1);
 		osDelay(5000);
 	}
 }

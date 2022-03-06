@@ -1,6 +1,4 @@
 ﻿#include "options.h"
-#include "hardware.h"
-#include "stm32f4xx_hal.h"
 #include <string.h>
 
 
@@ -19,7 +17,7 @@ void Options::InitDefaultOptions()
 	storedOptions.emission = 0.95f;
 	storedOptions.sensorRefreshRate = MLX90640_16_HZ;
 	storedOptions.sensorAdcResolution = MLX90640_ADC_18BIT;
-	storedOptions.colorSchemeIndex = 1;
+	storedOptions.colorScheme = ALTERNATE_SCHEME;
 	storedOptions.showCenterTempMarker = true;
 	storedOptions.showMaxTempMarker = true;
 	storedOptions.showMinTempMarker = true;

@@ -14,7 +14,7 @@ typedef struct StoredOptionsDef_t
 	float emission;
 	mlx90640_refreshrate sensorRefreshRate;
 	mlx90640_resolution sensorAdcResolution;
-	uint8_t colorSchemeIndex;
+	thermal_colorscheme_t colorScheme;
 	bool showMinTempMarker;
 	bool showMaxTempMarker;
 	bool showCenterTempMarker;

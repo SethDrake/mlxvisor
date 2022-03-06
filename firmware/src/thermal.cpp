@@ -20,10 +20,10 @@ IRSensor::~IRSensor()
 {
 }
 
-bool IRSensor::Init(I2C_HandleTypeDef* i2c, mlx90640_refreshrate_t rate, mlx90640_resolution_t resolution, const uint8_t* colorScheme)
+bool IRSensor::Init(I2C_HandleTypeDef* i2c, mlx90640_refreshrate_t rate, mlx90640_resolution_t resolution, thermal_colorscheme_t scheme)
 {
 	this->i2c = i2c;
-	this->setColorScheme(colorScheme);
+	this->setColorScheme(scheme);
 
     //read MLX info
 	readSerialNumber();
@@ -55,9 +55,16 @@ void IRSensor::Reset()
 	I2Cx_Error(); //reset i2c bus
 }
 
-void IRSensor::setColorScheme(const uint8_t* colorScheme)
+void IRSensor::setColorScheme(thermal_colorscheme_t scheme)
 {
-	this->colorScheme = colorScheme;
+	if (scheme == DEFAULT_SCHEME)
+	{
+		this->colorScheme = DEFAULT_COLOR_SCHEME;	
+	}
+	else if (scheme == ALTERNATE_SCHEME)
+	{
+		this->colorScheme = ALTERNATE_COLOR_SCHEME;	
+	}
 }
 
 

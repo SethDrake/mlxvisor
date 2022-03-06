@@ -56,9 +56,12 @@ private:
 };
 
 #define RED								0xf800
+#define DARK_RED						0x9800
 #define PURPLE							0xf310
 #define GREEN							0x07e0
+#define DARK_GREEN						0x0240
 #define BLUE							0x001f
+#define DARK_BLUE						0x00f4
 #define BLACK							0x0000
 #define YELLOW							0xffe0
 #define ORANGE							0xfc00
@@ -67,6 +70,8 @@ private:
 #define BRIGHT_RED						0xf810
 #define GRAY1							0x8410
 #define GRAY2							0x4208
+#define LIGHT_GRAY						0x8c51
+#define DARK_GRAY						0x4a08
 
 #define ILI9341_ID						0x9341
 

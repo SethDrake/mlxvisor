@@ -37,6 +37,11 @@ typedef enum mlx90640_refreshrate {
   MLX90640_64_HZ,
 } mlx90640_refreshrate_t;
 
+typedef enum thermal_colorscheme {
+  DEFAULT_SCHEME,
+  ALTERNATE_SCHEME
+} thermal_colorscheme_t;
+
 typedef struct {
   int16_t kVdd;
   int16_t vdd25;

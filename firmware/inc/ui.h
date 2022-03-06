@@ -16,7 +16,7 @@ enum class UIScreen
 {
 	MAIN,
 	SETTINGS,
-	CONFIRM,
+	DIALOG,
 	FILES_LIST,
 	FILE_VIEW
 };
@@ -76,14 +76,17 @@ protected:
 	void DrawFileViewScreen();
 	void DrawBattery();
 	void DrawClock();
-
-	const char* sensorRateToString(mlx90640_refreshrate_t rate);
 private:
+	const char* sensorRateToString(mlx90640_refreshrate_t rate);
+	const char* sensorAdcResolutionToString(mlx90640_resolution_t resolution);
+	const char* colorSchemeToString(thermal_colorscheme_t scheme);
 	uint16_t GetMenuFrontColor(int8_t menuIndex, int8_t activeMenuIndex, bool isActive);
 	uint16_t GetMenuBackColor(int8_t menuIndex, int8_t activeMenuIndex, bool isActive);
 	void EditMenuItem(MenuItems menuItem, Button button);
 	uint8_t GetDaysInMonth(uint8_t month, uint16_t year);
-	void DrawSubItem(uint16_t x, uint16_t y, uint8_t subMenuIndex, bool inEdit, const char* format, uint8_t* val);
+	void DrawSubItem(uint16_t x, uint16_t y, uint8_t subMenuIndex, bool inEdit, const char* format, uint8_t val);
+	void DrawSubItem(uint16_t x, uint16_t y, uint8_t subMenuIndex, bool inEdit, const char* format, float val);
+	void DrawSubItem(uint16_t x, uint16_t y, uint8_t subMenuIndex, bool inEdit, const char* format, const char* val);
 	volatile UIScreen currentSreen;
 	ILI9341* display;
 	IRSensor* irSensor;
@@ -103,6 +106,7 @@ private:
 
 	uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE];
 	uint16_t gradientFb[10 * 24 * THERMAL_SCALE];
+	uint16_t batteryFb[48 * 14];
 };
 
 #endif /* __UI_H */

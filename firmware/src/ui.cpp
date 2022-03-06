@@ -6,6 +6,7 @@ UI::UI()
 {
 	memset(framebuffer, 0x10, sizeof(framebuffer));
 	memset(gradientFb, 0x10, sizeof(gradientFb));
+	memset(batteryFb, 0x00, sizeof(batteryFb));
 
 	this->currentSreen = UIScreen::MAIN;
 	this->isStaticPartsRendered = false;
@@ -95,38 +96,31 @@ void UI::ProcessButtons()
 	{
 		if (isButtonPressed(Button::UP))
 		{
-			mlx90640_refreshrate_t rate = opts->sensorRefreshRate;
-			if (rate == MLX90640_64_HZ)
+			if (opts->sensorRefreshRate == MLX90640_64_HZ)
 			{
-				rate = MLX90640_0_5_HZ;
+				opts->sensorRefreshRate = MLX90640_0_5_HZ;
 			}
 			else
 			{
-				rate = (mlx90640_refreshrate_t)((int)rate + 1);
+				opts->sensorRefreshRate = (mlx90640_refreshrate_t)((int)opts->sensorRefreshRate + 1);
 			}
-			opts->sensorRefreshRate = rate;
 			options->SaveOptions();
-			irSensor->Reset();
-			irSensor->setRefreshRate(rate);
+			irSensor->setRefreshRate(opts->sensorRefreshRate);
 		}
 		else if (isButtonPressed(Button::LEFT))
 		{
-			float emission = opts->emission;
-			if (emission > 0.1)
+			if (opts->emission > 0.1)
 			{
-				emission -= 0.05f;
+				opts->emission -= 0.05f;
 			}
-			opts->emission = emission;
 			options->SaveOptions();
 		}
 		else if (isButtonPressed(Button::RIGHT))
 		{
-			float emission = opts->emission;
-			if (emission < 1.0)
+			if (opts->emission < 1.0)
 			{
-				emission += 0.05f;
+				opts->emission += 0.05f;
 			}
-			opts->emission = emission;
 			options->SaveOptions();
 		}
 		else if (isButtonPressed(Button::DOWN))
@@ -210,8 +204,23 @@ void UI::ProcessButtons()
 void UI::DrawBattery()
 {
 	if (adcVbat > 0) {
+		memset(batteryFb, 0x00, sizeof(batteryFb));
 		const float vBat = 0.3f + 2 * (3.3f * adcVbat) / 4096;
-		display->printf(273, 225, WHITE, BLACK, "[%1.2f]", vBat);
+		uint16_t color = WHITE;
+		if (vBat <= 3.6)
+		{
+			color = RED;
+		}
+		//draw bar: 3.2v=0;4.2v=42
+		uint8_t progress = (uint8_t)((vBat - 3.2) * 42);
+		progress = progress <= 43 ? progress : 42;
+		progress = progress > 0 ? progress : 0;
+		for(uint8_t i = 0; i < 10; i++)
+		{
+			display->drawHLineInBuf(batteryFb, 14, 3, i + 3, progress, DARK_GRAY);
+		}
+		display->printf(batteryFb, 14, 0, 0, color, "[%1.2f]", vBat);
+		display->bufferDraw(274, 225, 48, 14, batteryFb);
 	}
 }
 
@@ -245,7 +254,7 @@ void UI::DrawScreen()
 		case UIScreen::SETTINGS: 
 			DrawSettingsScreen();
 			break;
-		case UIScreen::CONFIRM: 
+		case UIScreen::DIALOG: 
 			DrawConfirmScreen();
 			break;
 		case UIScreen::FILES_LIST: 
@@ -280,11 +289,11 @@ void UI::DrawMainScreen()
 		display->bufferDraw(32 * THERMAL_SCALE, 239 - 24 * THERMAL_SCALE, 10, 24 * THERMAL_SCALE, gradientFb);
 
 		//buttons description
-		display->printf(260, 150, WHITE, BLACK, "RATE"); //up
-		display->printf(240, 130, WHITE, BLACK, "E-"); //left
-		display->printf(260, 130, WHITE, BLACK, "SAVE"); //center
-		display->printf(300, 130, WHITE, BLACK, "E+"); //right
-		display->printf(260, 110, WHITE, BLACK, "MENU"); //down
+		display->printf(290, 140, YELLOW, BLACK, "R"); //up
+		display->printf(272, 125, YELLOW, BLACK, "E-"); //left
+		display->printf(290, 125, YELLOW, BLACK, "S"); //center
+		display->printf(303, 125, YELLOW, BLACK, "E+"); //right
+		display->printf(290, 110, YELLOW, BLACK, "M"); //down
 
 		isStaticPartsRendered = true;
 	}
@@ -318,7 +327,7 @@ void UI::DrawSettingsScreen()
 	if (!isStaticPartsRendered)
 	{
 		display->clear(BLACK);
-		display->printf(0, 225, WHITE, BLACK, "SETTINGS");
+		display->printf(10, 225, WHITE, BLACK, "SETTINGS");
 
 		isStaticPartsRendered = true;
 	}
@@ -339,42 +348,93 @@ void UI::DrawSettingsScreen()
 		display->printf(10, lineStartY, fCol, bCol, "%s", menuItems[i].name);
 
 		//draw submenu
-		const uint16_t shift = sizeof(menuItems[i].name) * 8 + 20;
+		const uint16_t shift = strlen(menuItems[i].name) * 8 + 20;
 		const bool isActualMenuItemInEdit = (menuItems[i].id == selectedMenuItemIndex) && isMenuItemInEdit;
 		if (menuItems[i].id == (int)MenuItems::DATE)
 		{
-			display->printf(shift, lineStartY, GetMenuFrontColor(0, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(0, activeSubMenuItemIndex, isActualMenuItemInEdit), "%02u", date.Date);
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%02u", date.Date);
 			display->printf(shift + 2*8, lineStartY, WHITE, BLACK, "-");
-			display->printf(shift + 3 * 8, lineStartY, GetMenuFrontColor(1, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(1, activeSubMenuItemIndex, isActualMenuItemInEdit), "%02u", date.Month);
+			DrawSubItem(shift + 3 * 8, lineStartY, 1, isActualMenuItemInEdit, "%02u", date.Month);
 			display->printf(shift + 5*8, lineStartY, WHITE, BLACK, "-");
-			display->printf(shift + 6 * 8, lineStartY, GetMenuFrontColor(2, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(2, activeSubMenuItemIndex, isActualMenuItemInEdit), "20%02u", date.Year);
+			DrawSubItem(shift + 6 * 8, lineStartY, 2, isActualMenuItemInEdit, "20%02u", date.Year);
 		}
 		else if (menuItems[i].id == (int)MenuItems::TIME)
 		{
-			display->printf(shift, lineStartY, GetMenuFrontColor(0, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(0, activeSubMenuItemIndex, isActualMenuItemInEdit), "%02u", time.Hours);
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%02u", time.Hours);
 			display->printf(shift + 2*8, lineStartY, WHITE, BLACK, ":");
-			display->printf(shift + 3 * 8, lineStartY, GetMenuFrontColor(1, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(1, activeSubMenuItemIndex, isActualMenuItemInEdit), "%02u", time.Minutes);
+			DrawSubItem(shift + 3 * 8, lineStartY, 1, isActualMenuItemInEdit, "%02u", time.Minutes);
 			display->printf(shift + 5*8, lineStartY, WHITE, BLACK, ":");
-			display->printf(shift + 6 * 8, lineStartY, GetMenuFrontColor(2, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(2, activeSubMenuItemIndex, isActualMenuItemInEdit), "%02u", time.Seconds);	
+			DrawSubItem(shift + 6 * 8, lineStartY, 2, isActualMenuItemInEdit, "%02u", time.Seconds);	
 		}
 		else if (menuItems[i].id == (int)MenuItems::EMISSION)
 		{
-			display->printf(shift, lineStartY, GetMenuFrontColor(0, activeSubMenuItemIndex, isActualMenuItemInEdit), GetMenuBackColor(0, activeSubMenuItemIndex, isActualMenuItemInEdit), "%2.1f", opts->emission);
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%1.2f", opts->emission);
+		}
+		else if (menuItems[i].id == (int)MenuItems::SENSOR_RATE)
+		{
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%s", sensorRateToString(opts->sensorRefreshRate));
+		}
+		else if (menuItems[i].id == (int)MenuItems::SENSOR_ADC_RESOLUTION)
+		{
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%s", sensorAdcResolutionToString(opts->sensorAdcResolution));
+		}
+		else if (menuItems[i].id == (int)MenuItems::COLOR_SCHEME)
+		{
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%s", colorSchemeToString(opts->colorScheme));
+		}
+		else if (menuItems[i].id == (int)MenuItems::SHOW_MIN_TEMP_MARK)
+		{
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%s", opts->showMinTempMarker ? "Y" : "N");
+		}
+		else if (menuItems[i].id == (int)MenuItems::SHOW_MAX_TEMP_MARK)
+		{
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%s", opts->showMaxTempMarker ? "Y" : "N");
+		}
+		else if (menuItems[i].id == (int)MenuItems::SHOW_CENTER_TEMP_MARK)
+		{
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%s", opts->showCenterTempMarker ? "Y" : "N");
 		}
 	}
 }
 
-void UI::DrawSubItem(uint16_t x, uint16_t y, uint8_t subMenuIndex, bool inEdit, const char* format, uint8_t* val)
+void UI::DrawConfirmScreen()
 {
-	display->printf(x, y, GetMenuFrontColor(0, activeSubMenuItemIndex, inEdit), GetMenuBackColor(0, activeSubMenuItemIndex, inEdit), format, *val);
+}
+
+void UI::DrawFilesListScreen()
+{
+}
+
+void UI::DrawFileViewScreen()
+{
+}
+
+bool UI::isSensorReadActive()
+{
+	return _isSensorReadActive;
+}
+
+void UI::DrawSubItem(uint16_t x, uint16_t y, uint8_t subMenuIndex, bool inEdit, const char* format, uint8_t val)
+{
+	display->printf(x, y, GetMenuFrontColor(0, activeSubMenuItemIndex, inEdit), GetMenuBackColor(0, activeSubMenuItemIndex, inEdit), format, val);
+}
+
+void UI::DrawSubItem(uint16_t x, uint16_t y, uint8_t subMenuIndex, bool inEdit, const char* format, float val)
+{
+	display->printf(x, y, GetMenuFrontColor(0, activeSubMenuItemIndex, inEdit), GetMenuBackColor(0, activeSubMenuItemIndex, inEdit), format, val);
+}
+
+void UI::DrawSubItem(uint16_t x, uint16_t y, uint8_t subMenuIndex, bool inEdit, const char* format, const char* val)
+{
+	display->printf(x, y, GetMenuFrontColor(0, activeSubMenuItemIndex, inEdit), GetMenuBackColor(0, activeSubMenuItemIndex, inEdit), format, val);
 }
 
 void UI::EditMenuItem(MenuItems menuItem, Button button)
 {
 	RTC_TimeTypeDef time;
 	RTC_DateTypeDef date;
-
 	GetDateTime(&date, &time);
+	StoredOptionsDef_t* opts = options->GetCurrent();
 
 	if (menuItem == MenuItems::DATE)
 	{
@@ -485,26 +545,87 @@ void UI::EditMenuItem(MenuItems menuItem, Button button)
 				time.Seconds--;
 			}
 		}
-
 		SaveDateTime(&date, &time);
 	}
-}
+	else if (menuItem == MenuItems::EMISSION)
+	{
+		if (button == Button::UP)
+		{
+			if (opts->emission < 1.0)
+			{
+				opts->emission += 0.05f;
+			}
+		}
+		else if (button == Button::DOWN)
+		{
+			if (opts->emission > 0.1)
+			{
+				opts->emission -= 0.05f;
+			}
+		}
+	}
+	else if (menuItem == MenuItems::SENSOR_RATE)
+	{
+		if (button == Button::UP)
+		{
+			if (opts->sensorRefreshRate < MLX90640_64_HZ)
+			{
+				opts->sensorRefreshRate = (mlx90640_refreshrate_t)((int)opts->sensorRefreshRate + 1);
+			}
+		}
+		else if (button == Button::DOWN)
+		{
+			if (opts->sensorRefreshRate > MLX90640_0_5_HZ)
+			{
+				opts->sensorRefreshRate = (mlx90640_refreshrate_t)((int)opts->sensorRefreshRate - 1);
+			}
+		}
+		irSensor->setRefreshRate(opts->sensorRefreshRate);
+	}
+	else if (menuItem == MenuItems::SENSOR_ADC_RESOLUTION)
+	{
+		if (button == Button::UP)
+		{
+			if (opts->sensorAdcResolution < MLX90640_ADC_19BIT)
+			{
+				opts->sensorAdcResolution = (mlx90640_resolution_t)((int)opts->sensorAdcResolution + 1);
+			}
+		}
+		else if (button == Button::DOWN)
+		{
+			if (opts->sensorAdcResolution > MLX90640_ADC_16BIT)
+			{
+				opts->sensorAdcResolution = (mlx90640_resolution_t)((int)opts->sensorAdcResolution - 1);
+			}
+		}
+		irSensor->setRefreshRate(opts->sensorRefreshRate);
+	}
+	else if (menuItem == MenuItems::COLOR_SCHEME)
+	{
+		if (opts->colorScheme == DEFAULT_SCHEME)
+		{
+			opts->colorScheme = ALTERNATE_SCHEME;
+		}
+		else
+		{
+			opts->colorScheme = DEFAULT_SCHEME;
+		}
+		irSensor->setColorScheme(opts->colorScheme);
+	}
+	else if (menuItem == MenuItems::SHOW_MIN_TEMP_MARK)
+	{
+		opts->showMinTempMarker = !opts->showMinTempMarker;
+	}
+	else if (menuItem == MenuItems::SHOW_MAX_TEMP_MARK)
+	{
+		opts->showMaxTempMarker = !opts->showMaxTempMarker;
+	}
+	else if (menuItem == MenuItems::SHOW_CENTER_TEMP_MARK)
+	{
+		opts->showCenterTempMarker = !opts->showCenterTempMarker;
+	}
 
-void UI::DrawConfirmScreen()
-{
-}
-
-void UI::DrawFilesListScreen()
-{
-}
-
-void UI::DrawFileViewScreen()
-{
-}
-
-bool UI::isSensorReadActive()
-{
-	return _isSensorReadActive;
+	options->SaveOptions();
 }
 
 uint16_t UI::GetMenuFrontColor(int8_t menuIndex, int8_t activeMenuIndex, bool isActive)
@@ -535,13 +656,35 @@ const char* UI::sensorRateToString(mlx90640_refreshrate_t rate)
 	switch(rate)
 	{
 		case MLX90640_0_5_HZ: return "0.5Hz";
-		case MLX90640_1_HZ: return "1Hz  ";
-		case MLX90640_2_HZ: return "2Hz  ";
-		case MLX90640_4_HZ: return "4Hz  ";
-		case MLX90640_8_HZ: return "8Hz  ";
-		case MLX90640_16_HZ: return "16Hz ";
-		case MLX90640_32_HZ: return "32Hz ";
-		case MLX90640_64_HZ: return "64Hz ";
+		case MLX90640_1_HZ: return   "1Hz  ";
+		case MLX90640_2_HZ: return   "2Hz  ";
+		case MLX90640_4_HZ: return   "4Hz  ";
+		case MLX90640_8_HZ: return   "8Hz  ";
+		case MLX90640_16_HZ: return  "16Hz ";
+		case MLX90640_32_HZ: return  "32Hz ";
+		case MLX90640_64_HZ: return  "64Hz ";
+	}
+	return "";
+}
+
+const char* UI::sensorAdcResolutionToString(mlx90640_resolution_t resolution)
+{
+	switch (resolution)
+	{
+		case MLX90640_ADC_16BIT: return "16bit";
+		case MLX90640_ADC_17BIT: return "17bit";
+		case MLX90640_ADC_18BIT: return "18bit";
+		case MLX90640_ADC_19BIT: return "19bit";
+	}
+	return "";
+}
+
+const char* UI::colorSchemeToString(thermal_colorscheme_t scheme)
+{
+	switch (scheme)
+	{
+	case DEFAULT_SCHEME: return   "Default  ";
+	case ALTERNATE_SCHEME: return "Alternate";
 	}
 	return "";
 }
