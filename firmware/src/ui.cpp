@@ -304,7 +304,7 @@ void UI::DrawMainScreen()
 		//status string
 		const uint16_t cpuUsage = osGetCPUUsage();
 		display->printf(0, 14, WHITE, BLACK, "E=%.2f Rate=%s", opts->emission, sensorRateToString(opts->sensorRefreshRate));
-		display->printf(0, 0, WHITE, BLACK, "Frm:%03ums CPU:%02u%%", xDrawTime, cpuUsage);
+		display->printf(0, 0, WHITE, BLACK, "CPU:%02u%%", cpuUsage);
 
 		delayCntr = 0;
 	}
@@ -331,6 +331,15 @@ void UI::DrawSettingsScreen()
 
 		isStaticPartsRendered = true;
 	}
+
+	//info content
+	if (delayCntr >= DRAW_DELAY) {
+		const uint16_t cpuUsage = osGetCPUUsage();
+		display->printf(0, 0, WHITE, BLACK, "CPU:%02u%%", cpuUsage);
+
+		delayCntr = 0;
+	}
+	delayCntr++;
 
 	RTC_TimeTypeDef time;
 	RTC_DateTypeDef date;
@@ -368,31 +377,31 @@ void UI::DrawSettingsScreen()
 		}
 		else if (menuItems[i].id == (int)MenuItems::EMISSION)
 		{
-			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%1.2f", opts->emission);
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "[%1.2f]", opts->emission);
 		}
 		else if (menuItems[i].id == (int)MenuItems::SENSOR_RATE)
 		{
-			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%s", sensorRateToString(opts->sensorRefreshRate));
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "[%s]", sensorRateToString(opts->sensorRefreshRate));
 		}
 		else if (menuItems[i].id == (int)MenuItems::SENSOR_ADC_RESOLUTION)
 		{
-			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%s", sensorAdcResolutionToString(opts->sensorAdcResolution));
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "[%s]", sensorAdcResolutionToString(opts->sensorAdcResolution));
 		}
 		else if (menuItems[i].id == (int)MenuItems::COLOR_SCHEME)
 		{
-			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%s", colorSchemeToString(opts->colorScheme));
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "[%s]", colorSchemeToString(opts->colorScheme));
 		}
 		else if (menuItems[i].id == (int)MenuItems::SHOW_MIN_TEMP_MARK)
 		{
-			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%s", opts->showMinTempMarker ? "Y" : "N");
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "[%s]", opts->showMinTempMarker ? "Y" : "N");
 		}
 		else if (menuItems[i].id == (int)MenuItems::SHOW_MAX_TEMP_MARK)
 		{
-			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%s", opts->showMaxTempMarker ? "Y" : "N");
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "[%s]", opts->showMaxTempMarker ? "Y" : "N");
 		}
 		else if (menuItems[i].id == (int)MenuItems::SHOW_CENTER_TEMP_MARK)
 		{
-			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%s", opts->showCenterTempMarker ? "Y" : "N");
+			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "[%s]", opts->showCenterTempMarker ? "Y" : "N");
 		}
 	}
 }
