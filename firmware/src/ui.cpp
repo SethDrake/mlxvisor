@@ -129,16 +129,24 @@ void UI::ProcessButtons()
 		}
 		else if (isButtonPressed(Button::OK))
 		{
-			/*if (sdCard->isCardOk() && irSensor->isImageReady())
+			if (sdCard->isCardOk())
 			{
-				char fileName[25];
+				char fileName[30];
 				RTC_TimeTypeDef time;
 				RTC_DateTypeDef date;
 
 				GetDateTime(&date, &time);
-				sprintf(fileName, "20%02u-%02u-%02u-%02u%02u%02u.thv", date.Year, date.Month, date.Date, time.Hours, time.Minutes, time.Seconds);
-				sdCard->SaveThvFile((const char*)&fileName, 32, 24, irSensor->getTempMap());
-			}*/
+				sprintf(fileName, "20%02u%02u%02u-%02u%02u%02u.thv", date.Year, date.Month, date.Date, time.Hours, time.Minutes, time.Seconds);
+
+				if (sdCard->SaveThvFile((const char*)&fileName, 32, 24, irSensor->getTempMap()))
+				{
+					sprintf(statusLine, "File %s saved.", fileName);
+				}
+				else
+				{
+					sprintf(statusLine, "Error on save file.            ");
+				}
+			}
 		}
 	}
 	else if (currentSreen == UIScreen::SETTINGS)
@@ -310,7 +318,11 @@ void UI::DrawMainScreen()
 		display->fillScreen(235, 68, 235 + 40, 68 + 14, BLACK);
 		display->printf(235, 68, GREEN, BLACK, "%d\x81", minTemp);
 
-		//status string
+		//status strings
+		if (strlen(statusLine) > 0)
+		{
+			display->printf(0, 28, WHITE, BLACK, "%s", statusLine);
+		}
 		const uint16_t cpuUsage = osGetCPUUsage();
 		display->printf(0, 14, WHITE, BLACK, "E=%.2f Rate=%s", opts->emission, sensorRateToString(opts->sensorRefreshRate));
 		display->printf(0, 0, WHITE, BLACK, "CPU:%02u%%", cpuUsage);

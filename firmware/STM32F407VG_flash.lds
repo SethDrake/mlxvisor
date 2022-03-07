@@ -138,7 +138,7 @@ SECTIONS
 		PROVIDE(__reserved_for_stack_end__ = .);
 	} > SRAM
 	
-	.ram2 (NOLOAD) :
+	.ram2 :
     {
       . = ALIGN(4);
       _sram2 = .;       /* create a global symbol at ram2 start */
@@ -151,12 +151,12 @@ SECTIONS
 
     .ccmram (NOLOAD) :
     {
-      . = ALIGN(4);
+      . = ALIGN(8);
       _sccmram = .;       /* create a global symbol at ccmram start */
       *(.ccmram)
       *(.ccmram*)
       
-      . = ALIGN(4);
+      . = ALIGN(8);
       _eccmram = .;       /* create a global symbol at ccmram end */
     } > CCMRAM
 

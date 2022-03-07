@@ -44,7 +44,7 @@ int main()
 	display.Init(&spi1);
 	display.clear(BLACK);
 
-	//sdCard.Init();
+	sdCard.Init();
 
 	isSensorReady = irSensor.Init(&i2c1, options.GetCurrent()->sensorRefreshRate, options.GetCurrent()->sensorAdcResolution, options.GetCurrent()->colorScheme);
 
@@ -52,7 +52,7 @@ int main()
 
 	HAL_ADC_Start(&adc1);
 
-	const osThreadDef_t os_thread_def_READ_KEYS = { (char*)"READ_KEYS", (ReadKeys_Thread), (osPriorityNormal), (0), (((uint16_t) 128 + 128))};
+	const osThreadDef_t os_thread_def_READ_KEYS = { (char*)"READ_KEYS", (ReadKeys_Thread), (osPriorityNormal), (0), (((uint16_t) 128 + 2048))};
 	const osThreadDef_t os_thread_def_BG_TASK = { (char*)"BG_TASK", (BgTask_Thread), (osPriorityNormal), (0), (((uint16_t) 128))};
 	const osThreadDef_t os_thread_def_IR_SENSOR = { (char*)"IR_SENSOR", (IrSensor_Thread), (osPriorityNormal), (0), (((uint16_t) 128) + 1024)};
 	const osThreadDef_t os_thread_def_DRAW_TASK = { (char*)"DRAW_TASK", (DrawTask_Thread), (osPriorityNormal), (0), (((uint16_t) 128) + 1024)};

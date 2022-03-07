@@ -5,6 +5,15 @@
 #include "stm32f4xx_hal.h"
 #include "ff.h"
 
+#define THV_FILE_MAGIC 0x9E6DE8DA
+
+typedef struct ThvFileHeader_t
+{
+	uint32_t magic;
+	uint16_t width;
+	uint16_t height;
+} ThvFileHeader;
+
 class SDCard {
 public:
 	SDCard();
@@ -14,9 +23,12 @@ public:
 	bool SaveThvFile(const char* fileName, uint16_t width, uint16_t height, float* data);
 protected:
 	FATFS sdFatFs;
+	bool calculateFreeSpace();
 private:
-	bool isInitOk = false;
+	volatile bool isInitOk = false;
 	char SDPath[4];
+	volatile uint32_t totalSectors;
+	volatile uint32_t freeSectors;
 };
 
 #endif /* __SDCARD_H */ 

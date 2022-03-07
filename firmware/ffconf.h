@@ -36,7 +36,7 @@
 /  and optional writing functions as well. */
 
 
-#define _FS_MINIMIZE	1
+#define _FS_MINIMIZE	0
 /* This option defines minimization level to remove some basic API functions.
 /
 /   0: All basic functions are enabled.
@@ -155,7 +155,7 @@
 /  This option has no effect when _LFN_UNICODE == 0. */
 
 
-#define _FS_RPATH	0
+#define _FS_RPATH	1
 /* This option configures support of relative path.
 /
 /   0: Disable relative path and remove related functions.

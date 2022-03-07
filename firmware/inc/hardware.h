@@ -58,8 +58,7 @@
 #define USR_BTN_L_PORT		GPIOD
 #define USR_BTN_L_PIN		GPIO_PIN_5
 
-#define SD_CLKDIV		    8 
-#define SD_CLKDIV_SLOW	    5
+#define SD_CLKDIV		    10 
 
 #define SDIO_D0_PORT		GPIOC
 #define SDIO_D0_PIN			GPIO_PIN_8

@@ -282,7 +282,7 @@ uint8_t SDCard_Init()
 	sdio.Init.ClockPowerSave      = SDIO_CLOCK_POWER_SAVE_DISABLE;
 	sdio.Init.BusWide             = SDIO_BUS_WIDE_1B;
 	sdio.Init.HardwareFlowControl = SDIO_HARDWARE_FLOW_CONTROL_ENABLE;
-	sdio.Init.ClockDiv            = SDIO_TRANSFER_CLK_DIV;
+	sdio.Init.ClockDiv            = SD_CLKDIV;
 
 	__HAL_RCC_SDIO_CLK_ENABLE();
 
@@ -337,7 +337,7 @@ void DMA_Init()
 	/* Associate the initialized DMA handle to the the SPI handle */
 	__HAL_LINKDMA(&spi1, hdmatx, hdmaSpi);
 
-	HAL_NVIC_SetPriority(SPI1_TX_DMA_IRQ, 0, 1);
+	HAL_NVIC_SetPriority(SPI1_TX_DMA_IRQ, 5, 1);
 	HAL_NVIC_EnableIRQ(SPI1_TX_DMA_IRQ);
 
 	/* SDIO DMA */
@@ -362,7 +362,7 @@ void DMA_Init()
 	HAL_DMA_DeInit(&hdmaSd);
 	HAL_DMA_Init(&hdmaSd);
 
-	HAL_NVIC_SetPriority(SD_TX_RX_IRQn, 0x0F, 0x00);
+	HAL_NVIC_SetPriority(SD_TX_RX_IRQn, 3, 0);
 	HAL_NVIC_EnableIRQ(SD_TX_RX_IRQn);
 }
 

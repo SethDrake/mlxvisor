@@ -167,6 +167,11 @@ void SPI1_IRQHandler(void)
 	HAL_SPI_IRQHandler(&spi1);
 }
 
+void SDIO_IRQHandler(void)
+{
+	HAL_SD_IRQHandler(&sdio);
+}
+
 /**
   * @brief  This function handles PPP interrupt request.
   * @param  None

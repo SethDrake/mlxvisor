@@ -100,6 +100,7 @@ private:
 	volatile bool _isSensorReadActive;
 	volatile bool preventDraw;
 	volatile uint8_t delayCntr;
+	char statusLine[100] = {0}; 
 
 	volatile uint8_t selectedMenuItemIndex;
 	volatile bool isMenuItemInEdit;

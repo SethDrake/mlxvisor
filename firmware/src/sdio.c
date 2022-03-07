@@ -137,6 +137,24 @@ DRESULT SD_ioctl(BYTE lun, BYTE cmd, void *buff)
 	return res;
 }
 
+DWORD get_fattime()
+{
+	DWORD ftime;
+	RTC_DateTypeDef date;
+	RTC_TimeTypeDef time;
+
+	GetDateTime(&date, &time);
+	
+	ftime =  (((DWORD)date.Year + 20) << 25) //Year from 1980
+			| ((DWORD)date.Month << 21)
+			| ((DWORD)date.Date << 16)
+			| (WORD)(time.Hours << 11)
+			| (WORD)(time.Minutes << 5)
+			| (WORD)(time.Seconds >> 1);
+
+	return ftime;
+}
+
 uint8_t SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout)
 {
 	if (HAL_SD_ReadBlocks(&sdio, (uint8_t *)pData, ReadAddr, NumOfBlocks, Timeout) != HAL_OK)
@@ -150,6 +168,7 @@ uint8_t SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, 
 uint8_t SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout)
 {
 	if (HAL_SD_WriteBlocks(&sdio, (uint8_t *)pData, WriteAddr, NumOfBlocks, Timeout) != HAL_OK)
+	//if (HAL_SD_WriteBlocks_DMA(&sdio, (uint8_t *)pData, WriteAddr, NumOfBlocks) != HAL_OK)
 	{
 		return MSD_ERROR;
 	}
