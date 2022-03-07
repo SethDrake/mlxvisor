@@ -561,7 +561,19 @@ void UI::DrawFileViewScreen()
 
 		if (sdCard->ReadThvFile(selectedFileName, dots))
 		{
+			display->bufferDraw(10 + 32 * THERMAL_SCALE, 45, 10, 24 * THERMAL_SCALE, gradientFb);
+
+			irSensor->FindMinAndMaxTemp();
+			display->printf(245, 200, WHITE, backgroundColor, "%d\x81", (uint16_t)irSensor->getMaxTemp());
+			display->printf(245, 40, GREEN, backgroundColor, "%d\x81", (uint16_t)irSensor->getMinTemp());
+
 			irSensor->VisualizeImage(framebuffer, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, 1); //prepare thermal image in framebuffer
+			if (options->GetCurrent()->showCenterTempMarker) {
+				const uint16_t centerX = 32 / 2 * THERMAL_SCALE;
+				const uint16_t centerY = 24 / 2 * THERMAL_SCALE;
+				display->drawMarkInBuf(framebuffer, 24 * THERMAL_SCALE, centerX, centerY, WHITE);
+				display->printf(framebuffer, 24 * THERMAL_SCALE, centerX - 18, centerY - 25, WHITE, "%.1f\x81", irSensor->getCenterTemp());
+			}
 
 			//thermal image famebuffer
 			display->bufferDraw(10, 45, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, framebuffer);
