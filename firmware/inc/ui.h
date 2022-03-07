@@ -103,7 +103,7 @@ private:
 	volatile uint8_t delayCntr;
 	char statusLine[100] = {0};
 
-	char selectedFileName[255] = {0};
+	char selectedFileName[_MAX_LFN + 1] = {0};
 	volatile uint32_t filesCount = 0;
 
 	volatile uint8_t selectedItemIndex;

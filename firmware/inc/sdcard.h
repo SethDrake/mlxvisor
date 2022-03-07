@@ -21,6 +21,8 @@ public:
 	void Init();
 	bool isCardOk();
 	bool SaveThvFile(const char* fileName, uint16_t width, uint16_t height, float* data);
+	bool ReadThvFile(const char* fileName, float* data);
+	bool GetFileNameByIndex(const char* path, uint32_t index, const char* fileName);
 	uint32_t GetFilesCountInDir(const char* path);
 	bool OpenDir(DIR* dir, const char* path);
 	bool CloseDir(DIR* dir);

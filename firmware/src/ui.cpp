@@ -47,7 +47,6 @@ void UI::InitScreen(ILI9341* display, IRSensor* irSensor, SDCard* sdCard, Option
 void UI::setScreen(UIScreen screen)
 {
 	preventDraw = true;
-	selectedItemIndex = 0;
 	isMenuItemInEdit = false;
 	
 	this->currentSreen = screen;
@@ -55,6 +54,7 @@ void UI::setScreen(UIScreen screen)
 	{
 		_isSensorReadActive = true;
 		backgroundColor = BLACK;
+		selectedItemIndex = 0;
 	}
 	else
 	{
@@ -229,6 +229,39 @@ void UI::ProcessButtons()
 		else if (isButtonPressed(Button::LEFT) || isButtonPressed(Button::RIGHT))
 		{
 			setScreen(UIScreen::MAIN);
+		}
+		else if (isButtonPressed(Button::OK))
+		{
+			if (sdCard->GetFileNameByIndex("", selectedItemIndex, selectedFileName)) {
+				setScreen(UIScreen::FILE_VIEW);
+			}
+		}
+	}
+	else if (currentSreen == UIScreen::FILE_VIEW)
+	{
+		if (isButtonPressed(Button::UP))
+		{
+			if (selectedItemIndex > 0)
+			{
+				selectedItemIndex--;
+				if (sdCard->GetFileNameByIndex("", selectedItemIndex, selectedFileName)) {
+					setScreen(UIScreen::FILE_VIEW);
+				}
+			}
+		}
+		if (isButtonPressed(Button::DOWN))
+		{
+			if (selectedItemIndex < (filesCount - 1))
+			{
+				selectedItemIndex++;
+				if (sdCard->GetFileNameByIndex("", selectedItemIndex, selectedFileName)) {
+					setScreen(UIScreen::FILE_VIEW);
+				}
+			}
+		}
+		if (isButtonPressed(Button::LEFT) || isButtonPressed(Button::RIGHT) || isButtonPressed(Button::OK))
+		{
+			setScreen(UIScreen::FILES_LIST);
 		}
 	}
 
@@ -496,7 +529,7 @@ void UI::DrawFilesListScreen()
 					const uint16_t lineStartY = 210 - 14 * (i + 1);
 					const uint16_t fCol = GetMenuFrontColor(i + pageNumber * MAX_FILES_ON_SCREEN, selectedItemIndex, true);
 					const uint16_t bCol = GetMenuBackColor(i + pageNumber * MAX_FILES_ON_SCREEN, selectedItemIndex, true);
-		
+
 					display->printf(10, lineStartY, fCol, bCol, "%s", file.fname);
 					i++;
 
@@ -521,6 +554,21 @@ void UI::DrawFilesListScreen()
 
 void UI::DrawFileViewScreen()
 {
+	if (!isStaticPartsRendered)
+	{
+		display->clear(backgroundColor);
+		display->printf(10, 225, WHITE, backgroundColor, "FILE %u: %s", selectedItemIndex + 1, selectedFileName);
+
+		if (sdCard->ReadThvFile(selectedFileName, dots))
+		{
+			irSensor->VisualizeImage(framebuffer, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, 1); //prepare thermal image in framebuffer
+
+			//thermal image famebuffer
+			display->bufferDraw(10, 45, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, framebuffer);
+		}
+
+		isStaticPartsRendered = true;
+	}
 }
 
 bool UI::isSensorReadActive()

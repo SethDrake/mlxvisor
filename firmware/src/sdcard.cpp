@@ -59,6 +59,27 @@ bool SDCard::SaveThvFile(const char* fileName, uint16_t width, uint16_t height, 
 	return res == FR_OK;
 }
 
+bool SDCard::ReadThvFile(const char* fileName, float* data)
+{
+	FIL file;
+	uint32_t readed;
+	ThvFileHeader fileHeader;
+
+	FRESULT res = f_open(&file, fileName, FA_OPEN_EXISTING | FA_READ);
+	if (res == FR_OK)
+	{
+		res = f_read(&file, (void*)&fileHeader, sizeof(fileHeader), (UINT*)&readed);
+		if ((res == FR_OK) && (readed == sizeof(fileHeader))) {
+			res = f_read(&file, (void*)data, (fileHeader.width * fileHeader.height * 2), (UINT*)&readed);
+		}
+		if ((res == FR_OK) && (readed > 0)) {
+			res = f_close(&file);
+		}
+	}
+
+	return res == FR_OK;
+}
+
 bool SDCard::OpenDir(DIR* dir, const char* path)
 {
 	return f_opendir(dir, path) == FR_OK;
@@ -98,7 +119,40 @@ uint32_t SDCard::GetFilesCountInDir(const char* path)
 		}
 		CloseDir(&dir);
 	}
+	return result;
+}
 
+bool SDCard::GetFileNameByIndex(const char* path, uint32_t index, const char* fileName)
+{
+	DIR dir;
+	bool result = false;
+	if (OpenDir(&dir, path))
+	{
+		FILINFO file;
+		uint32_t i = 0;
+		while (true)
+		{
+			if (!ReadDir(&dir, &file))
+			{
+				break;
+			}
+			if (file.fname[0] == 0)
+			{
+				break;
+			}
+			if (!(file.fattrib & AM_DIR)) //if not directory entry
+			{
+				if (i == index)
+				{
+					memcpy((void*)fileName, file.fname, sizeof(file.fname));
+					result = true;
+					break;
+				}
+				i++;
+			}
+		}
+		CloseDir(&dir);
+	}
 	return result;
 }
 
