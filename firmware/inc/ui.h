@@ -47,6 +47,8 @@ enum class MenuItems
 
 #define MENU_ITEMS_COUNT 10
 
+#define MAX_FILES_ON_SCREEN 14
+
 static const uint8_t days_in_month[] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 typedef struct MenuItemDef_t
@@ -100,9 +102,13 @@ private:
 	volatile bool _isSensorReadActive;
 	volatile bool preventDraw;
 	volatile uint8_t delayCntr;
-	char statusLine[100] = {0}; 
+	char statusLine[100] = {0};
 
-	volatile uint8_t selectedMenuItemIndex;
+	char selectedFileName[255] = {0};
+	volatile uint32_t filesCount = 0;
+
+	volatile uint8_t selectedItemIndex;
+
 	volatile bool isMenuItemInEdit;
 	volatile int8_t activeSubMenuItemIndex;
 	menuItem_t menuItems[MENU_ITEMS_COUNT];

@@ -59,6 +59,49 @@ bool SDCard::SaveThvFile(const char* fileName, uint16_t width, uint16_t height, 
 	return res == FR_OK;
 }
 
+bool SDCard::OpenDir(DIR* dir, const char* path)
+{
+	return f_opendir(dir, path) == FR_OK;
+}
+
+bool SDCard::CloseDir(DIR* dir)
+{
+	return f_closedir(dir) == FR_OK;
+}
+
+bool SDCard::ReadDir(DIR* dir, FILINFO* file)
+{
+	return f_readdir(dir, file) == FR_OK;
+}
+
+uint32_t SDCard::GetFilesCountInDir(const char* path)
+{
+	uint32_t result = 0;
+	DIR dir;
+	if (OpenDir(&dir, path))
+	{
+		FILINFO file;
+		while (true)
+		{
+			if (!ReadDir(&dir, &file))
+			{
+				break;
+			}
+			if (file.fname[0] == 0)
+			{
+				break;
+			}
+			if (!(file.fattrib & AM_DIR)) //if not directory entry
+			{
+				result++;
+			}
+		}
+		CloseDir(&dir);
+	}
+
+	return result;
+}
+
 bool SDCard::isCardOk()
 {
 	return this->isInitOk;

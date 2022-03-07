@@ -52,10 +52,10 @@ int main()
 
 	HAL_ADC_Start(&adc1);
 
-	const osThreadDef_t os_thread_def_READ_KEYS = { (char*)"READ_KEYS", (ReadKeys_Thread), (osPriorityNormal), (0), (((uint16_t) 128 + 2048))};
+	const osThreadDef_t os_thread_def_READ_KEYS = { (char*)"READ_KEYS", (ReadKeys_Thread), (osPriorityNormal), (0), (((uint16_t) 128 + 1024))};
 	const osThreadDef_t os_thread_def_BG_TASK = { (char*)"BG_TASK", (BgTask_Thread), (osPriorityNormal), (0), (((uint16_t) 128))};
 	const osThreadDef_t os_thread_def_IR_SENSOR = { (char*)"IR_SENSOR", (IrSensor_Thread), (osPriorityNormal), (0), (((uint16_t) 128) + 1024)};
-	const osThreadDef_t os_thread_def_DRAW_TASK = { (char*)"DRAW_TASK", (DrawTask_Thread), (osPriorityNormal), (0), (((uint16_t) 128) + 1024)};
+	const osThreadDef_t os_thread_def_DRAW_TASK = { (char*)"DRAW_TASK", (DrawTask_Thread), (osPriorityNormal), (0), (((uint16_t) 128) + 2048)};
 
 	ReadKeysTaskHandle = osThreadCreate(osThread(READ_KEYS), NULL);
 	IRSensorThreadHandle = osThreadCreate(osThread(IR_SENSOR), NULL);

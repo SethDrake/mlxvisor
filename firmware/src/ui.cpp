@@ -15,7 +15,7 @@ UI::UI()
 	this->delayCntr = DRAW_DELAY;
 	this->adcVbat = 0;
 	this->_isSensorReadActive = true;
-	this->selectedMenuItemIndex = 0;
+	this->selectedItemIndex = 0;
 	this->isMenuItemInEdit = false;
 	this->activeSubMenuItemIndex = -1;
 	this->preventDraw = false;
@@ -47,7 +47,7 @@ void UI::InitScreen(ILI9341* display, IRSensor* irSensor, SDCard* sdCard, Option
 void UI::setScreen(UIScreen screen)
 {
 	preventDraw = true;
-	selectedMenuItemIndex = 0;
+	selectedItemIndex = 0;
 	isMenuItemInEdit = false;
 	delayCntr = DRAW_DELAY;
 
@@ -59,6 +59,12 @@ void UI::setScreen(UIScreen screen)
 	else
 	{
 		_isSensorReadActive = false;
+	}
+	if (currentSreen == UIScreen::FILES_LIST)
+	{
+		if (sdCard->isCardOk()) {
+			filesCount = sdCard->GetFilesCountInDir("");
+		}
 	}
 	osDelay(100);
 	this->isStaticPartsRendered = false;
@@ -109,19 +115,11 @@ void UI::ProcessButtons()
 		}
 		else if (isButtonPressed(Button::LEFT))
 		{
-			if (opts->emission > 0.1)
-			{
-				opts->emission -= 0.05f;
-			}
-			options->SaveOptions();
+			setScreen(UIScreen::FILES_LIST);
 		}
 		else if (isButtonPressed(Button::RIGHT))
 		{
-			if (opts->emission < 1.0)
-			{
-				opts->emission += 0.05f;
-			}
-			options->SaveOptions();
+			
 		}
 		else if (isButtonPressed(Button::DOWN))
 		{
@@ -155,12 +153,12 @@ void UI::ProcessButtons()
 		{
 			if (isMenuItemInEdit)
 			{
-				EditMenuItem((MenuItems)menuItems[selectedMenuItemIndex].id, Button::UP);
+				EditMenuItem((MenuItems)menuItems[selectedItemIndex].id, Button::UP);
 			}
 			else {
-				if (selectedMenuItemIndex > 0)
+				if (selectedItemIndex > 0)
 				{
-					selectedMenuItemIndex--;
+					selectedItemIndex--;
 				}
 			}
 		}
@@ -178,7 +176,7 @@ void UI::ProcessButtons()
 		{
 			if (isMenuItemInEdit)
 			{
-				if (activeSubMenuItemIndex < menuItems[selectedMenuItemIndex].subItemsCount-1)
+				if (activeSubMenuItemIndex < menuItems[selectedItemIndex].subItemsCount-1)
 				{
 					activeSubMenuItemIndex++;
 				}
@@ -188,18 +186,18 @@ void UI::ProcessButtons()
 		{
 			if (isMenuItemInEdit)
 			{
-				EditMenuItem((MenuItems)menuItems[selectedMenuItemIndex].id, Button::DOWN);
+				EditMenuItem((MenuItems)menuItems[selectedItemIndex].id, Button::DOWN);
 			}
 			else {
-				if (selectedMenuItemIndex < (MENU_ITEMS_COUNT - 1))
+				if (selectedItemIndex < (MENU_ITEMS_COUNT - 1))
 				{
-					selectedMenuItemIndex++;
+					selectedItemIndex++;
 				}
 			}
 		}
 		else if (isButtonPressed(Button::OK))
 		{
-			if (selectedMenuItemIndex == (int)MenuItems::BACK)
+			if (selectedItemIndex == (int)MenuItems::BACK)
 			{
 				setScreen(UIScreen::MAIN);
 			}
@@ -208,6 +206,27 @@ void UI::ProcessButtons()
 				isMenuItemInEdit = !isMenuItemInEdit;
 				activeSubMenuItemIndex = isMenuItemInEdit ? 0 : -1;
 			}
+		}
+	}
+	else if (currentSreen == UIScreen::FILES_LIST)
+	{
+		if (isButtonPressed(Button::UP))
+		{
+			if (selectedItemIndex > 0)
+			{
+				selectedItemIndex--;
+			}
+		}
+		else if (isButtonPressed(Button::DOWN))
+		{
+			if (selectedItemIndex < (filesCount - 1))
+			{
+				selectedItemIndex++;
+			}
+		}
+		else if (isButtonPressed(Button::LEFT) || isButtonPressed(Button::RIGHT))
+		{
+			setScreen(UIScreen::MAIN);
 		}
 	}
 
@@ -299,9 +318,9 @@ void UI::DrawMainScreen()
 
 		//buttons description
 		display->printf(290, 140, YELLOW, BLACK, "R"); //up
-		display->printf(272, 125, YELLOW, BLACK, "-E"); //left
+		display->printf(272, 125, YELLOW, BLACK, " F"); //left
 		display->printf(290, 125, YELLOW, BLACK, "S"); //center
-		display->printf(303, 125, YELLOW, BLACK, "E+"); //right
+		display->printf(303, 125, YELLOW, BLACK, "[]"); //right
 		display->printf(290, 110, YELLOW, BLACK, "M"); //down
 
 		isStaticPartsRendered = true;
@@ -372,14 +391,14 @@ void UI::DrawSettingsScreen()
 	for (uint8_t i = 0; i < MENU_ITEMS_COUNT; i++)
 	{
 		const uint16_t lineStartY = 210 - 14 * (i + 1);
-		const uint16_t fCol = GetMenuFrontColor(menuItems[i].id, selectedMenuItemIndex, true);
-		const uint16_t bCol = GetMenuBackColor(menuItems[i].id, selectedMenuItemIndex, true);
+		const uint16_t fCol = GetMenuFrontColor(menuItems[i].id, selectedItemIndex, true);
+		const uint16_t bCol = GetMenuBackColor(menuItems[i].id, selectedItemIndex, true);
 		
 		display->printf(10, lineStartY, fCol, bCol, "%s", menuItems[i].name);
 
 		//draw submenu
 		const uint16_t shift = strlen(menuItems[i].name) * 8 + 20;
-		const bool isActualMenuItemInEdit = (menuItems[i].id == selectedMenuItemIndex) && isMenuItemInEdit;
+		const bool isActualMenuItemInEdit = (menuItems[i].id == selectedItemIndex) && isMenuItemInEdit;
 		if (menuItems[i].id == (int)MenuItems::DATE)
 		{
 			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%02u", date.Date);
@@ -433,6 +452,68 @@ void UI::DrawDialogScreen()
 
 void UI::DrawFilesListScreen()
 {
+	if (!isStaticPartsRendered)
+	{
+		display->clear(BLACK);
+		display->printf(10, 225, WHITE, BLACK, "SAVED FILES");
+
+		isStaticPartsRendered = true;
+	}
+
+	if ((delayCntr == DRAW_DELAY) && (filesCount > 0)) {
+
+		const uint16_t pageNumber = selectedItemIndex / MAX_FILES_ON_SCREEN;
+		const uint16_t pagesCount = filesCount / MAX_FILES_ON_SCREEN + 1;
+		const uint32_t skipItems = pageNumber * MAX_FILES_ON_SCREEN;
+
+		if ((pageNumber == pagesCount - 1) && (pagesCount > 1))
+		{
+			display->fillScreen(10, 0, 200, 225, BLACK); //clear list area
+		}
+
+		//read files list
+		DIR dir;
+		if (sdCard->OpenDir(&dir, "/"))
+		{
+			uint8_t i = 0;
+			uint32_t skipCnt = 0;
+			FILINFO file;
+			while(true)
+			{
+				if(!sdCard->ReadDir(&dir, &file))
+				{
+					break;
+				}
+				if (file.fname[0] == 0)
+				{
+					break;
+				}
+				if (!(file.fattrib & AM_DIR)) //if not directory entry
+				{
+					if (skipCnt < skipItems)
+					{
+						skipCnt++;
+						continue;
+					}
+					const uint16_t lineStartY = 210 - 14 * (i + 1);
+					const uint16_t fCol = GetMenuFrontColor(i + pageNumber * MAX_FILES_ON_SCREEN, selectedItemIndex, true);
+					const uint16_t bCol = GetMenuBackColor(i + pageNumber * MAX_FILES_ON_SCREEN, selectedItemIndex, true);
+		
+					display->printf(10, lineStartY, fCol, bCol, "%s", file.fname);
+					i++;
+
+					if (i >= MAX_FILES_ON_SCREEN)
+					{
+						break;
+					}
+				}
+			}
+			sdCard->CloseDir(&dir);
+		}
+
+		delayCntr = 0;
+	}
+
 }
 
 void UI::DrawFileViewScreen()

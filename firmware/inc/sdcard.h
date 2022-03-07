@@ -21,6 +21,10 @@ public:
 	void Init();
 	bool isCardOk();
 	bool SaveThvFile(const char* fileName, uint16_t width, uint16_t height, float* data);
+	uint32_t GetFilesCountInDir(const char* path);
+	bool OpenDir(DIR* dir, const char* path);
+	bool CloseDir(DIR* dir);
+	bool ReadDir(DIR* dir, FILINFO* file);
 protected:
 	FATFS sdFatFs;
 	bool calculateFreeSpace();
