@@ -49,7 +49,7 @@ bool SDCard::SaveThvFile(const char* fileName, uint16_t width, uint16_t height, 
 	{
 		res = f_write(&file, (const void*)&fileHeader, sizeof(fileHeader), (UINT*)&written);
 		if ((res == FR_OK) && (written > 0)) {
-			res = f_write(&file, (const void*)data, (width * height * 2), (UINT*)&written);
+			res = f_write(&file, (const void*)data, (width * height * sizeof(float)), (UINT*)&written);
 		}
 		if ((res == FR_OK) && (written > 0)) {
 			res = f_close(&file);
@@ -70,7 +70,7 @@ bool SDCard::ReadThvFile(const char* fileName, float* data)
 	{
 		res = f_read(&file, (void*)&fileHeader, sizeof(fileHeader), (UINT*)&readed);
 		if ((res == FR_OK) && (readed == sizeof(fileHeader))) {
-			res = f_read(&file, (void*)data, (fileHeader.width * fileHeader.height * 2), (UINT*)&readed);
+			res = f_read(&file, (void*)data, (fileHeader.width * fileHeader.height * sizeof(float)), (UINT*)&readed);
 		}
 		if ((res == FR_OK) && (readed > 0)) {
 			res = f_close(&file);
