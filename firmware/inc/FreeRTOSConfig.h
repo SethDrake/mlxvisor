@@ -86,6 +86,8 @@
 #endif
 
 
+#define configAPPLICATION_ALLOCATED_HEAP         1
+
 #define configENABLE_TRUSTZONE                   0
 #define configRUN_FREERTOS_SECURE_ONLY           0
 #define configENABLE_FPU                         1
@@ -97,7 +99,7 @@
 #define configTICK_RATE_HZ			( ( TickType_t ) 1000 )
 #define configMAX_PRIORITIES			(  8 )
 #define configMINIMAL_STACK_SIZE		( ( uint16_t ) 128 )
-#define configTOTAL_HEAP_SIZE			( ( size_t ) ( 20 * 1024 ) )
+#define configTOTAL_HEAP_SIZE			( ( size_t ) ( 64 * 1024 ) ) //64KB of the CCMRAM
 #define configMAX_TASK_NAME_LEN			( 16 )
 #define configUSE_TRACE_FACILITY		1
 #define configUSE_16_BIT_TICKS			0

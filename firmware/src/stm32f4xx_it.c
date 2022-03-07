@@ -28,6 +28,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_it.h"
 #include "cmsis_os.h"
+#include "hardware.h"
 #include "main.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -152,7 +153,7 @@ void DMA2_Stream3_IRQHandler(void)
 
 void DMA2_Stream6_IRQHandler(void)
 {
-	HAL_DMA_IRQHandler(sdio.hdmarx);
+	//HAL_DMA_IRQHandler(sdio.hdmarx);
 	HAL_DMA_IRQHandler(sdio.hdmatx);
 }
 

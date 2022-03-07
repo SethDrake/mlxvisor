@@ -59,13 +59,9 @@ private:
 	paramsMLX90640_t mlxParams;
 	mlx90640_refreshrate_t rate;
 	mlx90640_resolution_t resolution;
-	uint16_t mlxEE[832];
-	uint16_t frameData[834];
 	uint16_t recalcCnt;
 	float vdd;
 	float ta;
-	float dots[24*32];
-	// uint16_t colors[24*32];
 	uint16_t coldDotIndex;
 	uint16_t hotDotIndex;
 	float minTemp;

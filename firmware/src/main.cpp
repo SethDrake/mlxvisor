@@ -2,14 +2,13 @@
 #include <stm32f4xx_hal.h>
 #include <../CMSIS_RTOS/cmsis_os.h>
 #include "main.h"
+#include "hardware.h"
 #include "thermal.h"
 #include "ili9341.h"
 #include "sdcard.h"
 #include "ui.h"
 #include "options.h"
 #include <string.h>
-
-
 
 osThreadId IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle, BgTaskHandle;
 
@@ -45,7 +44,7 @@ int main()
 	display.Init(&spi1);
 	display.clear(BLACK);
 
-	sdCard.Init();
+	//sdCard.Init();
 
 	isSensorReady = irSensor.Init(&i2c1, options.GetCurrent()->sensorRefreshRate, options.GetCurrent()->sensorAdcResolution, options.GetCurrent()->colorScheme);
 

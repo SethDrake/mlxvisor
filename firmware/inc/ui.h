@@ -105,10 +105,6 @@ private:
 	volatile bool isMenuItemInEdit;
 	volatile int8_t activeSubMenuItemIndex;
 	menuItem_t menuItems[MENU_ITEMS_COUNT];
-
-	uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE];
-	uint16_t gradientFb[10 * 24 * THERMAL_SCALE];
-	uint16_t batteryFb[48 * 14];
 };
 
 #endif /* __UI_H */

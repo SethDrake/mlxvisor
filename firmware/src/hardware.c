@@ -6,6 +6,8 @@ RTC_HandleTypeDef rtc;
 ADC_HandleTypeDef adc1;
 SD_HandleTypeDef  sdio;
 
+CCMRAM uint8_t ucHeap[configTOTAL_HEAP_SIZE] = { 0 }; //FreeRTOS heap
+
 void Clock_Init()
 {
 	RCC_ClkInitTypeDef RCC_ClkInitStruct;
@@ -338,9 +340,10 @@ void DMA_Init()
 	HAL_NVIC_SetPriority(SPI1_TX_DMA_IRQ, 0, 1);
 	HAL_NVIC_EnableIRQ(SPI1_TX_DMA_IRQ);
 
+	/* SDIO DMA */
 	hdmaSd.Instance				    = SD_TX_RX_DMA_STRM;
 	hdmaSd.Init.Channel             = SD_TX_RX_DMA_CHL;
-	hdmaSd.Init.Direction           = DMA_PERIPH_TO_MEMORY;
+	hdmaSd.Init.Direction           = DMA_MEMORY_TO_PERIPH;
 	hdmaSd.Init.PeriphInc           = DMA_PINC_DISABLE;
 	hdmaSd.Init.MemInc              = DMA_MINC_ENABLE;
 	hdmaSd.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
@@ -353,8 +356,8 @@ void DMA_Init()
 	hdmaSd.Init.PeriphBurst         = DMA_PBURST_INC4;
   
 	/* Associate the DMA handle */
-	__HAL_LINKDMA(&sdio, hdmarx, hdmaSd);
-	// __HAL_LINKDMA(&sdio1, hdmatx, hdmaSd);
+	__HAL_LINKDMA(&sdio, hdmatx, hdmaSd);
+	// __HAL_LINKDMA(&sdio1, hdmarx, hdmaSd);
 
 	HAL_DMA_DeInit(&hdmaSd);
 	HAL_DMA_Init(&hdmaSd);

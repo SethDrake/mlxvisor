@@ -2,11 +2,17 @@
 #ifndef __HARDWARE_H
 #define __HARDWARE_H
 
+#include "FreeRTOSConfig.h"
 #include "stm32f4xx_hal.h"
 
 #ifdef __cplusplus
  extern "C" {
 #endif
+
+#define SRAM2 __attribute__((section(".ram2"))) 
+#define CCMRAM __attribute__((section(".ccmram"))) 
+
+#define THERMAL_SCALE 7
 
 #define I2C1_SPEED          1000000
 #define SPI1_PRESCALER      SPI_BAUDRATEPRESCALER_2
@@ -96,6 +102,16 @@ uint8_t GPIO_ReadPin(GPIO_TypeDef* port, uint16_t pin);
 
 void	GetDateTime(RTC_DateTypeDef* date, RTC_TimeTypeDef* time);
 void	SaveDateTime(RTC_DateTypeDef* date, RTC_TimeTypeDef* time);
+
+/* static buffers */
+static uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE] = { 0 };
+static uint16_t gradientFb[10 * 24 * THERMAL_SCALE] = { 0 };
+static uint16_t batteryFb[48 * 14] = { 0 };
+
+static SRAM2 uint16_t mlxEE[832] = { 0 };
+static SRAM2 uint16_t frameData[834] = { 0 };
+static SRAM2 uint16_t charbuf[128] = { 0 };
+static SRAM2 float dots[24 * 32] = { 0 };
 
 #ifdef __cplusplus
 }

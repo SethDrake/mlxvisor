@@ -1,5 +1,5 @@
 ﻿#include <thermal.h>
-#include <ili9341.h>
+#include <hardware.h>
 #include <i2c.h>
 #include <math.h>
 #include <iostream>
@@ -935,7 +935,7 @@ float IRSensor::getTa()
 
 float* IRSensor::getTempMap()
 {
-	return this->dots;
+	return dots;
 }
 
 float IRSensor::getMaxTemp()

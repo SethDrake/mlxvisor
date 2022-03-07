@@ -4,7 +4,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include <stm32f4xx_hal.h>
-#include "hardware.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,8 +14,6 @@ extern "C" {
 /* Exported constants --------------------------------------------------------*/ 
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-
-#define THERMAL_SCALE 7
 
 extern void Error_Handler(uint8_t source);
 

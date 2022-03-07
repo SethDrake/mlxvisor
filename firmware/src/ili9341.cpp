@@ -355,7 +355,7 @@ void ILI9341::putString(const char str[], uint16_t x, uint16_t y, uint16_t charC
 	const uint8_t f_height = font[1];
 	const uint16_t xSize = f_width + 1;
 	const uint16_t ySize = f_height;
-	uint16_t charbuf[(f_width + 1) * f_height];
+	//uint16_t charbuf[(f_width + 1) * f_height]; //declared in hardware.h
 
 	while (*str != 0) {
 		putChar(*str, charColor, bkgColor, charbuf, 0, true);

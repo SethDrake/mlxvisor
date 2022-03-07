@@ -1,15 +1,11 @@
 ﻿#include "ui.h"
-
+#include "hardware.h"
 #include <cstdio>
 #include <string.h>
 #include "cpu_utils.h"
 
 UI::UI()
 {
-	memset(framebuffer, 0x10, sizeof(framebuffer));
-	memset(gradientFb, 0x10, sizeof(gradientFb));
-	memset(batteryFb, 0x00, sizeof(batteryFb));
-
 	this->currentSreen = UIScreen::MAIN;
 	this->isStaticPartsRendered = false;
 	this->display = NULL;
@@ -133,7 +129,7 @@ void UI::ProcessButtons()
 		}
 		else if (isButtonPressed(Button::OK))
 		{
-			if (sdCard->isCardOk() && irSensor->isImageReady())
+			/*if (sdCard->isCardOk() && irSensor->isImageReady())
 			{
 				char fileName[25];
 				RTC_TimeTypeDef time;
@@ -142,7 +138,7 @@ void UI::ProcessButtons()
 				GetDateTime(&date, &time);
 				sprintf(fileName, "20%02u-%02u-%02u-%02u%02u%02u.thv", date.Year, date.Month, date.Date, time.Hours, time.Minutes, time.Seconds);
 				sdCard->SaveThvFile((const char*)&fileName, 32, 24, irSensor->getTempMap());
-			}
+			}*/
 		}
 	}
 	else if (currentSreen == UIScreen::SETTINGS)
