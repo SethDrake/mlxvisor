@@ -43,18 +43,6 @@ bool IRSensor::Init(I2C_HandleTypeDef* i2c, mlx90640_refreshrate_t rate, mlx9064
     return true;
 }
 
-void IRSensor::Reset()
-{
-    recalcCnt = 0;
-    memset(dots, 0, sizeof(dots));
-	memset(frameData, 0, sizeof(frameData));
-    minTemp = 0;
-    maxTemp = 0;
-    centerTemp = 0;
-	_isImageReady = false;
-	I2Cx_Error(); //reset i2c bus
-}
-
 void IRSensor::setColorScheme(thermal_colorscheme_t scheme)
 {
 	if (scheme == DEFAULT_SCHEME)

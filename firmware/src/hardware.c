@@ -6,7 +6,18 @@ RTC_HandleTypeDef rtc;
 ADC_HandleTypeDef adc1;
 SD_HandleTypeDef  sdio;
 
+/* memory muffers allocation */
 CCMRAM uint8_t ucHeap[configTOTAL_HEAP_SIZE] = { 0 }; //FreeRTOS heap
+
+uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE] = { 0 };
+
+SRAM2 uint16_t gradientFb[10 * 24 * THERMAL_SCALE] = { 0 };
+SRAM2 uint16_t batteryFb[48 * 14] = { 0 };
+
+SRAM2 uint16_t mlxEE[832] = { 0 };
+SRAM2 uint16_t frameData[834] = { 0 };
+SRAM2 uint16_t charbuf[128] = { 0 };
+SRAM2 float dots[24 * 32] = { 0 };
 
 void Clock_Init()
 {

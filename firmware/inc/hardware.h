@@ -103,14 +103,14 @@ void	GetDateTime(RTC_DateTypeDef* date, RTC_TimeTypeDef* time);
 void	SaveDateTime(RTC_DateTypeDef* date, RTC_TimeTypeDef* time);
 
 /* static buffers */
-static uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE] = { 0 };
-static uint16_t gradientFb[10 * 24 * THERMAL_SCALE] = { 0 };
-static uint16_t batteryFb[48 * 14] = { 0 };
+extern uint16_t framebuffer[24 * THERMAL_SCALE * 32 * THERMAL_SCALE];
+extern uint16_t gradientFb[10 * 24 * THERMAL_SCALE];
+extern uint16_t batteryFb[48 * 14];
 
-static SRAM2 uint16_t mlxEE[832] = { 0 };
-static SRAM2 uint16_t frameData[834] = { 0 };
-static SRAM2 uint16_t charbuf[128] = { 0 };
-static SRAM2 float dots[24 * 32] = { 0 };
+extern uint16_t mlxEE[832];
+extern uint16_t frameData[834];
+extern uint16_t charbuf[128];
+extern float dots[24 * 32];
 
 #ifdef __cplusplus
 }

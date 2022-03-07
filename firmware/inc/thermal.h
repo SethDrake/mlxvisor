@@ -15,7 +15,6 @@ public:
 	IRSensor();
 	~IRSensor();
 	bool Init(I2C_HandleTypeDef* i2c, mlx90640_refreshrate_t rate, mlx90640_resolution_t resolution, thermal_colorscheme_t scheme);
-	void Reset();
 	void ReadImage();
 	void VisualizeImage(uint16_t* fb, uint16_t sizeX, uint16_t sizeY, uint8_t method);
 	void DrawGradient(uint16_t* fb, uint16_t sizeX, uint16_t sizeY);

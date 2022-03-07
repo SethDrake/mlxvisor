@@ -575,6 +575,7 @@ void UI::DrawFileViewScreen()
 		display->clear(backgroundColor);
 		display->printf(10, 225, WHITE, backgroundColor, "FILE %u: %s", selectedItemIndex + 1, selectedFileName);
 
+		memset(dots, 0x00, sizeof(dots));
 		if (sdCard->ReadThvFile(selectedFileName, dots))
 		{
 			display->bufferDraw(10 + 32 * THERMAL_SCALE, 45, 10, 24 * THERMAL_SCALE, gradientFb);
