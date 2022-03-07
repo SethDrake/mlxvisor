@@ -61,7 +61,7 @@ private:
 #define GREEN							0x07e0
 #define DARK_GREEN						0x0240
 #define BLUE							0x001f
-#define DARK_BLUE						0x00f4
+#define DARK_BLUE						0x0008
 #define BLACK							0x0000
 #define YELLOW							0xffe0
 #define ORANGE							0xfc00

@@ -95,6 +95,7 @@ private:
 	IRSensor* irSensor;
 	Options* options;
 	SDCard* sdCard;
+	uint16_t backgroundColor = BLACK;
 	volatile uint8_t prevButtonsState = 0;
 	volatile uint8_t buttonsState = 0;
 	volatile TickType_t xDrawTime = 0;

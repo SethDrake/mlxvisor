@@ -55,10 +55,12 @@ void UI::setScreen(UIScreen screen)
 	if (currentSreen == UIScreen::MAIN)
 	{
 		_isSensorReadActive = true;
+		backgroundColor = BLACK;
 	}
 	else
 	{
 		_isSensorReadActive = false;
+		backgroundColor = DARK_BLUE;
 	}
 	if (currentSreen == UIScreen::FILES_LIST)
 	{
@@ -267,8 +269,8 @@ void UI::DrawClock()
 
 	GetDateTime(&date, &time);
 
-	display->printf(240, 14, WHITE, BLACK, "%02u-%02u-20%02u", date.Date, date.Month, date.Year);
-	display->printf(248, 0, WHITE, BLACK, "%02u:%02u:%02u", time.Hours, time.Minutes, time.Seconds);
+	display->printf(240, 14, WHITE, backgroundColor, "%02u-%02u-20%02u", date.Date, date.Month, date.Year);
+	display->printf(248, 0, WHITE, backgroundColor, "%02u:%02u:%02u", time.Hours, time.Minutes, time.Seconds);
 }
 
 void UI::DrawScreen()
@@ -313,15 +315,16 @@ void UI::DrawMainScreen()
 	//static content
 	if (!isStaticPartsRendered)
 	{
+		display->clear(backgroundColor);
 		irSensor->DrawGradient(gradientFb, 10, 24 * THERMAL_SCALE);
 		display->bufferDraw(32 * THERMAL_SCALE, 239 - 24 * THERMAL_SCALE, 10, 24 * THERMAL_SCALE, gradientFb);
 
 		//buttons description
-		display->printf(290, 140, YELLOW, BLACK, "R"); //up
-		display->printf(272, 125, YELLOW, BLACK, " F"); //left
-		display->printf(290, 125, YELLOW, BLACK, "S"); //center
-		display->printf(303, 125, YELLOW, BLACK, "[]"); //right
-		display->printf(290, 110, YELLOW, BLACK, "M"); //down
+		display->printf(290, 140, YELLOW, backgroundColor, "R"); //up
+		display->printf(272, 125, YELLOW, backgroundColor, " F"); //left
+		display->printf(290, 125, YELLOW, backgroundColor, "S"); //center
+		display->printf(303, 125, YELLOW, backgroundColor, "[]"); //right
+		display->printf(290, 110, YELLOW, backgroundColor, "M"); //down
 
 		isStaticPartsRendered = true;
 	}
@@ -332,19 +335,19 @@ void UI::DrawMainScreen()
 		const int16_t minTemp = (int16_t)irSensor->getMinTemp();
 
 		//right panel
-		display->fillScreen(235, 225, 235 + 40, 225 + 14, BLACK); 
-		display->printf(235, 225, WHITE, BLACK, "%d\x81", maxTemp);
+		display->fillScreen(235, 225, 235 + 40, 225 + 14, backgroundColor); 
+		display->printf(235, 225, WHITE, backgroundColor, "%d\x81", maxTemp);
 		display->fillScreen(235, 68, 235 + 40, 68 + 14, BLACK);
-		display->printf(235, 68, GREEN, BLACK, "%d\x81", minTemp);
+		display->printf(235, 68, GREEN, backgroundColor, "%d\x81", minTemp);
 
 		//status strings
 		if (strlen(statusLine) > 0)
 		{
-			display->printf(0, 28, WHITE, BLACK, "%s", statusLine);
+			display->printf(0, 28, WHITE, backgroundColor, "%s", statusLine);
 		}
 		const uint16_t cpuUsage = osGetCPUUsage();
-		display->printf(0, 14, WHITE, BLACK, "E=%.2f Rate=%s", opts->emission, sensorRateToString(opts->sensorRefreshRate));
-		display->printf(0, 0, WHITE, BLACK, "CPU:%02u%%", cpuUsage);
+		display->printf(0, 14, WHITE, backgroundColor, "E=%.2f Rate=%s", opts->emission, sensorRateToString(opts->sensorRefreshRate));
+		display->printf(0, 0, WHITE, backgroundColor, "CPU:%02u%%", cpuUsage);
 
 		delayCntr = 0;
 	}
@@ -366,8 +369,8 @@ void UI::DrawSettingsScreen()
 {
 	if (!isStaticPartsRendered)
 	{
-		display->clear(BLACK);
-		display->printf(10, 225, WHITE, BLACK, "SETTINGS");
+		display->clear(backgroundColor);
+		display->printf(10, 225, WHITE, backgroundColor, "SETTINGS");
 
 		isStaticPartsRendered = true;
 	}
@@ -375,7 +378,7 @@ void UI::DrawSettingsScreen()
 	//info content
 	if (delayCntr >= DRAW_DELAY) {
 		const uint16_t cpuUsage = osGetCPUUsage();
-		display->printf(0, 0, WHITE, BLACK, "CPU:%02u%%", cpuUsage);
+		display->printf(0, 0, WHITE, backgroundColor, "CPU:%02u%%", cpuUsage);
 
 		delayCntr = 0;
 	}
@@ -402,17 +405,17 @@ void UI::DrawSettingsScreen()
 		if (menuItems[i].id == (int)MenuItems::DATE)
 		{
 			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%02u", date.Date);
-			display->printf(shift + 2*8, lineStartY, WHITE, BLACK, "-");
+			display->printf(shift + 2 * 8, lineStartY, WHITE, backgroundColor, "-");
 			DrawSubItem(shift + 3 * 8, lineStartY, 1, isActualMenuItemInEdit, "%02u", date.Month);
-			display->printf(shift + 5*8, lineStartY, WHITE, BLACK, "-");
+			display->printf(shift + 5 * 8, lineStartY, WHITE, backgroundColor, "-");
 			DrawSubItem(shift + 6 * 8, lineStartY, 2, isActualMenuItemInEdit, "20%02u", date.Year);
 		}
 		else if (menuItems[i].id == (int)MenuItems::TIME)
 		{
 			DrawSubItem(shift, lineStartY, 0, isActualMenuItemInEdit, "%02u", time.Hours);
-			display->printf(shift + 2*8, lineStartY, WHITE, BLACK, ":");
+			display->printf(shift + 2 * 8, lineStartY, WHITE, backgroundColor, ":");
 			DrawSubItem(shift + 3 * 8, lineStartY, 1, isActualMenuItemInEdit, "%02u", time.Minutes);
-			display->printf(shift + 5*8, lineStartY, WHITE, BLACK, ":");
+			display->printf(shift + 5 * 8, lineStartY, WHITE, backgroundColor, ":");
 			DrawSubItem(shift + 6 * 8, lineStartY, 2, isActualMenuItemInEdit, "%02u", time.Seconds);	
 		}
 		else if (menuItems[i].id == (int)MenuItems::EMISSION)
@@ -454,8 +457,8 @@ void UI::DrawFilesListScreen()
 {
 	if (!isStaticPartsRendered)
 	{
-		display->clear(BLACK);
-		display->printf(10, 225, WHITE, BLACK, "SAVED FILES");
+		display->clear(backgroundColor);
+		display->printf(10, 225, WHITE, backgroundColor, "SAVED FILES");
 
 		isStaticPartsRendered = true;
 	}
@@ -468,7 +471,7 @@ void UI::DrawFilesListScreen()
 
 		if ((pageNumber == pagesCount - 1) && (pagesCount > 1))
 		{
-			display->fillScreen(10, 0, 200, 225, BLACK); //clear list area
+			display->fillScreen(10, 0, 200, 225, backgroundColor); //clear list area
 		}
 
 		//read files list
@@ -741,12 +744,12 @@ void UI::EditMenuItem(MenuItems menuItem, Button button)
 
 uint16_t UI::GetMenuFrontColor(int8_t menuIndex, int8_t activeMenuIndex, bool isActive)
 {
-	return isActive && (menuIndex == activeMenuIndex) ? BLACK : WHITE;
+	return isActive && (menuIndex == activeMenuIndex) ? backgroundColor : WHITE;
 }
 
 uint16_t UI::GetMenuBackColor(int8_t menuIndex, int8_t activeMenuIndex, bool isActive)
 {
-	return isActive && (menuIndex == activeMenuIndex) ? WHITE : BLACK;
+	return isActive && (menuIndex == activeMenuIndex) ? WHITE : backgroundColor;
 }
 
 uint8_t UI::GetDaysInMonth(uint8_t month, uint16_t year)
