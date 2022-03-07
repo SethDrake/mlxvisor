@@ -49,8 +49,7 @@ void UI::setScreen(UIScreen screen)
 	preventDraw = true;
 	selectedItemIndex = 0;
 	isMenuItemInEdit = false;
-	delayCntr = DRAW_DELAY;
-
+	
 	this->currentSreen = screen;
 	if (currentSreen == UIScreen::MAIN)
 	{
@@ -71,6 +70,7 @@ void UI::setScreen(UIScreen screen)
 	osDelay(100);
 	this->isStaticPartsRendered = false;
 	preventDraw = false;
+	delayCntr = DRAW_DELAY;
 }
 
 void UI::setButtonState(Button btn, bool isPressed)
@@ -242,7 +242,11 @@ void UI::ProcessButtons()
 void UI::DrawBattery()
 {
 	if (adcVbat > 0) {
-		memset(batteryFb, 0x00, sizeof(batteryFb));
+		for (uint16_t i = 0; i < sizeof(batteryFb)/2; i++)
+		{
+			batteryFb[i] = backgroundColor;
+		}
+		//memset(batteryFb, 0x00, sizeof(batteryFb));
 		const float vBat = 0.3f + 2 * (3.3f * adcVbat) / 4096;
 		uint16_t color = WHITE;
 		if (vBat <= 3.6)
@@ -291,9 +295,6 @@ void UI::DrawScreen()
 			break;
 		case UIScreen::SETTINGS: 
 			DrawSettingsScreen();
-			break;
-		case UIScreen::DIALOG: 
-			DrawDialogScreen();
 			break;
 		case UIScreen::FILES_LIST: 
 			DrawFilesListScreen();
@@ -449,18 +450,12 @@ void UI::DrawSettingsScreen()
 	}
 }
 
-void UI::DrawDialogScreen()
-{
-}
-
 void UI::DrawFilesListScreen()
 {
 	if (!isStaticPartsRendered)
 	{
 		display->clear(backgroundColor);
 		display->printf(10, 225, WHITE, backgroundColor, "SAVED FILES");
-
-		isStaticPartsRendered = true;
 	}
 
 	if ((delayCntr == DRAW_DELAY) && (filesCount > 0)) {
@@ -517,6 +512,11 @@ void UI::DrawFilesListScreen()
 		delayCntr = 0;
 	}
 
+	if (!isStaticPartsRendered)
+	{
+		delayCntr = DRAW_DELAY;
+		isStaticPartsRendered = true;
+	}
 }
 
 void UI::DrawFileViewScreen()

@@ -17,7 +17,6 @@ enum class UIScreen
 {
 	MAIN,
 	SETTINGS,
-	DIALOG,
 	FILES_LIST,
 	FILE_VIEW
 };
@@ -74,7 +73,6 @@ public:
 protected:
 	void DrawMainScreen();
 	void DrawSettingsScreen();
-	void DrawDialogScreen();
 	void DrawFilesListScreen();
 	void DrawFileViewScreen();
 	void DrawBattery();
