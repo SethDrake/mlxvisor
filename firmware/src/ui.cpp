@@ -218,12 +218,20 @@ void UI::ProcessButtons()
 			{
 				selectedItemIndex--;
 			}
+			else
+			{
+				selectedItemIndex = filesCount - 1;
+			}
 		}
 		else if (isButtonPressed(Button::DOWN))
 		{
 			if (selectedItemIndex < (filesCount - 1))
 			{
 				selectedItemIndex++;
+			}
+			else
+			{
+				selectedItemIndex = 0;
 			}
 		}
 		else if (isButtonPressed(Button::LEFT) || isButtonPressed(Button::RIGHT))
@@ -244,9 +252,13 @@ void UI::ProcessButtons()
 			if (selectedItemIndex > 0)
 			{
 				selectedItemIndex--;
-				if (sdCard->GetFileNameByIndex("", selectedItemIndex, selectedFileName)) {
-					setScreen(UIScreen::FILE_VIEW);
-				}
+			}
+			else
+			{
+				selectedItemIndex = filesCount - 1;
+			}
+			if (sdCard->GetFileNameByIndex("", selectedItemIndex, selectedFileName)) {
+				setScreen(UIScreen::FILE_VIEW);
 			}
 		}
 		if (isButtonPressed(Button::DOWN))
@@ -254,9 +266,13 @@ void UI::ProcessButtons()
 			if (selectedItemIndex < (filesCount - 1))
 			{
 				selectedItemIndex++;
-				if (sdCard->GetFileNameByIndex("", selectedItemIndex, selectedFileName)) {
-					setScreen(UIScreen::FILE_VIEW);
-				}
+			}
+			else
+			{
+				selectedItemIndex = 0;
+			}
+			if (sdCard->GetFileNameByIndex("", selectedItemIndex, selectedFileName)) {
+				setScreen(UIScreen::FILE_VIEW);
 			}
 		}
 		if (isButtonPressed(Button::LEFT) || isButtonPressed(Button::RIGHT) || isButtonPressed(Button::OK))

@@ -106,7 +106,7 @@ private:
 	char selectedFileName[_MAX_LFN + 1] = {0};
 	volatile uint32_t filesCount = 0;
 
-	volatile uint8_t selectedItemIndex;
+	volatile int32_t selectedItemIndex;
 
 	volatile bool isMenuItemInEdit;
 	volatile int8_t activeSubMenuItemIndex;
