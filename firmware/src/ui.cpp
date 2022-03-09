@@ -295,8 +295,8 @@ void UI::DrawBattery()
 		{
 			batteryFb[i] = backgroundColor;
 		}
-		//memset(batteryFb, 0x00, sizeof(batteryFb));
-		const float vBat = 0.3f + 2 * (3.3f * adcVbat) / 4096;
+
+		const float vBat = 0.3f + 2 * (3.146f * adcVbat) / 4096;
 		uint16_t color = WHITE;
 		if (vBat <= 3.6)
 		{

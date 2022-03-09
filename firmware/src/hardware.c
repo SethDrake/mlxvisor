@@ -108,7 +108,7 @@ void RTC_Config()
 
 	//HAL_RTCEx_BKUPWrite(&rtc, RTC_BKP_DR1, 0xF10D);
 
-	//init calendar if not already configured
+	//init calendar if is not already configured
 	if (HAL_RTCEx_BKUPRead(&rtc, RTC_BKP_DR1) != 0xF00D)
 	{
 		sTime.Hours = 15;
@@ -277,7 +277,7 @@ void ADC_Init()
 	{
 		sConfig.Channel = ADC_CHANNEL_VBAT;
 		sConfig.Rank = 1;
-		sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+		sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
 		sConfig.Offset = 0;
 		HAL_ADC_ConfigChannel(&adc1, &sConfig);
 	}
