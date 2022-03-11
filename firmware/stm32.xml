@@ -38,6 +38,7 @@
   <ReferencedFrameworks>
     <string>com.sysprogs.arm.stm32.FatFs</string>
     <string>com.sysprogs.arm.stm32.freertos</string>
+    <string>com.sysprogs.arm.stm32.usbdev</string>
     <string>com.sysprogs.arm.stm32.utilities</string>
     <string>com.sysprogs.arm.stm32.hal</string>
     <string>com.sysprogs.arm.stm32.ll</string>
@@ -55,6 +56,14 @@
       <KeyValue>
         <Key>com.sysprogs.bspoptions.stm32.freertos.cmsis</Key>
         <Value>CMSIS_RTOS</Value>
+      </KeyValue>
+      <KeyValue>
+        <Key>com.sysprogs.bspoptions.stm32.usb.devclass</Key>
+        <Value>MSC</Value>
+      </KeyValue>
+      <KeyValue>
+        <Key>com.sysprogs.bspoptions.stm32.usb.speed</Key>
+        <Value>FS</Value>
       </KeyValue>
       <KeyValue>
         <Key>com.sysprogs.bspoptions.stm32.utils.cpu</Key>

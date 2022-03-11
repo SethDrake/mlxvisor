@@ -100,6 +100,7 @@ private:
 	volatile bool isStaticPartsRendered;
 	volatile bool _isSensorReadActive;
 	volatile bool preventDraw;
+	volatile bool isCharging;
 	volatile uint8_t delayCntr;
 	char statusLine[100] = {0};
 

@@ -60,7 +60,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
     <ClCompile>
-      <AdditionalIncludeDirectories>inc;;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>inc;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>NDEBUG=1;RELEASE=1;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions />
       <CLanguageStandard />
@@ -95,6 +95,9 @@
     <ClCompile Include="src\system_stm32f4xx.c" />
     <ClCompile Include="src\thermal.cpp" />
     <ClCompile Include="src\ui.cpp" />
+    <ClCompile Include="src\usbd_conf.c" />
+    <ClCompile Include="src\usbd_desc.c" />
+    <ClCompile Include="src\usbd_storage.c" />
     <ClInclude Include="inc\hardware.h" />
     <ClInclude Include="inc\i2c.h" />
     <ClInclude Include="inc\ili9341.h" />
@@ -105,6 +108,9 @@
     <ClInclude Include="inc\stm32f4xx_it.h" />
     <ClInclude Include="inc\thermal.h" />
     <ClInclude Include="inc\ui.h" />
+    <ClInclude Include="inc\usbd_conf.h" />
+    <ClInclude Include="inc\usbd_desc.h" />
+    <ClInclude Include="inc\usbd_storage.h" />
     <None Include="stm32.props" />
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\croutine.c" />
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\event_groups.c" />
@@ -375,5 +381,20 @@
     <ClInclude Include="$(BSP_ROOT)\FatFs\src\integer.h" />
     <ClInclude Include="$(BSP_ROOT)\BSP\ConfigTemplates\ffconf.h" />
     <ClCompile Include="$(BSP_ROOT)\FreeRTOS\Source\portable\MemMang\heap_4.c" />
+    <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Class\MSC\Src\usbd_msc.c" />
+    <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Class\MSC\Src\usbd_msc_bot.c" />
+    <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Class\MSC\Src\usbd_msc_data.c" />
+    <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Class\MSC\Src\usbd_msc_scsi.c" />
+    <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Core\Src\usbd_core.c" />
+    <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Core\Src\usbd_ctlreq.c" />
+    <ClCompile Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Core\Src\usbd_ioreq.c" />
+    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Class\MSC\Inc\usbd_msc.h" />
+    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Class\MSC\Inc\usbd_msc_bot.h" />
+    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Class\MSC\Inc\usbd_msc_data.h" />
+    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Class\MSC\Inc\usbd_msc_scsi.h" />
+    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Core\Inc\usbd_core.h" />
+    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Core\Inc\usbd_ctlreq.h" />
+    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Core\Inc\usbd_def.h" />
+    <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Core\Inc\usbd_ioreq.h" />
   </ItemGroup>
 </Project>

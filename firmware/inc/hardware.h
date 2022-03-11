@@ -4,6 +4,7 @@
 
 #include "FreeRTOSConfig.h"
 #include "stm32f4xx_hal.h"
+#include "usbd_def.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -31,8 +32,8 @@
 #define SPI1_SCK_PIN		GPIO_PIN_5
 
 #define SPI1_TX_DMA_CHL     DMA_CHANNEL_3
-#define SPI1_TX_DMA_STRM    DMA2_Stream3
-#define SPI1_TX_DMA_IRQ     DMA2_Stream3_IRQn
+#define SPI1_TX_DMA_STRM    DMA2_Stream5
+#define SPI1_TX_DMA_IRQ     DMA2_Stream5_IRQn
 
 #define ADC1_DMA_CHL        DMA_CHANNEL_2
 #define ADC1_DMA_STRM       DMA2_Stream0
@@ -58,6 +59,16 @@
 #define USR_BTN_L_PORT		GPIOD
 #define USR_BTN_L_PIN		GPIO_PIN_5
 
+#define NCHRG_PORT			GPIOB
+#define NCHRG_PIN			GPIO_PIN_5
+
+#define VBUS_PORT			GPIOA
+#define VBUS_PIN			GPIO_PIN_9
+
+#define USB_PORT			GPIOA
+#define USB_DM_PIN			GPIO_PIN_11
+#define USB_DP_PIN			GPIO_PIN_12
+
 #define SD_CLKDIV		    10 
 
 #define SDIO_D0_PORT		GPIOC
@@ -73,9 +84,9 @@
 #define SDIO_CMD_PORT		GPIOD
 #define SDIO_CMD_PIN		GPIO_PIN_2
 
-#define   MSD_OK                        ((uint8_t)0x00)
-#define   MSD_ERROR                     ((uint8_t)0x01)
-#define   MSD_ERROR_SD_NOT_PRESENT      ((uint8_t)0x02)
+#define MSD_OK                        ((uint8_t)0x00)
+#define MSD_ERROR                     ((uint8_t)0x01)
+#define MSD_ERROR_SD_NOT_PRESENT      ((uint8_t)0x02)
 
 #define RTC_ASYNCH_PREDIV       127
 #define RTC_SYNCH_PREDIV        255
@@ -85,6 +96,8 @@ extern SPI_HandleTypeDef	spi1;
 extern RTC_HandleTypeDef	rtc;
 extern ADC_HandleTypeDef	adc1;
 extern SD_HandleTypeDef     sdio;
+extern PCD_HandleTypeDef	hpcd;
+extern USBD_HandleTypeDef   hUsbDeviceFS;
 
 void	Clock_Init(void);
 void	RTC_Config(void);
@@ -94,6 +107,7 @@ void	SPI_Init(void);
 void	ADC_Init(void);
 uint8_t SDCard_Init(void);
 void	DMA_Init(void);
+void	USB_Init(void);
 
 void    GPIO_WritePin(GPIO_TypeDef* port, uint16_t pin, uint8_t state);
 void    GPIO_TogglePin(GPIO_TypeDef* port, uint16_t pin);

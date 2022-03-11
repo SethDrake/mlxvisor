@@ -1,10 +1,16 @@
 ﻿#include <hardware.h>
+#include "usbd_core.h"
+#include "usbd_desc.h"
+#include "usbd_msc.h"
+#include "usbd_storage.h"
 
-I2C_HandleTypeDef i2c1;
-SPI_HandleTypeDef spi1;
-RTC_HandleTypeDef rtc;
-ADC_HandleTypeDef adc1;
-SD_HandleTypeDef  sdio;
+I2C_HandleTypeDef  i2c1;
+SPI_HandleTypeDef  spi1;
+RTC_HandleTypeDef  rtc;
+ADC_HandleTypeDef  adc1;
+SD_HandleTypeDef   sdio;
+PCD_HandleTypeDef  hpcd;
+USBD_HandleTypeDef hUsbDeviceFS;
 
 /* memory muffers allocation */
 CCMRAM uint8_t ucHeap[configTOTAL_HEAP_SIZE] = { 0 }; //FreeRTOS heap
@@ -179,6 +185,20 @@ void GPIO_Init()
 	GPIO_InitStruct.Pin    = SDIO_CMD_PIN;
 	HAL_GPIO_Init(SDIO_CMD_PORT, &GPIO_InitStruct);
 
+	/* Configure USB DM DP Pins */
+	GPIO_InitStruct.Pin = USB_DM_PIN | USB_DP_PIN;
+	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
+	GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
+	HAL_GPIO_Init(USB_PORT, &GPIO_InitStruct); 
+  
+	/* Configure VBUS Pin */
+	GPIO_InitStruct.Pin = VBUS_PIN;
+	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	HAL_GPIO_Init(VBUS_PORT, &GPIO_InitStruct);
+
 	/* Configure the Common GPIOs */
 	/* Input */
 	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
@@ -195,6 +215,13 @@ void GPIO_Init()
 	GPIO_InitStruct.Pin = USR_BTN_L_PIN; 
 	HAL_GPIO_Init(USR_BTN_L_PORT, &GPIO_InitStruct);
 
+	/* Charge input */
+	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	GPIO_InitStruct.Pin = NCHRG_PIN; 
+	HAL_GPIO_Init(NCHRG_PORT, &GPIO_InitStruct);
+
 	/* Output */
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -205,6 +232,14 @@ void GPIO_Init()
 	HAL_GPIO_Init(LCD_DC_PORT, &GPIO_InitStruct);
 	// GPIO_InitStruct.Pin = LCD_RESET_PIN; //LCD RESET
 	// HAL_GPIO_Init(LCD_RESET_PORT, &GPIO_InitStruct);
+
+	__HAL_RCC_USB_OTG_FS_CLK_ENABLE();
+
+	/* Set USBFS Interrupt priority */
+	HAL_NVIC_SetPriority(OTG_FS_IRQn, 7, 0);
+  
+	/* Enable USBFS Interrupt */
+	HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
 }
 
 void I2C_Init()
@@ -375,6 +410,26 @@ void DMA_Init()
 
 	HAL_NVIC_SetPriority(SD_TX_RX_IRQn, 3, 0);
 	HAL_NVIC_EnableIRQ(SD_TX_RX_IRQn);
+}
+
+void USB_Init()
+{
+	if (USBD_Init(&hUsbDeviceFS, &FS_Desc, DEVICE_FS) != USBD_OK)
+	{
+		return;
+	}
+	if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_MSC) != USBD_OK)
+	{
+		return;
+	}
+	if (USBD_MSC_RegisterStorage(&hUsbDeviceFS, &USBD_DISK_fops) != USBD_OK)
+	{
+		return;
+	}
+	if (USBD_Start(&hUsbDeviceFS) != USBD_OK)
+	{
+		return;
+	}
 }
 
 void GPIO_WritePin(GPIO_TypeDef* port, uint16_t pin, uint8_t state)

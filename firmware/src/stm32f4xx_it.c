@@ -146,7 +146,7 @@ void DMA2_Stream0_IRQHandler(void)
   * @param  None
   * @retval None  
   */
-void DMA2_Stream3_IRQHandler(void)
+void DMA2_Stream5_IRQHandler(void)
 {
 	HAL_DMA_IRQHandler(spi1.hdmatx);
 }
@@ -170,6 +170,11 @@ void SPI1_IRQHandler(void)
 void SDIO_IRQHandler(void)
 {
 	HAL_SD_IRQHandler(&sdio);
+}
+
+void OTG_FS_IRQHandler(void)
+{
+	HAL_PCD_IRQHandler(&hpcd);
 }
 
 /**

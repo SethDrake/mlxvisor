@@ -10,6 +10,10 @@
 #include "options.h"
 #include <string.h>
 
+#include "usbd_core.h"
+#include "usbd_desc.h"
+#include "usbd_storage.h"
+
 osThreadId IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle, BgTaskHandle;
 
 Options options;
@@ -51,6 +55,8 @@ int main()
 	ui.InitScreen(&display, &irSensor, &sdCard, &options);
 
 	HAL_ADC_Start(&adc1);
+
+	USB_Init();
 
 	const osThreadDef_t os_thread_def_READ_KEYS = { (char*)"READ_KEYS", (ReadKeys_Thread), (osPriorityNormal), (0), (((uint16_t) 128 + 1024))};
 	const osThreadDef_t os_thread_def_BG_TASK = { (char*)"BG_TASK", (BgTask_Thread), (osPriorityNormal), (0), (((uint16_t) 128))};

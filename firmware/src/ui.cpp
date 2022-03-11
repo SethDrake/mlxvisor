@@ -19,6 +19,7 @@ UI::UI()
 	this->isMenuItemInEdit = false;
 	this->activeSubMenuItemIndex = -1;
 	this->preventDraw = false;
+	this->isCharging = false;
 
 	menuItems[0] = {(uint8_t)MenuItems::DATE, "Date", 3};
 	menuItems[1] = {(uint8_t)MenuItems::TIME, "Time", 3};
