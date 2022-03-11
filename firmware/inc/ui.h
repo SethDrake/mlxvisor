@@ -18,7 +18,8 @@ enum class UIScreen
 	MAIN,
 	SETTINGS,
 	FILES_LIST,
-	FILE_VIEW
+	FILE_VIEW,
+	USB_CONNECTED_MODE
 };
 
 enum class Button
@@ -63,6 +64,7 @@ public:
 	~UI();
 	void InitScreen(ILI9341* display, IRSensor* irSensor, SDCard* sdCard, Options* options);
 	void DrawScreen();
+	UIScreen GetScreen();
 	void ProcessButtons();
 	void setScreen(UIScreen screen);
 	void setButtonState(Button btn, bool isPressed);
@@ -75,6 +77,7 @@ protected:
 	void DrawSettingsScreen();
 	void DrawFilesListScreen();
 	void DrawFileViewScreen();
+	void DrawUsbConnectedScreen();
 	void DrawBattery();
 	void DrawClock();
 private:

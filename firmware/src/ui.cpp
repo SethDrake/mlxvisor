@@ -74,6 +74,11 @@ void UI::setScreen(UIScreen screen)
 	delayCntr = DRAW_DELAY;
 }
 
+UIScreen UI::GetScreen()
+{
+	return currentSreen;
+}
+
 void UI::setButtonState(Button btn, bool isPressed)
 {
 	prevButtonsState = buttonsState;
@@ -352,6 +357,9 @@ void UI::DrawScreen()
 		case UIScreen::FILE_VIEW: 
 			DrawFileViewScreen();
 			break;
+		case UIScreen::USB_CONNECTED_MODE: 
+			DrawUsbConnectedScreen();
+			break;
 	}
 	xDrawTime = xTaskGetTickCount() - xTime1;
 }
@@ -596,6 +604,17 @@ void UI::DrawFileViewScreen()
 			//thermal image famebuffer
 			display->bufferDraw(10, 45, 32 * THERMAL_SCALE, 24 * THERMAL_SCALE, framebuffer);
 		}
+
+		isStaticPartsRendered = true;
+	}
+}
+
+void UI::DrawUsbConnectedScreen()
+{
+	if (!isStaticPartsRendered)
+	{
+		display->clear(backgroundColor);
+		display->printf(80, 120, YELLOW, backgroundColor, "USB STORAGE MODE");
 
 		isStaticPartsRendered = true;
 	}

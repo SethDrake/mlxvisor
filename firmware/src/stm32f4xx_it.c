@@ -153,8 +153,7 @@ void DMA2_Stream5_IRQHandler(void)
 
 void DMA2_Stream6_IRQHandler(void)
 {
-	//HAL_DMA_IRQHandler(sdio.hdmarx);
-	HAL_DMA_IRQHandler(sdio.hdmatx);
+	HAL_DMA_IRQHandler(sdio.hdmarx);
 }
 
 /**

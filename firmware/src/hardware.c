@@ -49,13 +49,9 @@ void Clock_Init()
 	RCC_OscInitStruct.PLL.PLLN = 240;
 	RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
 	RCC_OscInitStruct.PLL.PLLQ = 10;
-	// RCC_OscInitStruct.PLL.PLLM = 8;
-	// RCC_OscInitStruct.PLL.PLLN = 336;
-	// RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-	// RCC_OscInitStruct.PLL.PLLQ = 7;
 	HAL_RCC_OscConfig(&RCC_OscInitStruct);
 
-	/* Activate the Over-Drive mode */
+	/* Activate the Over-Drive mode (STM32F429 only!) */
 	// HAL_PWREx_EnableOverDrive();
  
 	/* Select PLL as system clock source and configure the HCLK, PCLK1 and PCLK2 
@@ -386,6 +382,7 @@ void DMA_Init()
 	HAL_NVIC_SetPriority(SPI1_TX_DMA_IRQ, 5, 1);
 	HAL_NVIC_EnableIRQ(SPI1_TX_DMA_IRQ);
 
+
 	/* SDIO DMA */
 	hdmaSd.Instance				    = SD_TX_RX_DMA_STRM;
 	hdmaSd.Init.Channel             = SD_TX_RX_DMA_CHL;
@@ -400,10 +397,9 @@ void DMA_Init()
 	hdmaSd.Init.FIFOThreshold       = DMA_FIFO_THRESHOLD_FULL;
 	hdmaSd.Init.MemBurst            = DMA_MBURST_INC4;
 	hdmaSd.Init.PeriphBurst         = DMA_PBURST_INC4;
-  
+
 	/* Associate the DMA handle */
-	__HAL_LINKDMA(&sdio, hdmatx, hdmaSd);
-	// __HAL_LINKDMA(&sdio1, hdmarx, hdmaSd);
+	__HAL_LINKDMA(&sdio, hdmarx, hdmaSd);
 
 	HAL_DMA_DeInit(&hdmaSd);
 	HAL_DMA_Init(&hdmaSd);

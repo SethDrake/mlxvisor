@@ -145,7 +145,23 @@ static void BgTask_Thread(void const *argument)
 	{
 		ui.adcVbat = HAL_ADC_GetValue(&adc1);
 		HAL_ADC_Start(&adc1);
-		osDelay(5000);
+
+		if (hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED)
+		{
+			if (ui.GetScreen() != UIScreen::USB_CONNECTED_MODE)
+			{
+				ui.setScreen(UIScreen::USB_CONNECTED_MODE);
+			}
+		}
+		else
+		{
+			if (ui.GetScreen() == UIScreen::USB_CONNECTED_MODE)
+			{
+				ui.setScreen(UIScreen::MAIN);
+			}
+		}
+
+		osDelay(1000);
 	}
 }
 

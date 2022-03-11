@@ -11,6 +11,8 @@
 
 #define SD_DEFAULT_BLOCK_SIZE 512
 
+#define USE_DMA_READ
+// #define USE_DMA_WRITE
 
 static volatile DSTATUS Stat = STA_NOINIT;
 
@@ -157,41 +159,56 @@ DWORD get_fattime()
 
 uint8_t SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout)
 {
+#ifndef USE_DMA_READ
 	if (HAL_SD_ReadBlocks(&sdio, (uint8_t *)pData, ReadAddr, NumOfBlocks, Timeout) != HAL_OK)
 	{
 		return MSD_ERROR;
 	}
+#endif
+#ifdef USE_DMA_READ
+	if (HAL_SD_ReadBlocks_DMA(&sdio, (uint8_t *)pData, ReadAddr, NumOfBlocks) != HAL_OK)
+	{
+		return MSD_ERROR;
+	}
+	// Wait until the SDIO/SDMMC and DMA finish the read/write
+	uint32_t timeout = 0;
+	HAL_SD_StateTypeDef state;
+	do {
+		state = HAL_SD_GetState(&sdio);
+		timeout++;
+	} while ((state == HAL_SD_STATE_BUSY) && (timeout < Timeout));
+	if (state != HAL_SD_STATE_READY) {
+		return MSD_ERROR;
+	}
+#endif
 	return MSD_OK;
 }
 
 
 uint8_t SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout)
 {
+#ifndef USE_DMA_WRITE
 	if (HAL_SD_WriteBlocks(&sdio, (uint8_t *)pData, WriteAddr, NumOfBlocks, Timeout) != HAL_OK)
-	//if (HAL_SD_WriteBlocks_DMA(&sdio, (uint8_t *)pData, WriteAddr, NumOfBlocks) != HAL_OK)
 	{
 		return MSD_ERROR;
 	}
-	return MSD_OK;
-}
-
-uint8_t SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
-{  
-	/* Read block(s) in DMA transfer mode */
-	if (HAL_SD_ReadBlocks_DMA(&sdio, (uint8_t *)pData, ReadAddr, NumOfBlocks) != HAL_OK)
-	{
-		return MSD_ERROR;
-	}
-	return MSD_OK;
-}
-
-uint8_t SD_WriteBlocks_DMA(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks)
-{ 
-	/* Write block(s) in DMA transfer mode */
+#endif
+#ifdef USE_DMA_WRITE
 	if (HAL_SD_WriteBlocks_DMA(&sdio, (uint8_t *)pData, WriteAddr, NumOfBlocks) != HAL_OK)
 	{
 		return MSD_ERROR;
 	}
+	// Wait until the SDIO/SDMMC and DMA finish the read/write
+	uint32_t timeout = 0;
+	HAL_SD_StateTypeDef state;
+	do {
+		state = HAL_SD_GetState(&sdio);
+		timeout++;
+	} while ((state == HAL_SD_STATE_BUSY) && (timeout < Timeout));
+	if (state != HAL_SD_STATE_READY) {
+		return MSD_ERROR;
+	}
+#endif
 	return MSD_OK;
 }
 
@@ -204,7 +221,7 @@ uint8_t SD_Erase(uint32_t StartAddr, uint32_t EndAddr)
 	return MSD_OK;
 }
 
-uint8_t SD_GetCardState()
+uint8_t SD_GetCardState(void)
 {
 	return ((HAL_SD_GetCardState(&sdio) == HAL_SD_CARD_TRANSFER) ? SD_TRANSFER_OK : SD_TRANSFER_BUSY);
 }
