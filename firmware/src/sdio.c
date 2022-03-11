@@ -12,7 +12,7 @@
 #define SD_DEFAULT_BLOCK_SIZE 512
 
 #define USE_DMA_READ
-// #define USE_DMA_WRITE
+#define USE_DMA_WRITE
 
 static volatile DSTATUS Stat = STA_NOINIT;
 

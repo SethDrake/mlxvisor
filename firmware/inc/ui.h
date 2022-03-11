@@ -68,6 +68,7 @@ public:
 	void ProcessButtons();
 	void setScreen(UIScreen screen);
 	void setButtonState(Button btn, bool isPressed);
+	void setIsCharging(bool isCharging);
 	bool isButtonPressed(Button btn);
 	bool isAnyButtonPressed();
 	bool isSensorReadActive();

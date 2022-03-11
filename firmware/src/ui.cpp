@@ -1,4 +1,5 @@
-﻿#include "ui.h"
+﻿// ReSharper disable CppClangTidyClangDiagnosticSignCompare
+#include "ui.h"
 #include "hardware.h"
 #include <cstdio>
 #include <string.h>
@@ -307,6 +308,10 @@ void UI::DrawBattery()
 		if (vBat <= 3.6)
 		{
 			color = RED;
+		}
+		if (isCharging)
+		{
+			color = BLUE;
 		}
 		//draw bar: 3.2v=0;4.2v=42
 		uint8_t progress = (uint8_t)((vBat - 3.2) * 42);
@@ -898,4 +903,9 @@ const char* UI::colorSchemeToString(thermal_colorscheme_t scheme)
 	case ALTERNATE_SCHEME: return "Alternate";
 	}
 	return "";
+}
+
+void UI::setIsCharging(bool isCharging)
+{
+	this->isCharging = isCharging;
 }

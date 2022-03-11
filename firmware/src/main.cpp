@@ -10,10 +10,6 @@
 #include "options.h"
 #include <string.h>
 
-#include "usbd_core.h"
-#include "usbd_desc.h"
-#include "usbd_storage.h"
-
 osThreadId IRSensorThreadHandle, ReadKeysTaskHandle, DrawTaskHandle, BgTaskHandle;
 
 Options options;
@@ -145,6 +141,8 @@ static void BgTask_Thread(void const *argument)
 	{
 		ui.adcVbat = HAL_ADC_GetValue(&adc1);
 		HAL_ADC_Start(&adc1);
+
+		ui.setIsCharging(!GPIO_ReadPin(NCHRG_PORT, NCHRG_PIN));
 
 		if (hUsbDeviceFS.dev_state == USBD_STATE_CONFIGURED)
 		{

@@ -328,7 +328,7 @@ uint8_t SDCard_Init()
 
 	__HAL_RCC_SDIO_CLK_ENABLE();
 
-	HAL_NVIC_SetPriority(SDIO_IRQn, 0x0E, 0x00);
+	HAL_NVIC_SetPriority(SDIO_IRQn, 2, 0);
 	HAL_NVIC_EnableIRQ(SDIO_IRQn);
 
 	if (HAL_SD_Init(&sdio) != HAL_OK)
@@ -400,6 +400,7 @@ void DMA_Init()
 
 	/* Associate the DMA handle */
 	__HAL_LINKDMA(&sdio, hdmarx, hdmaSd);
+	__HAL_LINKDMA(&sdio, hdmatx, hdmaSd);
 
 	HAL_DMA_DeInit(&hdmaSd);
 	HAL_DMA_Init(&hdmaSd);
