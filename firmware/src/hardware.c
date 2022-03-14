@@ -228,14 +228,6 @@ void GPIO_Init()
 	HAL_GPIO_Init(LCD_DC_PORT, &GPIO_InitStruct);
 	// GPIO_InitStruct.Pin = LCD_RESET_PIN; //LCD RESET
 	// HAL_GPIO_Init(LCD_RESET_PORT, &GPIO_InitStruct);
-
-	__HAL_RCC_USB_OTG_FS_CLK_ENABLE();
-
-	/* Set USBFS Interrupt priority */
-	HAL_NVIC_SetPriority(OTG_FS_IRQn, 7, 0);
-  
-	/* Enable USBFS Interrupt */
-	HAL_NVIC_EnableIRQ(OTG_FS_IRQn);
 }
 
 void I2C_Init()
