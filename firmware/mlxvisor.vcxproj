@@ -396,17 +396,5 @@
     <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Core\Inc\usbd_ctlreq.h" />
     <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Core\Inc\usbd_def.h" />
     <ClInclude Include="$(BSP_ROOT)\STM32F4xxxx\STM32_USB_Device_Library\Core\Inc\usbd_ioreq.h" />
-    <ClCompile Include="$(EFP_BASE)\Profiler\FastSemihosting.cpp" />
-    <ClCompile Include="$(EFP_BASE)\Profiler\SamplingProfiler.cpp" />
-    <ClCompile Include="$(EFP_BASE)\Profiler\InstrumentingProfiler.cpp" />
-    <ClCompile Include="$(EFP_BASE)\Profiler\TestResourceManager.cpp" />
-    <ClCompile Include="$(EFP_BASE)\Profiler\ProfilerDriver_STM32_HAL.cpp" />
-    <ClCompile Include="$(EFP_BASE)\Profiler\ProfilerRTOS_FreeRTOS.c" />
-    <ClInclude Include="$(EFP_BASE)\Profiler\SysprogsProfiler.h" />
-    <ClInclude Include="$(EFP_BASE)\Profiler\SmallNumberCoder.h" />
-    <ClInclude Include="$(EFP_BASE)\Profiler\SysprogsProfilerInterface.h" />
-    <ClInclude Include="$(EFP_BASE)\Profiler\ProfilerFreeRTOSHooks.h" />
-    <ClInclude Include="$(EFP_BASE)\Profiler\CustomRealTimeWatches.h" />
-    <ClInclude Include="$(EFP_BASE)\Profiler\DebuggerChecker.h" />
   </ItemGroup>
 </Project>
