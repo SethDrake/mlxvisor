@@ -837,7 +837,7 @@
     <ClCompile Include="$(BSP_ROOT)\FatFs\src\option\unicode.c">
       <Filter>Source files\Device-specific files\FatFs</Filter>
     </ClCompile>
-    <ClInclude Include="ffconf.h">
+    <ClInclude Include="inc\ffconf.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="$(BSP_ROOT)\FatFs\src\diskio.h">

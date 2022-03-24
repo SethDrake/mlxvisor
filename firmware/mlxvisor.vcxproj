@@ -373,7 +373,7 @@
     <ClCompile Include="$(BSP_ROOT)\FatFs\src\ff_gen_drv.c" />
     <ClCompile Include="$(BSP_ROOT)\FatFs\src\option\syscall.c" />
     <ClCompile Include="$(BSP_ROOT)\FatFs\src\option\unicode.c" />
-    <ClInclude Include="ffconf.h" />
+    <ClInclude Include="inc\ffconf.h" />
     <ClInclude Include="$(BSP_ROOT)\FatFs\src\diskio.h" />
     <ClInclude Include="$(BSP_ROOT)\FatFs\src\ff.h" />
     <ClInclude Include="$(BSP_ROOT)\FatFs\src\ffconf_template.h" />
